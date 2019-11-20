@@ -12,7 +12,9 @@ while ($max_salida > 0) {
     $max_salida--;
 }
 
-include_once $rootPath . 'app/core/autoload.php';
+include_once $rootPath . 'app/vendor/autoload.php';
+
+use Saia\Actas\controllers\DecirHolaMundo;
 
 $Response = (object) [
     'data' => new stdClass(),
@@ -22,11 +24,14 @@ $Response = (object) [
 ];
 
 try {
-    JwtController::check($_REQUEST['token'], $_REQUEST['key']);
+    //JwtController::check($_REQUEST['token'], $_REQUEST['key']);
+
     if (!$_REQUEST['subject']) {
         throw new Exception('Debe indicar el asunto', 1);
     }
 
+    $DecirHolaMundo = new DecirHolaMundo();
+    $Response->message = $DecirHolaMundo->decir();
     /*$data = (object) $_REQUEST;
 
     if (!empty($data->documentId)) {
