@@ -35,8 +35,8 @@ final class Version20191116145954 extends AbstractMigration
             'nombre' => 'dashboard_actas',
             'tipo' => '1',
             'imagen' => 'fa fa-dashboard',
-            'etiqueta' => 'Indicadores',
-            'enlace' => 'views/modules/actas/views/dashboard/dashboard.php',
+            'etiqueta' => 'Crear documento',
+            'enlace' => 'views/modules/actas/views/document/index.php',
             'cod_padre' => $this->connection->lastInsertId(),
             'orden' => '1'
         ]);

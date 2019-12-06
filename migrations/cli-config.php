@@ -1,6 +1,6 @@
 <?php
 
-require '../../../core/autoload.php';
+require '../../../vendor/autoload.php';
 
 use Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper;
 use Symfony\Component\Console\Helper\HelperSet;
