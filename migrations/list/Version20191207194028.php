@@ -208,6 +208,7 @@ HTML;
             "publicar" => 0,
             "module" => "actas"
         ]);
+        $formatId = $this->connection->lastInsertId();
 
         $this->connection->insert('modulo', [
             'pertenece_nucleo' => 1,
@@ -220,7 +221,6 @@ HTML;
             'orden' => 1
         ]);
 
-        $formatId = $this->connection->lastInsertId();
         $fields = [
             [
                 "formato_idformato" => $formatId,
