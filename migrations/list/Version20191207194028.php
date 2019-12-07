@@ -31,6 +31,10 @@ final class Version20191207194028 extends AbstractMigration
             $this->connection->delete('campos_formato', [
                 'formato_idformato' => $formatId
             ]);
+
+            $this->connection->delete('modulo', [
+                'nombre' => 'crear_acta'
+            ]);
         }
 
         $body = <<<HTML
@@ -203,6 +207,17 @@ HTML;
             "mostrar_tipodoc_pdf" => 0,
             "publicar" => 0,
             "module" => "actas"
+        ]);
+
+        $this->connection->insert('modulo', [
+            'pertenece_nucleo' => 1,
+            'nombre' => 'crear_acta',
+            'tipo' => '2',
+            'imagen' => NULL,
+            'etiqueta' => 'Acta',
+            'enlace' => "views/modules/actas/views/document/index.php",
+            'cod_padre' => 236,
+            'orden' => 1
         ]);
 
         $formatId = $this->connection->lastInsertId();
