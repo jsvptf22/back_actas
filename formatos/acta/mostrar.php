@@ -92,19 +92,13 @@ try {
         <tr>
         <td>
             Asistentes:
-            <span
-            v-for="user of getAssistants()"
-            v-bind:key="user.id"
-            >{{ user.name }},&nbsp;&nbsp;</span
-            >
+            <?= $FtActa->listInternalAssistants() ?>
         </td>
         </tr>
         <tr>
         <td>
             Invitados:
-            <span v-for="user of getInvited()" v-bind:key="user.id"
-            >{{ user.name }},&nbsp;&nbsp;</span
-            >
+            <?= $FtActa->listExternalAssistants() ?>            
         </td>
         </tr>
     </table>
@@ -120,14 +114,7 @@ try {
         </tr>
         <tr>
         <td>
-            <ul>
-            <li
-                v-for="topic of documentInformation.topicList"
-                v-bind:key="topic.id"
-            >
-                {{ topic.label }}
-            </li>
-            </ul>
+            <?= $FtActa->listTopics() ?>
         </td>
         </tr>
     </table>
@@ -143,18 +130,7 @@ try {
         </tr>
         <tr>
         <td>
-            <ul>
-            <li
-                v-for="item of documentInformation.topicListDescription"
-                v-bind:key="item.id"
-            >
-                <span>{{ getTopicLabel(item.topic) }}</span>
-                <br />
-                <p>
-                {{ item.description }}
-                </p>
-            </li>
-            </ul>
+            <?= $FtActa->listTopicDescriptions() ?>
         </td>
         </tr>
     </table>
@@ -170,22 +146,7 @@ try {
         </tr>
         <tr>
         <td>
-        <table v-if="documentInformation.tasks.length" class="table">	
-            <tr>
-                <td>Tarea</td>
-                <td>Responsable</td>
-                <td>Ver</td>
-            </tr>
-            <tr v-for="task of documentInformation.tasks">
-                <td>{{task.name}}</td>
-                <td>{{getTasksUsers(task.managers)}}</td>
-                <td>
-                    <button class="btn" v-on:click="openTaskModal(task.id)">
-                        <span class="fa fa-eye"></span>
-                    </button>
-                </td>
-            </tr>
-        </table>
+            <?= $FtActa->listTasks() ?>
         </td>
         </tr>
     </table>
@@ -197,15 +158,11 @@ try {
         <tr>
         <td class="firm_square">
             Revisado por:
-            <span v-if="documentInformation.roles.secretary">{{
-            documentInformation.roles.secretary.name
-            }}</span>
+            <?= $FtActa->showSecretary() ?>
         </td>
         <td class="firm_square">
             Aprobado por:
-            <span v-if="documentInformation.roles.president">{{
-            documentInformation.roles.president.name
-            }}</span>
+            <?= $FtActa->showPresident() ?>
         </td>
         </tr>
     </table>
@@ -220,7 +177,7 @@ try {
             </body>
             <script>
                 $(function(){
-                    $.getScript('<?= $rootPath ?>app/modules/actas/formatos/acta/funciones.js', () => {
+                    $.getScript('<?= ABSOLUTE_SAIA_ROUTE ?>app/modules/actas/formatos/acta/funciones.js', () => {
                         show(<?= json_encode($FtActa->getAttributes()) ?>);
                     });
                 });

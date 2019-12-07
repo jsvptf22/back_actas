@@ -2,6 +2,8 @@
 
 namespace Saia\Actas\models;
 
+use Saia\Actas\controllers\PreparedPublicUserData;
+
 class ActDocumentUser extends \Model
 {
     /**
@@ -18,6 +20,16 @@ class ActDocumentUser extends \Model
      * identifica una relacion de tipo secretario
      */
     const RELATION_SECRETARY = 3;
+
+    /**
+     * almacena la clase que prepara los datos para el cliente
+     *
+     * @var PreparedPublicUserData
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2019
+     */
+    protected $PreparedPublicUserData;
+
 
     function __construct($id = null)
     {
@@ -99,6 +111,22 @@ class ActDocumentUser extends \Model
     public function getUser()
     {
         return (int) $this->external ? $this->Tercero : $this->Funcionario;
+    }
+
+    /**
+     * obtiene la informacion preparada
+     *
+     * @return object
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2019-12-07
+     */
+    public function prepareData()
+    {
+        if (!$this->PreparedPublicUserData) {
+            $this->PreparedPublicUserData = new PreparedPublicUserData($this);
+        }
+
+        return $this->PreparedPublicUserData->getPreparedData();
     }
 
     /**

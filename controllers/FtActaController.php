@@ -59,6 +59,7 @@ class FtActaController
         $this->refreshTopics($data->topicList, $data->topicListDescription);
         $this->refreshAssistants($data->userList);
         $this->refreshRoles($data->roles);
+        $this->refreshTasks($data->tasks);
     }
 
     /**
@@ -180,6 +181,39 @@ class FtActaController
     }
 
     /**
+     * actualiza las tareas vinculadas al documento
+     *
+     * @param array $tasks
+     * @return void
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2019-12-07
+     */
+    public function refreshTasks($tasks)
+    {
+        $documentId = $this->FtActa->documento_iddocumento;
+
+        \DocumentoTarea::inactiveByDocument($documentId);
+
+        foreach ($tasks as $task) {
+            $DocumentoTarea = \DocumentoTarea::findByAttributes([
+                'fk_tarea' => $task->id,
+                'fk_documento' => $documentId
+            ]);
+
+            if (!$DocumentoTarea) {
+                $DocumentoTarea = new \DocumentoTarea();
+            }
+
+            $DocumentoTarea->setAttributes([
+                'fk_tarea' => $task->id,
+                'fk_documento' => $documentId,
+                'estado' => 1
+            ]);
+            $DocumentoTarea->save();
+        }
+    }
+
+    /**
      * obtiene la informacion para actualiza el
      * documentbuilder
      *
@@ -196,7 +230,9 @@ class FtActaController
             'finalDate' => $this->FtActa->fecha_final,
             'subject' => $this->FtActa->asunto,
             'topics' => $this->prepareTopics(),
-            'userList' => $this->prepareAssistants()
+            'userList' => $this->prepareAssistants(),
+            'roles' => $this->prepareRoles(),
+            'tasks' => $this->prepareTasks(),
         ];
     }
 
@@ -234,14 +270,65 @@ class FtActaController
         $assistants = [];
 
         foreach ($this->FtActa->getAssistants() as $ActDocumentUser) {
-            array_push($assistants, [
-                'id' => $ActDocumentUser->identification,
-                'name' => $ActDocumentUser->getUser()->getName(),
-                'text' => $ActDocumentUser->getUser()->getName(),
-                'external' => $ActDocumentUser->external,
-            ]);
+            array_push($assistants, $ActDocumentUser->prepareData());
         }
 
         return $assistants;
+    }
+
+    /**
+     * obtiene las instancias de los usuarios asignados a roles
+     *
+     * @return object
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2019-12-07
+     */
+    public function prepareRoles()
+    {
+        $response = new \stdClass();
+        $president = $this->FtActa->getPresident();
+
+        if ($president) {
+            $response->president = $president->prepareData();
+        }
+
+        $secretary = $this->FtActa->getSecretary();
+
+        if ($secretary) {
+            $response->secretary = $secretary->prepareData();
+        }
+
+        return $response;
+    }
+
+    /**
+     * obtiene la lista de tareas del documento
+     *
+     * @return array
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2019-12-07
+     */
+    public function prepareTasks()
+    {
+        $response = [];
+
+        foreach ($this->FtActa->Documento->getTasks() as $Tarea) {
+            $managerIdentifications = \TareaFuncionario::findColumn(
+                'fk_funcionario',
+                [
+                    'estado' => 1,
+                    'fk_tarea' => $Tarea->getPK(),
+                    'tipo' => \TareaFuncionario::TIPO_RESPONSABLE
+                ]
+            );
+
+            array_push($response, [
+                'id' => $Tarea->getPK(),
+                'name' => $Tarea->getName(),
+                'managers' => $managerIdentifications
+            ]);
+        }
+
+        return $response;
     }
 }

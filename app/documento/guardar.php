@@ -16,7 +16,6 @@ include_once $rootPath . 'app/vendor/autoload.php';
 
 use Saia\Actas\controllers\FtActaController;
 use Saia\Actas\formatos\acta\FtActa;
-use Saia\Actas\formatos\tema\FtTema;
 
 $Response = (object) [
     'data' => new stdClass(),
@@ -40,10 +39,6 @@ try {
     $Response->notifications = NotifierController::prepare();
     $Response->success = 1;
 } catch (Throwable $th) {
-    echo '<pre>';
-    var_dump($th);
-    echo '</pre>';
-    exit;
     $Response->message = $th->getMessage();
 }
 
