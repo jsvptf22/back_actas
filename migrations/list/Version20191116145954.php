@@ -19,6 +19,14 @@ final class Version20191116145954 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
+        $this->connection->delete('modulo', [
+            'nombre' => 'agrupador_actas'
+        ]);
+
+        $this->connection->delete('modulo', [
+            'nombre' => 'dashboard_actas'
+        ]);
+
         $this->connection->insert('modulo', [
             'pertenece_nucleo' => '1',
             'nombre' => 'agrupador_actas',
