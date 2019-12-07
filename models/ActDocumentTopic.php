@@ -23,7 +23,9 @@ class ActDocumentTopic extends \Model
                 'created_at',
                 'updated_at',
             ],
-            'date' => ['created_at', 'updated_at']
+            'date' => ['created_at', 'updated_at'],
+            'table' => 'act_document_topic',
+            'primary' => 'idact_document_topic',
         ];
     }
 

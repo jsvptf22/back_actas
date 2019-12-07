@@ -4,11 +4,20 @@ namespace Saia\Actas\models;
 
 class ActDocumentUser extends \Model
 {
-
     /**
      * identifica una relacion de tipo asistente
      */
     const RELATION_ASSISTANT = 1;
+
+    /**
+     * identifica una relacion de tipo presidente
+     */
+    const RELATION_PRESIDENT = 2;
+
+    /**
+     * identifica una relacion de tipo secretario
+     */
+    const RELATION_SECRETARY = 3;
 
     function __construct($id = null)
     {
@@ -30,7 +39,23 @@ class ActDocumentUser extends \Model
                 'created_at',
                 'updated_at',
             ],
-            'date' => ['created_at', 'updated_at']
+            'date' => ['created_at', 'updated_at'],
+            'table' => 'act_document_user',
+            'primary' => 'idact_document_user',
+            'relations' => [
+                'Funcionario' => [
+                    'model' => \Funcionario::class,
+                    'attribute' => 'idfuncionario',
+                    'primary' => 'identification',
+                    'relation' => self::BELONGS_TO_ONE
+                ],
+                'Tercero' => [
+                    'model' => \Tercero::class,
+                    'attribute' => 'idtercero',
+                    'primary' => 'identification',
+                    'relation' => self::BELONGS_TO_ONE
+                ],
+            ]
         ];
     }
 
@@ -38,7 +63,7 @@ class ActDocumentUser extends \Model
      *
      * @return boolean
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-03-19
+     * @date 2019-12-07
      */
     protected function beforeCreate()
     {
@@ -53,7 +78,7 @@ class ActDocumentUser extends \Model
      *
      * @return boolean
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-03-19
+     * @date 2019-12-07
      */
     protected function beforeUpdate()
     {
@@ -64,8 +89,70 @@ class ActDocumentUser extends \Model
         return true;
     }
 
+    /**
+     * obtiene la instancia del usuario
+     *
+     * @return Funcionario|Tercero
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2019-12-07
+     */
     public function getUser()
     {
-        pendiente desarrollar las relaciones con tercero y funcionario
+        return (int) $this->external ? $this->Tercero : $this->Funcionario;
+    }
+
+    /**
+     * inactiva todas las relaciones de un documento
+     * basadas en un tipo de relacion
+     *
+     * @param integer $fk_ft_acta
+     * @param integer $relationType
+     * @return boolean
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2019-12-07
+     */
+    public static function inactiveUsersByRelation($fk_ft_acta, $relationType)
+    {
+        return ActDocumentUser::executeUpdate([
+            'state' => 0,
+            'updated_at' => date('Y-m-d H:i:s'),
+        ], [
+            'state' => 1,
+            'relation' => $relationType,
+            'fk_ft_acta' => $fk_ft_acta
+        ]);
+    }
+
+    /**
+     * crea o actualiza la relacion de un usuario con el documento
+     *
+     * @param integer $fk_ft_acta
+     * @param object $user
+     * @param integer $relationType
+     * @return void
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2019-12-07
+     */
+    public static function updateUserRelation($fk_ft_acta, $user, $relationType)
+    {
+        $ActDocumentUser = ActDocumentUser::findByAttributes([
+            'fk_ft_acta' => $fk_ft_acta,
+            'identification' => $user->id,
+            'external' => $user->external,
+            'relation' => $relationType
+        ]);
+
+        if (!$ActDocumentUser) {
+            $ActDocumentUser = new ActDocumentUser();
+        }
+
+        $ActDocumentUser->setAttributes([
+            'fk_ft_acta' => $fk_ft_acta,
+            'state' => 1,
+            'relation' => $relationType,
+            'identification' => $user->id,
+            'external' => $user->external
+        ]);
+        $ActDocumentUser->save();
     }
 }

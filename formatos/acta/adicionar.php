@@ -24,7 +24,7 @@ $Formato = new Formato(459);
 
 $params = json_encode([
     'formatId' => $Formato->getPK(),
-    'documentId' => $_REQUEST['iddoc'] ?? 0,
+    'documentId' => $_REQUEST['documentId'] ?? 0,
     'baseUrl' => $rootPath
 ] + $_REQUEST);
 ?>
@@ -338,7 +338,7 @@ $params = json_encode([
                             selector: '#asistentes_internos_ua',
                             baseUrl: baseUrl,
                             identificator: 'asistentes_internos',
-                            tipoDependencia: ,
+                            tipoDependencia: 0,
                             change: () => {fillHidden()}
                         });                
 
@@ -348,12 +348,12 @@ $params = json_encode([
                 });
             </script>
 <input type='hidden' name='campo_descripcion' value='8908'>
-<input type='hidden' name='iddoc' value='<?= $_REQUEST['iddoc'] ?? null ?>'>
+<input type='hidden' name='documentId' value='<?= $_REQUEST['documentId'] ?? null ?>'>
 <input type='hidden' id='tipo_radicado' name='tipo_radicado' value='apoyo'>
 <input type='hidden' name='formatId' value='459'>
 <input type='hidden' name='tabla' value='ft_acta'>
 <input type='hidden' name='formato' value='acta'>
-<div class='form-group px-0 pt-3' id='form_buttons'><button class='btn btn-complete' id='save_document' type='button'>Continuar</button><div class='progress-circle-indeterminate' id='spiner'></div></div>
+<div class='form-group px-0 pt-3' id='form_buttons'><button class='btn btn-complete' id='save_document' type='button'>Continuar</button><div class='progress-circle-indeterminate d-none' id='spiner'></div></div>
                 </form>
             </div>
         </div>
@@ -372,7 +372,13 @@ $params = json_encode([
     <?= users() ?>
     <script id="add_edit_script" data-params='<?= $params ?>'>
         $(function() {
-            $.getScript('<?= $rootPath ?>app/modules/actas/formatos/acta/funciones.js');
+            $.getScript('<?= $rootPath ?>app/modules/actas/formatos/acta/funciones.js', () => {
+                if (+$("#add_edit_script").data("params").documentId) {
+                    edit(<?= json_encode($FtActa? $FtActa->getAttributes():[]) ?>);
+                } else {
+                    add();
+                }
+            });
 
             $("#add_item").click(function() {
                 checkForm((data) => {
@@ -413,9 +419,9 @@ $params = json_encode([
                         }
                     },
                     submitHandler: function(form) {                       
-                        $("#form_buttons").find('button,#spiner').toggle();
+                        $("#form_buttons").find('button,#spiner').toggleClass('d-none');
                         
-                        executeEvents();
+                        executeEvents(callback);
                     },
                     invalidHandler: function() {
                         $("#save_document").show();
@@ -425,30 +431,23 @@ $params = json_encode([
                 $("#formulario_formatos").trigger('submit');
             }
 
-            function executeEvents(){
-                let params = $('#add_edit_script').data('params');
+            function executeEvents(callback){
+                var params = $('#add_edit_script').data('params');
 
-                (params.documentId ? beforeAdd() : beforeEdit())
+                (+params.documentId ? beforeSendEdit() : beforeSendAdd())
                     .then(r => {
                         sendData()
-                            .then(r => {
-                                (params.documentId ? afterAdd() : afterEdit())
-                                    .then(response => {
-                                        callback(response.data);
+                            .then(requestResponse => {
+                                (+params.documentId ? afterSendEdit(requestResponse) : afterSendAdd(requestResponse))
+                                    .then(r => {
+                                        callback(requestResponse.data);
                                     })
-                                    .catch(response => {
-                                        top.notification({
-                                            message: response.message,
-                                            type: 'error',
-                                            title: 'Error!'
-                                        });
+                                    .catch(message => {
+                                        fail(message);
                                     })
                             })
-                    }).catch(response => {
-                        top.notification({
-                            type: 'error',
-                            message: response
-                        });
+                    }).catch(message => {
+                       fail(message);
                     });
             }
 
@@ -474,11 +473,20 @@ $params = json_encode([
                     );
                 });
             }
+
+            function fail(message){
+                $("#form_buttons").find('button,#spiner').toggleClass('d-none');
+                top.notification({
+                    message: message,
+                    type: 'error',
+                    title: 'Error!'
+                });
+            }
         });
     </script>
     <?= AccionController::execute(
-        FuncionFormatoEvento::ACTION_ADD,
-        FuncionFormatoEvento::BEFORE_MOMENT,
+        AccionController::ACTION_ADD,
+        AccionController::BEFORE_MOMENT,
         $FtActa ?? null,
         $Formato
     ) ?>

@@ -14,6 +14,7 @@ while ($max_salida > 0) {
 
 include_once $rootPath . 'app/vendor/autoload.php';
 
+use Saia\Actas\controllers\FtActaController;
 use Saia\Actas\formatos\acta\FtActa;
 
 $Response = (object) [
@@ -36,7 +37,9 @@ try {
         throw new Exception("Documento invalido", 1);
     }
 
-    $Response->data = $FtActa->getDocumentBuilderData();
+    $FtActaController = new FtActaController($FtActa);
+
+    $Response->data = $FtActaController->getDocumentBuilderData();
     $Response->notifications = NotifierController::prepare();
     $Response->success = 1;
 } catch (Throwable $th) {

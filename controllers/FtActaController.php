@@ -23,6 +23,14 @@ class FtActaController
         $this->FtActa = $FtActa;
     }
 
+    /**
+     * crea o modifica el documento
+     *
+     * @param array $data
+     * @return void
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2019-12-06
+     */
     public function saveDocument($data)
     {
         $userId = \SessionController::getValue('idfuncionario');
@@ -48,8 +56,9 @@ class FtActaController
             $this->FtActa = FtActa::findByDocumentId($documentId);
         }
 
-        $this->refreshItems($data->topicList, $data->topicListDescription);
-        $this->refreshUsers($data->userList);
+        $this->refreshTopics($data->topicList, $data->topicListDescription);
+        $this->refreshAssistants($data->userList);
+        $this->refreshRoles($data->roles);
     }
 
     /**
@@ -61,7 +70,7 @@ class FtActaController
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2019-11-26
      */
-    public function refreshItems($topicList, $topicListDescriptions)
+    public function refreshTopics($topicList, $topicListDescriptions)
     {
         ActDocumentTopic::executeUpdate([
             'state' => 0,
@@ -82,6 +91,7 @@ class FtActaController
             }
 
             $ActDocumentTopic->setAttributes([
+                'fk_ft_acta' => $this->FtActa->getPK(),
                 'state' => 1,
                 'name' => $topic->label,
                 'description' => ''
@@ -99,37 +109,75 @@ class FtActaController
         }
     }
 
-    public function refreshUsers($userList)
+    /**
+     * almacena los asistentes de la reunion
+     *
+     * @param array $userList
+     * @return void
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2019-12-06
+     */
+    public function refreshAssistants($userList)
     {
-        ActDocumentUser::executeUpdate([
-            'state' => 0,
-            'updated_at' => date('Y-m-d H:i:s')
-        ], [
-            'state' => 1,
-            'fk_ft_acta' => $this->FtActa->getPK()
-        ]);
+        ActDocumentUser::inactiveUsersByRelation(
+            $this->FtActa->getPK(),
+            ActDocumentUser::RELATION_ASSISTANT
+        );
 
         foreach ($userList as $user) {
-            $ActDocumentUser = ActDocumentUser::findByAttributes([
-                'fk_ft_acta' => $this->FtActa->getPK(),
-                'identification' => $user->id,
-                'external' => $user->external
-            ]);
-
-            if (!$ActDocumentUser) {
-                $ActDocumentUser = new ActDocumentUser();
-            }
-
-            $ActDocumentUser->setAttributes([
-                'state' => 1,
-                'relation' => ActDocumentUser::RELATION_ASSISTANT,
-                'identification' => $user->id,
-                'external' => $user->external
-            ]);
-            $ActDocumentUser->save();
+            ActDocumentUser::updateUserRelation(
+                $this->FtActa->getPK(),
+                $user,
+                ActDocumentUser::RELATION_ASSISTANT
+            );
         }
     }
 
+    /**
+     * actualiza los roles de secretario y presidente
+     *
+     * @param object $roles
+     * @return void
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2019-12-07
+     */
+    public function refreshRoles($roles)
+    {
+        $this->updateRole(
+            $roles->secretary ?? null,
+            ActDocumentUser::RELATION_SECRETARY
+        );
+
+        $this->updateRole(
+            $roles->president ?? null,
+            ActDocumentUser::RELATION_PRESIDENT
+        );
+    }
+
+    /**
+     * actualiza un rol en el documento
+     *
+     * @param object $user
+     * @param integer $relationType ej. ActDocumentUser::RELATION_*
+     * @return void
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2019
+     */
+    public function updateRole($user, $relationType)
+    {
+        ActDocumentUser::inactiveUsersByRelation(
+            $this->FtActa->getPK(),
+            $relationType
+        );
+
+        if ($user) {
+            ActDocumentUser::updateUserRelation(
+                $this->FtActa->getPK(),
+                $user,
+                $relationType
+            );
+        }
+    }
 
     /**
      * obtiene la informacion para actualiza el
@@ -142,11 +190,11 @@ class FtActaController
     public function getDocumentBuilderData()
     {
         return (object) [
-            'documentId' => $this->documento_iddocumento,
-            'identificator' => $this->Documento->numero,
-            'initialDate' => $this->fecha_inicial,
-            'finalDate' => $this->fecha_final,
-            'subject' => $this->asunto,
+            'documentId' => $this->FtActa->documento_iddocumento,
+            'identificator' => $this->FtActa->Documento->numero,
+            'initialDate' => $this->FtActa->fecha_inicial,
+            'finalDate' => $this->FtActa->fecha_final,
+            'subject' => $this->FtActa->asunto,
             'topics' => $this->prepareTopics(),
             'userList' => $this->prepareAssistants()
         ];
@@ -174,13 +222,20 @@ class FtActaController
         return $topics;
     }
 
+    /**
+     * obtiene la lista de asistentes del documento
+     *
+     * @return array
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2019-12-07
+     */
     public function prepareAssistants()
     {
         $assistants = [];
 
         foreach ($this->FtActa->getAssistants() as $ActDocumentUser) {
             array_push($assistants, [
-                'id' => $ActDocumentUser->getPK(),
+                'id' => $ActDocumentUser->identification,
                 'name' => $ActDocumentUser->getUser()->getName(),
                 'text' => $ActDocumentUser->getUser()->getName(),
                 'external' => $ActDocumentUser->external,

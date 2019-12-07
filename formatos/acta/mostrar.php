@@ -13,7 +13,6 @@ while ($max_salida > 0) {
 }
 
 include_once $rootPath . 'app/vendor/autoload.php';
-include_once $rootPath . 'formatos/librerias/funciones_nucleo.php';
 include_once $rootPath . 'app/modules/actas/formatos/acta/funciones.php';
 
 use Saia\Actas\formatos\acta\FtActa;
@@ -21,9 +20,11 @@ use Saia\Actas\formatos\acta\FtActa;
 try {
     JwtController::check($_REQUEST["token"], $_REQUEST["key"]); 
     
-    $documentId = $_REQUEST["iddoc"];
+    $documentId = $_REQUEST["documentId"];
     $FtActa = FtActa::findByDocumentId($documentId);
-
+    $Documento = $FtActa->Documento;
+    $Formato = $Documento->getFormat();
+    
     if(
         !$_REQUEST['mostrar_pdf'] && !$_REQUEST['actualizar_pdf'] && (
             ($_REQUEST["tipo"] && $_REQUEST["tipo"] == 5) ||
@@ -58,7 +59,7 @@ try {
             <tr>
             <td>Acta N°</td>
             <td>
-               <?= formato_numero(459, $_REQUEST['iddoc']) ?>
+               <?= UtilitiesController::formato_numero($FtActa) ?>
             </td>
             <td>Tema / Asunto</td>
             <td colspan="3">
@@ -217,11 +218,15 @@ try {
                     </div> <!-- end #documento-->
                 </div> <!-- end .container -->
             </body>
+            <script>
+                $(function(){
+                    $.getScript('<?= $rootPath ?>app/modules/actas/formatos/acta/funciones.js', () => {
+                        show(<?= json_encode($FtActa->getAttributes()) ?>);
+                    });
+                });
+            </script>
         </html>
     <?php else:
-        $Documento = $FtActa->Documento;
-        $Formato = $Documento->getFormat();
-
         $params = [
             "type" => "TIPO_DOCUMENTO",
             "typeId" => $documentId,
