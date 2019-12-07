@@ -14,9 +14,7 @@ while ($max_salida > 0) {
 
 include_once $rootPath . 'app/vendor/autoload.php';
 
-use Saia\Actas\controllers\FtActaController;
 use Saia\Actas\formatos\acta\FtActa;
-use Saia\Actas\formatos\tema\FtTema;
 
 $Response = (object) [
     'data' => new stdClass(),
@@ -28,15 +26,17 @@ $Response = (object) [
 try {
     JwtController::check($_REQUEST['token'], $_REQUEST['key']);
 
-    $data = json_decode($_REQUEST['documentInformation']);
+    if (!$_REQUEST['documentId']) {
+        throw new Exception('Documento invalido', 1);
+    }
 
-    $FtActa = $data->documentId ?
-        FtActa::findByDocumentId($data->documentId) : new FtActa();
+    $FtActa = FtActa::findByDocumentId($_REQUEST['documentId']);
 
-    $FtActaController = new FtActaController($FtActa);
-    $FtActaController->saveDocument($data);
+    if (!$FtActa) {
+        throw new Exception("Documento invalido", 1);
+    }
 
-    $Response->data = $FtActaController->getDocumentBuilderData();
+    $Response->data = $FtActa->getDocumentBuilderData();
     $Response->notifications = NotifierController::prepare();
     $Response->success = 1;
 } catch (Throwable $th) {
