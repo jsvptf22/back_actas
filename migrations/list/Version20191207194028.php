@@ -31,11 +31,21 @@ final class Version20191207194028 extends AbstractMigration
             $this->connection->delete('campos_formato', [
                 'formato_idformato' => $formatId
             ]);
-
-            $this->connection->delete('modulo', [
-                'nombre' => 'crear_acta'
-            ]);
         }
+
+        $this->connection->delete('categoria_formato', [
+            'nombre' => 'Actas'
+        ]);
+
+        $this->connection->insert('categoria_formato', [
+            'nombre' => 'Actas',
+            'cod_padre' => 0,
+            'estado' => 1,
+            'descripcion' => '',
+            'fecha' => date('Y-m-d H:i:s'),
+        ]);
+
+        $category = $this->connection->lastInsertId();
 
         $body = <<<HTML
 <div class="row">
@@ -190,7 +200,7 @@ HTML;
             "orden" => null,
             "enter2tab" => 0,
             "firma_digital" => 0,
-            "fk_categoria_formato" => "6",
+            "fk_categoria_formato" => $category,
             "flujo_idflujo" => null,
             "funcion_predeterminada" => "0",
             "paginar" => "0",
@@ -210,6 +220,13 @@ HTML;
         ]);
         $formatId = $this->connection->lastInsertId();
 
+        $this->connection->delete('modulo', [
+            'nombre' => 'crear_acta'
+        ]);
+
+        $row = $this->connection->fetchAll("select idmodulo from modulo where nombre = 'modulo_formatos'");
+        $parentModuleId = $row[0]['idmodulo'];
+
         $this->connection->insert('modulo', [
             'pertenece_nucleo' => 1,
             'nombre' => 'crear_acta',
@@ -217,7 +234,7 @@ HTML;
             'imagen' => NULL,
             'etiqueta' => 'Acta',
             'enlace' => "views/modules/actas/views/document/index.php",
-            'cod_padre' => 236,
+            'cod_padre' => $parentModuleId,
             'orden' => 1
         ]);
 

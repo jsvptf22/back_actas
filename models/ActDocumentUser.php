@@ -50,6 +50,7 @@ class ActDocumentUser extends \Model
                 'external',
                 'created_at',
                 'updated_at',
+                'fk_act_planning'
             ],
             'date' => ['created_at', 'updated_at'],
             'table' => 'act_document_user',

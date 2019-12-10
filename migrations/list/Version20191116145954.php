@@ -38,14 +38,16 @@ final class Version20191116145954 extends AbstractMigration
             'orden' => '5'
         ]);
 
+        $grouper = $this->connection->lastInsertId();
+
         $this->connection->insert('modulo', [
             'pertenece_nucleo' => '1',
             'nombre' => 'dashboard_actas',
             'tipo' => '1',
-            'imagen' => 'fa fa-dashboard',
-            'etiqueta' => 'Crear documento',
-            'enlace' => 'views/modules/actas/views/document/index.php',
-            'cod_padre' => $this->connection->lastInsertId(),
+            'imagen' => 'fa fa-calendar',
+            'etiqueta' => 'Agenda',
+            'enlace' => 'views/modules/actas/views/planning/index.php',
+            'cod_padre' => $grouper,
             'orden' => '1'
         ]);
     }

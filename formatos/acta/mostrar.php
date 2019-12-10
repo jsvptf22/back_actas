@@ -63,16 +63,16 @@ try {
             </td>
             <td>Tema / Asunto</td>
             <td colspan="3">
-                <?= ComponentFormGeneratorController::callShowValue('asunto',$FtActa,459) ?>
+                <?= ComponentFormGeneratorController::callShowValue('asunto',$FtActa,471) ?>
             </td>
             </tr>
             <tr>
             <td>Fecha</td>
-            <td><?= ComponentFormGeneratorController::callShowValue('fecha_inicial',$FtActa,459) ?></td>
+            <td><?= ComponentFormGeneratorController::callShowValue('fecha_inicial',$FtActa,471) ?></td>
             <td>Hora Inicio</td>
-            <td><?= ComponentFormGeneratorController::callShowValue('fecha_inicial',$FtActa,459) ?></td>
+            <td><?= ComponentFormGeneratorController::callShowValue('fecha_inicial',$FtActa,471) ?></td>
             <td>Hora Final</td>
-            <td><?= ComponentFormGeneratorController::callShowValue('fecha_final',$FtActa,459) ?></td>
+            <td><?= ComponentFormGeneratorController::callShowValue('fecha_final',$FtActa,471) ?></td>
             </tr>
             <tr>
             <td>Lugar</td>
@@ -178,7 +178,7 @@ try {
             <script>
                 $(function(){
                     $.getScript('<?= ABSOLUTE_SAIA_ROUTE ?>app/modules/actas/formatos/acta/funciones.js', () => {
-                        show(<?= json_encode($FtActa->getAttributes()) ?>);
+                        show(<?= json_encode($FtActa->getRouteParams(FtActa::SCOPE_ROUTE_PARAMS_SHOW)) ?>);
                     });
                 });
             </script>

@@ -19,12 +19,13 @@ use Saia\Actas\formatos\acta\FtActa;
 
 JwtController::check($_REQUEST["token"], $_REQUEST["key"]); 
 
-$Formato = new Formato(459);
+$Formato = new Formato(471);
 $FtActa = FtActa::findByDocumentId($_REQUEST["documentId"]);
 
+$documentId=$_REQUEST['documentId'] ?? 0;
 $params = json_encode([
     'formatId' => $Formato->getPK(),
-    'documentId' => $_REQUEST['documentId'] ?? 0,
+    'documentId' => $documentId,
     'baseUrl' => $rootPath
 ] + $_REQUEST);
 ?>
@@ -54,25 +55,25 @@ $params = json_encode([
                     role='form' 
                     autocomplete='off' 
                     >
-                    <input type='hidden' name='idft_acta' value='<?= ComponentFormGeneratorController::callShowValue(
-                'idft_acta',
-                $FtActa,
-                459
-            ) ?>'>
-<input type='hidden' name='documento_iddocumento' value='<?= ComponentFormGeneratorController::callShowValue(
+                    <input type='hidden' name='documento_iddocumento' value='<?= ComponentFormGeneratorController::callShowValue(
                 'documento_iddocumento',
                 $FtActa,
-                459
+                471
             ) ?>'>
 <input type='hidden' name='encabezado' value='<?= ComponentFormGeneratorController::callShowValue(
                 'encabezado',
                 $FtActa,
-                459
+                471
             ) ?>'>
 <input type='hidden' name='firma' value='<?= ComponentFormGeneratorController::callShowValue(
                 'firma',
                 $FtActa,
-                459
+                471
+            ) ?>'>
+<input type='hidden' name='idft_acta' value='<?= ComponentFormGeneratorController::callShowValue(
+                'idft_acta',
+                $FtActa,
+                471
             ) ?>'>
         <?php
         $selected = isset($FtActa) ? $FtActa->dependencia : '';
@@ -131,7 +132,7 @@ $params = json_encode([
                 ><?= ComponentFormGeneratorController::callShowValue(
                 'asunto',
                 $FtActa,
-                459
+                471
             ) ?></textarea>
                 
             </div>
@@ -149,10 +150,11 @@ $params = json_encode([
                 </div>
             </div>            <?php
                 $defaultDate = ComponentFormGeneratorController::callShowValue(
-                    459,
-                    $_REQUEST['iddoc'],
-                    'fecha_inicial'
+                    'fecha_inicial',
+                    $FtActa,
+                    471
                 );
+                $defaultDate = DateController::convertDate($defaultDate, 'Y-m-d H:i:s', DateController::DEFAULT_FORMAT);
             ?>        <script type='text/javascript'>
             $(function () {
                 let defaultDate = '<?= $defaultDate ?>';
@@ -198,10 +200,11 @@ $params = json_encode([
                 </div>
             </div>            <?php
                 $defaultDate = ComponentFormGeneratorController::callShowValue(
-                    459,
-                    $_REQUEST['iddoc'],
-                    'fecha_final'
+                    'fecha_final',
+                    $FtActa,
+                    471
                 );
+                $defaultDate = DateController::convertDate($defaultDate, 'Y-m-d H:i:s', DateController::DEFAULT_FORMAT);
             ?>        <script type='text/javascript'>
             $(function () {
                 let defaultDate = '<?= $defaultDate ?>';
@@ -236,7 +239,7 @@ $params = json_encode([
 <input type='hidden' name='estado' value='<?= ComponentFormGeneratorController::callShowValue(
                 'estado',
                 $FtActa,
-                459
+                471
             ) ?>'>
             <div class='form-group form-group-default form-group-default-select2 required' id='group_asistentes_externos'>
                 <label title=''>ASISTENTES EXTERNOS                 | 
@@ -296,7 +299,7 @@ $params = json_encode([
                         top.topModal({
                             url: 'views/tercero/formularioDinamico.php',
                             params: {
-                                fieldId : 8917,
+                                fieldId : 9068,
                                 id: item.id
                             },
                             title: 'Tercero',
@@ -422,10 +425,10 @@ $params = json_encode([
                 }
             });
         </script>
-<input type='hidden' name='campo_descripcion' value='8908'>
+<input type='hidden' name='campo_descripcion' value='9070'>
 <input type='hidden' name='documentId' value='<?= $_REQUEST['documentId'] ?? null ?>'>
 <input type='hidden' id='tipo_radicado' name='tipo_radicado' value='apoyo'>
-<input type='hidden' name='formatId' value='459'>
+<input type='hidden' name='formatId' value='471'>
 <input type='hidden' name='tabla' value='ft_acta'>
 <input type='hidden' name='formato' value='acta'>
 <div class='form-group px-0 pt-3' id='form_buttons'><button class='btn btn-complete' id='save_document' type='button'>Continuar</button><div class='progress-circle-indeterminate d-none' id='spiner'></div></div>
@@ -449,9 +452,10 @@ $params = json_encode([
         $(function() {
             $.getScript('<?= $rootPath ?>app/modules/actas/formatos/acta/funciones.js', () => {
                 if (+$("#add_edit_script").data("params").documentId) {
-                    edit(<?= json_encode($FtActa? $FtActa->getAttributes():[]) ?>);
+                    edit(<?= json_encode($FtActa->getRouteParams(FtActa::SCOPE_ROUTE_PARAMS_EDIT)) ?>);
+   
                 } else {
-                    add();
+                    add(<?= json_encode($FtActa->getRouteParams(FtActa::SCOPE_ROUTE_PARAMS_ADD)) ?>);
                 }
             });
 
@@ -507,7 +511,7 @@ $params = json_encode([
             }
 
             function executeEvents(callback){
-                var params = $('#add_edit_script').data('params');
+                let params = $('#add_edit_script').data('params');
 
                 (+params.documentId ? beforeSendEdit() : beforeSendAdd())
                     .then(r => {

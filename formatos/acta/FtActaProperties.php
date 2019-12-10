@@ -31,4 +31,9 @@ class FtActaProperties extends \ModelFormat
             'primary' => 'idft_acta'
         ];
     }
+
+    protected function defineMoreAttributes()
+    {
+        return [];
+    }
 }

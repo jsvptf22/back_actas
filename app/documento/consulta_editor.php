@@ -16,6 +16,7 @@ include_once $rootPath . 'app/vendor/autoload.php';
 
 use Saia\Actas\controllers\FtActaController;
 use Saia\Actas\formatos\acta\FtActa;
+use Saia\Actas\models\ActPlanning;
 
 $Response = (object) [
     'data' => new stdClass(),
@@ -27,19 +28,35 @@ $Response = (object) [
 try {
     JwtController::check($_REQUEST['token'], $_REQUEST['key']);
 
-    if (!$_REQUEST['documentId']) {
-        throw new Exception('Documento invalido', 1);
+    if (isset($_REQUEST['documentId'])) {
+        $FtActa = FtActa::findByDocumentId($_REQUEST['documentId']);
+
+        if (!$FtActa) {
+            throw new Exception("Documento invalido", 1);
+        }
+
+        $FtActaController = new FtActaController($FtActa);
+        $Response->data = $FtActaController->getDocumentBuilderData();
+    } else if (isset($_REQUEST['planning'])) {
+        $ActPlanning = new ActPlanning($_REQUEST['planning']);
+
+        if (!$ActPlanning) {
+            throw new Exception("Planeacion invalida", 1);
+        }
+
+        $FtActa = new FtActa();
+        $FtActa->setPlanning($ActPlanning);
+        $FtActa->setAttributes([
+            'asunto' => $ActPlanning->subject,
+            'fecha_inicial' => $ActPlanning->date
+        ]);
+
+        $FtActaController = new FtActaController($FtActa);
+        $Response->data = $FtActaController->getDocumentBuilderDataByPlanning();
+    } else {
+        throw new Exception('Debe indicar un criterio de busqueda', 1);
     }
 
-    $FtActa = FtActa::findByDocumentId($_REQUEST['documentId']);
-
-    if (!$FtActa) {
-        throw new Exception("Documento invalido", 1);
-    }
-
-    $FtActaController = new FtActaController($FtActa);
-
-    $Response->data = $FtActaController->getDocumentBuilderData();
     $Response->notifications = NotifierController::prepare();
     $Response->success = 1;
 } catch (Throwable $th) {
