@@ -237,23 +237,6 @@ class FtActaController
     }
 
     /**
-     * obtiene la informacion para actualizar el
-     * documentbuilder desde un ActPlanning
-     *
-     * @return object
-     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-08
-     */
-    public function getDocumentBuilderDataByPlanning()
-    {
-        return (object) [
-            'initialDate' => $this->FtActa->fecha_inicial,
-            'subject' => $this->FtActa->asunto,
-            'userList' => $this->prepareAssistants(true),
-        ];
-    }
-
-    /**
      * obtiene la lista de temas del documento
      *
      * @return array
@@ -278,16 +261,15 @@ class FtActaController
     /**
      * obtiene la lista de asistentes del documento
      *
-     * @param boolean $fromPlanning buscar desde la planeacion
      * @return array
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2019-12-07
      */
-    public function prepareAssistants($fromPlanning = false)
+    public function prepareAssistants()
     {
         $assistants = [];
 
-        foreach ($this->FtActa->getAssistants($fromPlanning) as $ActDocumentUser) {
+        foreach ($this->FtActa->getAssistants() as $ActDocumentUser) {
             array_push($assistants, $ActDocumentUser->prepareData());
         }
 

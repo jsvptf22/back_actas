@@ -16,6 +16,7 @@ include_once $rootPath . 'app/vendor/autoload.php';
 
 use Saia\Actas\controllers\FtActaController;
 use Saia\Actas\formatos\acta\FtActa;
+use Saia\Actas\models\ActDocumentUser;
 use Saia\Actas\models\ActPlanning;
 
 $Response = (object) [
@@ -44,15 +45,17 @@ try {
             throw new Exception("Planeacion invalida", 1);
         }
 
-        $FtActa = new FtActa();
-        $FtActa->setPlanning($ActPlanning);
-        $FtActa->setAttributes([
-            'asunto' => $ActPlanning->subject,
-            'fecha_inicial' => $ActPlanning->date
-        ]);
+        $assistants = [];
 
-        $FtActaController = new FtActaController($FtActa);
-        $Response->data = $FtActaController->getDocumentBuilderDataByPlanning();
+        foreach ($ActPlanning->getUserRelations() as $ActDocumentUser) {
+            array_push($assistants, $ActDocumentUser->prepareData());
+        }
+
+        $Response->data =  [
+            'initialDate' => $ActPlanning->date,
+            'subject' => $ActPlanning->subject,
+            'userList' => $assistants,
+        ];
     } else {
         throw new Exception('Debe indicar un criterio de busqueda', 1);
     }

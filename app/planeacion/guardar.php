@@ -36,13 +36,14 @@ try {
         throw new Exception('Debe indicar la fecha', 1);
     }
 
-    $pk = ActPlanning::newRecord([
+    $ActPlanning = new ActPlanning();
+    $ActPlanning->setAttributes([
         'subject' => $_REQUEST['subject'],
         'date' => $_REQUEST['initialDate'],
         'state' => 1,
     ]);
 
-    if (!$pk) {
+    if (!$ActPlanning->save()) {
         throw new Exception("Error al agendar", 1);
     }
 
@@ -55,9 +56,11 @@ try {
                 'external' => $user->external ?? 1,
                 'relation' => ActDocumentUser::RELATION_ASSISTANT,
                 'identification' => $user->id,
-                'fk_act_planning' => $pk
+                'fk_act_planning' => $ActPlanning->getPK()
             ]);
         }
+
+        $ActPlanning->sendInvitations();
     }
 
     $Response->message = "Agendamiento creado";

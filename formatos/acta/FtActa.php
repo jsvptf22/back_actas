@@ -4,7 +4,6 @@ namespace Saia\Actas\formatos\acta;
 
 use Saia\Actas\models\ActDocumentTopic;
 use Saia\Actas\models\ActDocumentUser;
-use Saia\Actas\models\ActPlanning;
 
 class FtActa extends FtActaProperties
 {
@@ -48,16 +47,6 @@ class FtActa extends FtActaProperties
      */
     protected $ActDocumentUserSecretary;
 
-    /**
-     * almacena la instancia de ActPlanning
-     *
-     * @var ActPlanning
-     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-09
-     */
-    protected $ActPlanning;
-
-
     public function __construct($id = null)
     {
         parent::__construct($id);
@@ -85,27 +74,18 @@ class FtActa extends FtActaProperties
     /**
      * obtiene los asistentes de la reunion
      *
-     * @param boolean $fromPlanning buscar desde la planeacion
      * @return ActDocumentUser[]
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2019-12-06
      */
-    public function getAssistants($fromPlanning = false)
+    public function getAssistants()
     {
         if (!$this->assistants) {
-            if ($fromPlanning) {
-                $this->assistants = ActDocumentUser::findAllByAttributes([
-                    'fk_act_planning' => $this->getPlanning()->getPK(),
-                    'state' => 1,
-                    'relation' => ActDocumentUser::RELATION_ASSISTANT
-                ]);
-            } else {
-                $this->assistants = ActDocumentUser::findAllByAttributes([
-                    'fk_ft_acta' => $this->getPK(),
-                    'state' => 1,
-                    'relation' => ActDocumentUser::RELATION_ASSISTANT
-                ]);
-            }
+            $this->assistants = ActDocumentUser::findAllByAttributes([
+                'fk_ft_acta' => $this->getPK(),
+                'state' => 1,
+                'relation' => ActDocumentUser::RELATION_ASSISTANT
+            ]);
         }
 
         return $this->assistants;
@@ -149,30 +129,6 @@ class FtActa extends FtActaProperties
         }
 
         return $this->ActDocumentUserSecretary;
-    }
-
-    /**
-     * obtiene la instancia de ActPlanning
-     *
-     * @return ActPlanning
-     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-09
-     */
-    public function getPlanning()
-    {
-        return $this->ActPlanning;
-    }
-
-    /**
-     * define la instancia de ActPlanning
-     *
-     * @return ActPlanning
-     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-09
-     */
-    public function setPlanning(ActPlanning $ActPlanning)
-    {
-        return $this->ActPlanning = $ActPlanning;
     }
 
     /**

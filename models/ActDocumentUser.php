@@ -115,6 +115,19 @@ class ActDocumentUser extends \Model
     }
 
     /**
+     * obtiene el correo del usuario
+     *
+     * @return string
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2019-12-10
+     */
+    public function getUserEmail()
+    {
+        return $this->getUser() instanceof \Funcionario ?
+            $this->getUser()->email : $this->getUser()->correo;
+    }
+
+    /**
      * obtiene la informacion preparada
      *
      * @return object
