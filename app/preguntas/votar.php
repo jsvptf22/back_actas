@@ -1,4 +1,7 @@
 <?php
+
+use Saia\Actas\models\ActQuestionVote;
+
 $max_salida = 10;
 $rootPath = $ruta = '';
 
@@ -14,9 +17,6 @@ while ($max_salida > 0) {
 
 include_once $rootPath . 'app/vendor/autoload.php';
 
-use Saia\Actas\controllers\FtActaController;
-use Saia\Actas\formatos\acta\FtActa;
-
 $Response = (object) [
     'data' => new stdClass(),
     'message' => '',
@@ -25,20 +25,24 @@ $Response = (object) [
 ];
 
 try {
-    JwtController::check($_REQUEST['token'], $_REQUEST['key']);
-
-    $FtActa = isset($_REQUEST['documentId'])
-        ? FtActa::findByDocumentId($_REQUEST['documentId'])
-        : FtActa::findByAttributes([
-            'fk_act_planning' => $_REQUEST['planning']
-        ]);
-
-    if (!$FtActa) {
-        throw new Exception("Documento invalido", 1);
+    if (!isset($_REQUEST['action'])) {
+        throw new Exception('Debe indicar la acción', 1);
     }
 
-    $FtActaController = new FtActaController($FtActa);
-    $Response->data = $FtActaController->getDocumentBuilderData();
+    if (!$_REQUEST['question']) {
+        throw new Exception('Debe indicar la pregunta', 1);
+    }
+
+    $pk = ActQuestionVote::newRecord([
+        'fk_act_question' => $_REQUEST['question'],
+        'action' => $_REQUEST['action'],
+    ]);
+
+    if (!$pk) {
+        throw new Exception("Error al guardar el voto", 1);
+    }
+
+    $Response->message = "Voto enviado";
     $Response->notifications = NotifierController::prepare();
     $Response->success = 1;
 } catch (Throwable $th) {

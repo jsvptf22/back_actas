@@ -13,21 +13,16 @@ while ($max_salida > 0) {
 
 include_once $rootPath . 'app/vendor/autoload.php';
 include_once $rootPath . 'views/assets/librerias.php';
-include_once $rootPath . 'app/modules/actas/formatos/acta/funciones.php';
 
 use Saia\Actas\formatos\acta\FtActa;
 
 JwtController::check($_REQUEST["token"], $_REQUEST["key"]); 
 
 $Formato = new Formato(471);
-$FtActa = FtActa::findByDocumentId($_REQUEST["documentId"]);
-
 $documentId=$_REQUEST['documentId'] ?? 0;
-$params = json_encode([
-    'formatId' => $Formato->getPK(),
-    'documentId' => $documentId,
-    'baseUrl' => $rootPath
-] + $_REQUEST);
+
+$FtActa = FtActa::findByDocumentId($documentId);
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -76,7 +71,7 @@ $params = json_encode([
                 471
             ) ?>'>
         <?php
-        $selected = isset($FtActa) ? $FtActa->dependencia : '';
+        $selected = $FtActa->dependencia ?? '';
         $query = Model::getQueryBuilder();
         $roles = $query
             ->select("dependencia as nombre, iddependencia_cargo, cargo")
@@ -242,11 +237,7 @@ $params = json_encode([
                 471
             ) ?>'>
             <div class='form-group form-group-default form-group-default-select2 required' id='group_asistentes_externos'>
-                <label title=''>ASISTENTES EXTERNOS                 | 
-                <a id="import-asistentes_externos" 
-                    class="import-excel font-weight-bold cursor-pointer" 
-                    data-id-campo="asistentes_externos">IMPORTAR
-                </a></label>
+                <label title=''>ASISTENTES EXTERNOS</label>
                 <select class="full-width" id='asistentes_externos' multiple="multiple" required ></select>
                 <input type="hidden" name="asistentes_externos">
             </div>
@@ -254,7 +245,7 @@ $params = json_encode([
                 $(function(){
                     var select = $("#asistentes_externos");
                     select.select2({
-                        minimumInputLength: 3,
+                        minimumInputLength: 0,
                         language: 'es',
                         ajax: {
                             url: `<?= $rootPath ?>app/tercero/autocompletar.php`,
@@ -267,8 +258,10 @@ $params = json_encode([
                                 };
                             },
                             processResults: function(response) {
-                                let options = response.data.length ? response.data : [{id: 9999, text: 'Crear tercero', showModal: true}];
-                                return { results: options} 
+                                let crearNuevo = {id: 9999, text: 'Crear tercero', showModal: true};
+                                let importar = {id: 9999, text: 'Importar terceros', showModalImport: true};
+                                response.data.push(crearNuevo,importar);
+                                return { results: response.data}
                             }
                         }                        
                     }).on('select2:selecting', function (e) {
@@ -278,6 +271,10 @@ $params = json_encode([
                         if(data.showModal){
                             e.preventDefault();
                             openModal();
+                        }
+                        if(data.showModalImport){
+                            e.preventDefault();
+                            openModalImport(e.target.id);
                         }
                     }).on('change', function(){
                         let value = $(this).val().join(',');
@@ -326,12 +323,10 @@ $params = json_encode([
                         });
                     }
 
-                    $(document)
-                        .off('click', '.import-excel')
-                        .on('click', '.import-excel', function (e){
+                    function openModalImport(idCampo){
                                 let options = {
                                     url: `views/tercero/importarTerceros.php`,
-                                    params: {idCampo:$(e.target).data('id-campo')},
+                                    params: {idCampo:idCampo},
                                     centerAlign: false,
                                     size: 'modal-lg',
                                     title: 'Importar terceros',
@@ -348,7 +343,8 @@ $params = json_encode([
                                     onSuccess: function (response){successImport(response);}
                                     };
                                 top.topModal(options);
-                    });
+                    }
+
                     function successImport(response){
                         let tercero = JSON.parse(response.data);
                             tercero.forEach(datos => {
@@ -391,7 +387,7 @@ $params = json_encode([
                     })
                 });
             </script>
-        <div class='form-group form-group-default required'  id='group_asistentes_internos'>
+        <div class='form-group form-group-default required' id='group_asistentes_internos'>
             <label title=''>ASISTENTES INTERNOS</label>
             <div class="col pl-0 pr-1" id="asistentes_internos_ua"></div>
 
@@ -414,7 +410,7 @@ $params = json_encode([
                     users = new Users({
                         selector: '#asistentes_internos_ua',
                         baseUrl: baseUrl,
-                        identificator: 'usuarios_asignar',
+                        identificator: 'asistentes_internos',
                         change: () => {fillHidden()}
                     });
                     users.setList('<?= $FtActa->asistentes_internos ?>'.split(','))
@@ -425,13 +421,18 @@ $params = json_encode([
                 }
             });
         </script>
+<input type='hidden' name='fk_act_planning' value='<?= ComponentFormGeneratorController::callShowValue(
+                'fk_act_planning',
+                $FtActa,
+                471
+            ) ?>'>
 <input type='hidden' name='campo_descripcion' value='9070'>
-<input type='hidden' name='documentId' value='<?= $_REQUEST['documentId'] ?? null ?>'>
-<input type='hidden' id='tipo_radicado' name='tipo_radicado' value='apoyo'>
-<input type='hidden' name='formatId' value='471'>
-<input type='hidden' name='tabla' value='ft_acta'>
-<input type='hidden' name='formato' value='acta'>
-<div class='form-group px-0 pt-3' id='form_buttons'><button class='btn btn-complete' id='save_document' type='button'>Continuar</button><div class='progress-circle-indeterminate d-none' id='spiner'></div></div>
+					<input type='hidden' name='documentId' value='<?= $documentId ?>'>
+					<input type='hidden' id='tipo_radicado' name='tipo_radicado' value='apoyo'>
+					<input type='hidden' name='formatId' value='471'>
+					<input type='hidden' name='tabla' value='ft_acta'>
+					<input type='hidden' name='formato' value='acta'>
+					<div class='form-group px-0 pt-3' id='form_buttons'><button class='btn btn-complete' id='save_document' type='button'>Continuar</button><div class='progress-circle-indeterminate d-none' id='spiner'></div></div>
                 </form>
             </div>
         </div>
@@ -448,14 +449,23 @@ $params = json_encode([
     <?= dateTimePicker() ?>
     <?= dropzone() ?>
     <?= users() ?>
-    <script id="add_edit_script" data-params='<?= $params ?>'>
+
+    <?php
+        if($documentId){
+            $additionalParameters=$FtActa->getRouteParams(FtActa::SCOPE_ROUTE_PARAMS_EDIT); 
+        }else{
+            $additionalParameters=$FtActa->getRouteParams(FtActa::SCOPE_ROUTE_PARAMS_ADD); 
+        }
+        $params=array_merge($_REQUEST,$additionalParameters,['baseUrl'=>'../../']);
+    ?>
+    <script>
         $(function() {
-            $.getScript('<?= $rootPath ?>app/modules/actas/formatos/acta/funciones.js', () => {
-                if (+$("#add_edit_script").data("params").documentId) {
-                    edit(<?= json_encode($FtActa->getRouteParams(FtActa::SCOPE_ROUTE_PARAMS_EDIT)) ?>);
-   
+            $.getScript('<?= $rootPath ?>app/modules/back_actas/formatos/acta/funciones.js', () => {
+                window.routeParams=<?= json_encode($params) ?>;
+                if (+'<?= $documentId ?>') {
+                    edit(<?= json_encode($params) ?>);
                 } else {
-                    add(<?= json_encode($FtActa->getRouteParams(FtActa::SCOPE_ROUTE_PARAMS_ADD)) ?>);
+                    add(<?= json_encode($params) ?>);
                 }
             });
 
@@ -511,13 +521,13 @@ $params = json_encode([
             }
 
             function executeEvents(callback){
-                let params = $('#add_edit_script').data('params');
+                let documentId = $("[name='documentId']").val();
 
-                (+params.documentId ? beforeSendEdit() : beforeSendAdd())
+                (+documentId ? beforeSendEdit() : beforeSendAdd())
                     .then(r => {
                         sendData()
                             .then(requestResponse => {
-                                (+params.documentId ? afterSendEdit(requestResponse) : afterSendAdd(requestResponse))
+                                (+documentId ? afterSendEdit(requestResponse) : afterSendAdd(requestResponse))
                                     .then(r => {
                                         callback(requestResponse.data);
                                     })

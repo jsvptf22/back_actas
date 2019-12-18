@@ -2,8 +2,11 @@
 
 namespace Saia\Actas\models;
 
-class ActDocumentTopic extends \Model
+class ActQuestionVote extends \Model
 {
+    const ACTION_REJECT = 0;
+    const ACTION_APPROVE = 1;
+
     function __construct($id = null)
     {
         parent::__construct($id);
@@ -16,16 +19,15 @@ class ActDocumentTopic extends \Model
     {
         $this->dbAttributes = (object) [
             'safe' => [
-                'fk_ft_acta',
-                'name',
-                'description',
-                'state',
+                'fk_funcionario',
+                'fk_act_question',
+                'action',
                 'created_at',
                 'updated_at',
             ],
             'date' => ['created_at', 'updated_at'],
-            'table' => 'act_document_topic',
-            'primary' => 'idact_document_topic',
+            'table' => 'act_question_vote',
+            'primary' => 'idact_question_vote',
         ];
     }
 
@@ -39,6 +41,10 @@ class ActDocumentTopic extends \Model
     {
         if (!$this->created_at) {
             $this->created_at = date('Y-m-d H:i:s');
+        }
+
+        if (!$this->state) {
+            $this->state = 1;
         }
 
         return true;

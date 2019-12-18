@@ -4,6 +4,7 @@ namespace Saia\Actas\formatos\acta;
 
 use Saia\Actas\models\ActDocumentTopic;
 use Saia\Actas\models\ActDocumentUser;
+use Saia\Actas\models\ActPlanning;
 
 class FtActa extends FtActaProperties
 {
@@ -50,6 +51,20 @@ class FtActa extends FtActaProperties
     public function __construct($id = null)
     {
         parent::__construct($id);
+    }
+
+    protected function defineMoreAttributes()
+    {
+        return [
+            'relations' => [
+                'ActPlanning' => [
+                    'model' => ActPlanning::class,
+                    'attribute' => 'idact_planning',
+                    'primary' => 'fk_act_planning',
+                    'relation' => self::BELONGS_TO_ONE
+                ]
+            ]
+        ];
     }
 
     /**
@@ -129,6 +144,45 @@ class FtActa extends FtActaProperties
         }
 
         return $this->ActDocumentUserSecretary;
+    }
+
+    /**
+     * obtiene la lista de correos de los asistentes
+     *
+     * @return array
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2019-12-17
+     */
+    public function getAssistantsEmail()
+    {
+        $emails = [];
+        $users = \Model::getQueryBuilder()
+            ->select('a.email')
+            ->from('funcionario', 'a')
+            ->join('a', 'act_document_user', 'b', 'a.idfuncionario = b.identification')
+            ->where('b.external = 0')
+            ->andWhere('b.fk_ft_acta = :ft')
+            ->setParameter('ft', $this->getPK())
+            ->execute()->fetchAll();
+
+        $externals = \Model::getQueryBuilder()
+            ->select('a.correo')
+            ->from('tercero', 'a')
+            ->join('a', 'act_document_user', 'b', 'a.idtercero = b.identification')
+            ->where('b.external = 1')
+            ->andWhere('b.fk_ft_acta = :ft')
+            ->setParameter('ft', $this->getPK())
+            ->execute()->fetchAll();
+
+        foreach ($users as $row) {
+            array_push($emails, $row['email']);
+        }
+
+        foreach ($externals as $row) {
+            array_push($emails, $row['correo']);
+        }
+
+        return $emails;
     }
 
     /**

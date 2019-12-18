@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20191210005914 extends AbstractMigration
+final class Version20191217230251 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -19,20 +19,27 @@ final class Version20191210005914 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = $schema->createTable('act_planning');
-        $table->addColumn('idact_planning', 'integer', [
+        if ($schema->hasTable('act_question_vote')) {
+            $schema->dropTable('act_question_vote');
+        }
+
+        $table = $schema->createTable('act_question_vote');
+        $table->addColumn('idact_question_vote', 'integer', [
             'autoincrement' => true,
             'length' => 11
         ]);
-        $table->setPrimaryKey(['idact_planning']);
-        $table->addColumn('date', 'datetime', [
-            'notnull' => true
+        $table->setPrimaryKey(['idact_question_vote']);
+        $table->addColumn('fk_funcionario', 'integer', [
+            'notnull' => false,
+            'length' => 11
         ]);
-        $table->addColumn('subject', 'text', [
+        $table->addColumn('fk_act_question', 'integer', [
             'notnull' => true,
+            'length' => 11
         ]);
-        $table->addColumn('state', 'integer', [
-            'default' => 1
+        $table->addColumn('action', 'integer', [
+            'notnull' => true,
+            'length' => 11
         ]);
         $table->addColumn('created_at', 'datetime', [
             'notnull' => true
@@ -40,27 +47,12 @@ final class Version20191210005914 extends AbstractMigration
         $table->addColumn('updated_at', 'datetime', [
             'notnull' => false
         ]);
-
-        $table = $schema->getTable('act_document_user');
-        $table->addColumn('fk_act_planning', 'integer', [
-            'notnull' => false,
-            'length' => 11
-        ]);
-        $table->changeColumn('fk_ft_acta', [
-            'notnull' => false,
-        ]);
     }
 
     public function down(Schema $schema): void
     {
-        if ($schema->hasTable('act_planning')) {
-            $schema->dropTable('act_planning');
-        }
-
-        $table = $schema->getTable('act_document_user');
-
-        if ($table->hasColumn('fk_act_planning')) {
-            $table->dropColumn('fk_act_planning');
+        if ($schema->hasTable('act_question_vote')) {
+            $schema->dropTable('act_question_vote');
         }
     }
 

@@ -29,9 +29,7 @@ try {
 
     $data = json_decode($_REQUEST['documentInformation']);
 
-    $FtActa = $data->documentId ?
-        FtActa::findByDocumentId($data->documentId) : new FtActa();
-
+    $FtActa = FtActa::findByDocumentId($data->documentId);
     $FtActaController = new FtActaController($FtActa);
     $FtActaController->saveDocument($data);
 

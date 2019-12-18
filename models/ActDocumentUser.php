@@ -180,7 +180,7 @@ class ActDocumentUser extends \Model
         $ActDocumentUser = ActDocumentUser::findByAttributes([
             'fk_ft_acta' => $fk_ft_acta,
             'identification' => $user->id,
-            'external' => $user->external,
+            'external' => $user->external ?? 1,
             'relation' => $relationType
         ]);
 
@@ -193,7 +193,8 @@ class ActDocumentUser extends \Model
             'state' => 1,
             'relation' => $relationType,
             'identification' => $user->id,
-            'external' => $user->external
+            'fk_act_planning' => $user->planning,
+            'external' => $user->external ?? 1
         ]);
         $ActDocumentUser->save();
     }

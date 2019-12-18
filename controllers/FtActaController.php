@@ -35,6 +35,7 @@ class FtActaController
     {
         $userId = \SessionController::getValue('idfuncionario');
         $attributes = [
+            'fk_act_planning' => $data->planning,
             'fecha_final' => $data->initialDate,
             'asunto' => $data->subject,
             'dependencia' => \VfuncionarioDc::getFirstUserRole($userId),
@@ -57,9 +58,11 @@ class FtActaController
         }
 
         $this->refreshTopics($data->topicList, $data->topicListDescription);
-        $this->refreshAssistants($data->userList);
+        $this->refreshAssistants($data->userList, $data->planning);
         $this->refreshRoles($data->roles);
         $this->refreshTasks($data->tasks);
+
+        return $this->FtActa;
     }
 
     /**
@@ -114,11 +117,12 @@ class FtActaController
      * almacena los asistentes de la reunion
      *
      * @param array $userList
+     * @param integer $fkActPlanning
      * @return void
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2019-12-06
      */
-    public function refreshAssistants($userList)
+    public function refreshAssistants($userList, $fkActPlanning = null)
     {
         ActDocumentUser::inactiveUsersByRelation(
             $this->FtActa->getPK(),
@@ -126,6 +130,7 @@ class FtActaController
         );
 
         foreach ($userList as $user) {
+            $user->planning = $fkActPlanning;
             ActDocumentUser::updateUserRelation(
                 $this->FtActa->getPK(),
                 $user,
@@ -224,6 +229,7 @@ class FtActaController
     public function getDocumentBuilderData()
     {
         return (object) [
+            'id' => $this->FtActa->getPK(),
             'documentId' => $this->FtActa->documento_iddocumento,
             'identificator' => $this->FtActa->Documento->numero,
             'initialDate' => $this->FtActa->fecha_inicial,
@@ -330,5 +336,52 @@ class FtActaController
         }
 
         return $response;
+    }
+
+    /**
+     * envia los correos con la invitacion ics
+     * a los usuarios indicados en la planeacion
+     *
+     * @return void
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2019-12-10
+     */
+    public function sendInvitations()
+    {
+        global $rootPath;
+
+        $ActPlanning  = $this->FtActa->ActPlanning;
+
+        $DateInterval = new \DateInterval('PT1H');
+        $DateTime = new \DateTime($ActPlanning->date);
+        $DateTime->add($DateInterval);
+
+        $properties = [
+            'description' => $ActPlanning->subject,
+            'dtstart' => $ActPlanning->date,
+            'dtend' => $DateTime->format('Y-m-d H:i:s'),
+            'summary' => $ActPlanning->subject,
+            'organizer' => \SessionController::getValue('email')
+        ];
+
+        $ics = new \IcsController($properties);
+        $content = $ics->to_string();
+
+        $icsRoute = $rootPath . \SessionController::getTemporalDir() . '/invitacion.ics';
+
+        if (!file_put_contents($icsRoute, $content)) {
+            throw new \Exception("Error al generar la invitacion", 1);
+        }
+
+        $SendMailController = new \SendMailController('Invitación a reunión', ' ');
+        $SendMailController->setDestinations(
+            \SendMailController::DESTINATION_TYPE_EMAIL,
+            $this->FtActa->getAssistantsEmail()
+        );
+        $SendMailController->setAttachments(
+            \SendMailController::ATTACHMENT_TYPE_ROUTE,
+            [$icsRoute]
+        );
+        $SendMailController->send();
     }
 }

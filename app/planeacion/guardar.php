@@ -1,5 +1,7 @@
 <?php
 
+use Saia\Actas\controllers\FtActaController;
+use Saia\Actas\formatos\acta\FtActa;
 use Saia\Actas\models\ActPlanning;
 use Saia\Actas\models\ActDocumentUser;
 
@@ -47,21 +49,17 @@ try {
         throw new Exception("Error al agendar", 1);
     }
 
-    if (isset($_REQUEST['users'])) {
-        $users = json_decode($_REQUEST['users']);
+    $data = (object) [
+        'planning' => $ActPlanning->getPK(),
+        'initialDate' => $ActPlanning->date,
+        'subject' => $ActPlanning->subject,
+        'userList' => json_decode($_REQUEST['users'])
+    ];
 
-        foreach ($users as $key => $user) {
-            ActDocumentUser::newRecord([
-                'state' => 1,
-                'external' => $user->external ?? 1,
-                'relation' => ActDocumentUser::RELATION_ASSISTANT,
-                'identification' => $user->id,
-                'fk_act_planning' => $ActPlanning->getPK()
-            ]);
-        }
-
-        $ActPlanning->sendInvitations();
-    }
+    $FtActa = new FtActa();
+    $FtActaController = new FtActaController($FtActa);
+    $FtActaController->saveDocument($data);
+    $FtActaController->sendInvitations();
 
     $Response->message = "Agendamiento creado";
     $Response->notifications = NotifierController::prepare();

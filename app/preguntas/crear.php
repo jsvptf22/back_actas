@@ -1,4 +1,7 @@
 <?php
+
+use Saia\Actas\models\ActQuestion;
+
 $max_salida = 10;
 $rootPath = $ruta = '';
 
@@ -14,9 +17,6 @@ while ($max_salida > 0) {
 
 include_once $rootPath . 'app/vendor/autoload.php';
 
-use Saia\Actas\controllers\FtActaController;
-use Saia\Actas\formatos\acta\FtActa;
-
 $Response = (object) [
     'data' => new stdClass(),
     'message' => '',
@@ -27,18 +27,21 @@ $Response = (object) [
 try {
     JwtController::check($_REQUEST['token'], $_REQUEST['key']);
 
-    $FtActa = isset($_REQUEST['documentId'])
-        ? FtActa::findByDocumentId($_REQUEST['documentId'])
-        : FtActa::findByAttributes([
-            'fk_act_planning' => $_REQUEST['planning']
-        ]);
-
-    if (!$FtActa) {
-        throw new Exception("Documento invalido", 1);
+    if (!$_REQUEST['question']) {
+        throw new Exception('Debe indicar la pregunta', 1);
     }
 
-    $FtActaController = new FtActaController($FtActa);
-    $Response->data = $FtActaController->getDocumentBuilderData();
+    $pk = ActQuestion::newRecord([
+        'question' => $_REQUEST['question'],
+        'fk_funcionario' => SessionController::getValue('idfuncionario'),
+        'fk_ft_acta' => $_REQUEST['id']
+    ]);
+
+    if (!$pk) {
+        throw new Exception("Error al publicar", 1);
+    }
+
+    $Response->message = "Pregunta publicada";
     $Response->notifications = NotifierController::prepare();
     $Response->success = 1;
 } catch (Throwable $th) {

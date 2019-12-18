@@ -13,7 +13,6 @@ while ($max_salida > 0) {
 }
 
 include_once $rootPath . 'app/vendor/autoload.php';
-include_once $rootPath . 'app/modules/actas/formatos/acta/funciones.php';
 
 use Saia\Actas\formatos\acta\FtActa;
 
@@ -24,7 +23,7 @@ try {
     $FtActa = FtActa::findByDocumentId($documentId);
     $Documento = $FtActa->Documento;
     $Formato = $Documento->getFormat();
-    
+
     if(
         !$_REQUEST['mostrar_pdf'] && !$_REQUEST['actualizar_pdf'] && (
             ($_REQUEST["tipo"] && $_REQUEST["tipo"] == 5) ||
@@ -175,10 +174,15 @@ try {
                     </div> <!-- end #documento-->
                 </div> <!-- end .container -->
             </body>
+            <?php
+                $additionalParameters=$FtActa->getRouteParams(FtActa::SCOPE_ROUTE_PARAMS_SHOW);
+                $params=array_merge($_REQUEST,$additionalParameters,['baseUrl'=>'../../']);
+            ?>
             <script>
                 $(function(){
-                    $.getScript('<?= ABSOLUTE_SAIA_ROUTE ?>app/modules/actas/formatos/acta/funciones.js', () => {
-                        show(<?= json_encode($FtActa->getRouteParams(FtActa::SCOPE_ROUTE_PARAMS_SHOW)) ?>);
+                    $.getScript('<?= ABSOLUTE_SAIA_ROUTE ?>app/modules/back_actas/formatos/acta/funciones.js', () => {
+                        window.routeParams=<?= json_encode($params) ?>;
+                        show(<?= json_encode($params) ?>);
                     });
                 });
             </script>
