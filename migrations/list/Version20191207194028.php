@@ -502,6 +502,30 @@ HTML;
                 "opciones" => null,
                 "estilo" => null,
                 "listable" => 1
+            ],
+            [
+                "formato_idformato" => $formatId,
+                "nombre" => "fk_act_planning",
+                "etiqueta" => "fk act planning",
+                "tipo_dato" => "string",
+                "longitud" => "255",
+                "obligatoriedad" => "0",
+                "valor" => null,
+                "acciones" => "a,e",
+                "ayuda" => null,
+                "predeterminado" => null,
+                "banderas" => "",
+                "etiqueta_html" => "hidden",
+                "orden" => 8,
+                "mascara" => null,
+                "adicionales" => null,
+                "autoguardado" => 0,
+                "fila_visible" => 1,
+                "placeholder" => "Campo hidden",
+                "longitud_vis" => null,
+                "opciones" => null,
+                "estilo" => null,
+                "listable" => 1
             ]
         ];
 
