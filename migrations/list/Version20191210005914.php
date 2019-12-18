@@ -19,6 +19,10 @@ final class Version20191210005914 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
+        if ($schema->hasTable('act_planning')) {
+            $schema->dropTable('act_planning');
+        }
+
         $table = $schema->createTable('act_planning');
         $table->addColumn('idact_planning', 'integer', [
             'autoincrement' => true,
