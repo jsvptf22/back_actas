@@ -3,7 +3,6 @@
 use Saia\Actas\controllers\FtActaController;
 use Saia\Actas\formatos\acta\FtActa;
 use Saia\Actas\models\ActPlanning;
-use Saia\Actas\models\ActDocumentUser;
 
 $max_salida = 10;
 $rootPath = $ruta = '';
@@ -49,11 +48,18 @@ try {
         throw new Exception("Error al agendar", 1);
     }
 
+    $defaultAssistant = (object) [
+        'id' => SessionController::getValue('idfuncionario'),
+        'external' => 0
+    ];
+    $userList = json_decode($_REQUEST['users']);
+    array_push($userList, $defaultAssistant);
+
     $data = (object) [
         'planning' => $ActPlanning->getPK(),
         'initialDate' => $ActPlanning->date,
         'subject' => $ActPlanning->subject,
-        'userList' => json_decode($_REQUEST['users'])
+        'userList' => $userList
     ];
 
     $FtActa = new FtActa();

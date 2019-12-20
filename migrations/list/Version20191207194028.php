@@ -152,11 +152,11 @@ final class Version20191207194028 extends AbstractMigration
     <table class="table table-bordered">
         <tr>
         <td class="firm_square">
-            Revisado por:
+            SECRETARIO:
             {*showSecretary*}
         </td>
         <td class="firm_square">
-            Aprobado por:
+            PRESIDENTE:
             {*showPresident*}
         </td>
         </tr>

@@ -177,18 +177,7 @@ class ActDocumentUser extends \Model
      */
     public static function updateUserRelation($fk_ft_acta, $user, $relationType)
     {
-        $ActDocumentUser = ActDocumentUser::findByAttributes([
-            'fk_ft_acta' => $fk_ft_acta,
-            'identification' => $user->id,
-            'external' => $user->external ?? 1,
-            'relation' => $relationType
-        ]);
-
-        if (!$ActDocumentUser) {
-            $ActDocumentUser = new ActDocumentUser();
-        }
-
-        $ActDocumentUser->setAttributes([
+        ActDocumentUser::newRecord([
             'fk_ft_acta' => $fk_ft_acta,
             'state' => 1,
             'relation' => $relationType,
@@ -196,6 +185,5 @@ class ActDocumentUser extends \Model
             'fk_act_planning' => $user->planning,
             'external' => $user->external ?? 1
         ]);
-        $ActDocumentUser->save();
     }
 }

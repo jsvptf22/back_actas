@@ -295,7 +295,7 @@ class FtActa extends FtActaProperties
                 array_push($names, $Funcionario->getName());
             }
 
-            $response .= $Tarea->getName() . " - " . implode(', ', $names);
+            $response .= sprintf("%s - %s<br>", $Tarea->getName(), implode(', ', $names));
         }
 
         return $response;
