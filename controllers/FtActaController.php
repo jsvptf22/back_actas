@@ -2,9 +2,20 @@
 
 namespace Saia\Actas\controllers;
 
+use DateInterval;
+use DateTime;
+use DocumentoTarea;
+use Exception;
 use Saia\Actas\formatos\acta\FtActa;
 use Saia\Actas\models\ActDocumentTopic;
 use Saia\Actas\models\ActDocumentUser;
+use Saia\controllers\GuardarFtController;
+use Saia\controllers\IcsController;
+use Saia\controllers\SendMailController;
+use Saia\controllers\SessionController;
+use stdClass;
+use TareaFuncionario;
+use VfuncionarioDc;
 
 class FtActaController
 {
@@ -33,17 +44,17 @@ class FtActaController
      */
     public function saveDocument($data)
     {
-        $userId = \SessionController::getValue('idfuncionario');
+        $userId = SessionController::getValue('idfuncionario');
         $attributes = [
             'fk_act_planning' => $data->planning,
             'fecha_final' => $data->initialDate,
             'asunto' => $data->subject,
-            'dependencia' => \VfuncionarioDc::getFirstUserRole($userId),
+            'dependencia' => VfuncionarioDc::getFirstUserRole($userId),
             'estado' => 1
         ];
 
         $Formato = $this->FtActa->getFormat();
-        $GuardarFtController = new \GuardarFtController($Formato->getPK());
+        $GuardarFtController = new GuardarFtController($Formato->getPK());
 
         if ($this->FtActa->getPK()) {
             $documentId = $GuardarFtController->edit(
@@ -197,16 +208,16 @@ class FtActaController
     {
         $documentId = $this->FtActa->documento_iddocumento;
 
-        \DocumentoTarea::inactiveByDocument($documentId);
+        DocumentoTarea::inactiveByDocument($documentId);
 
         foreach ($tasks as $task) {
-            $DocumentoTarea = \DocumentoTarea::findByAttributes([
+            $DocumentoTarea = DocumentoTarea::findByAttributes([
                 'fk_tarea' => $task->id,
                 'fk_documento' => $documentId
             ]);
 
             if (!$DocumentoTarea) {
-                $DocumentoTarea = new \DocumentoTarea();
+                $DocumentoTarea = new DocumentoTarea();
             }
 
             $DocumentoTarea->setAttributes([
@@ -228,7 +239,7 @@ class FtActaController
      */
     public function getDocumentBuilderData()
     {
-        return (object) [
+        return (object)[
             'id' => $this->FtActa->getPK(),
             'documentId' => $this->FtActa->documento_iddocumento,
             'identificator' => $this->FtActa->Documento->numero,
@@ -291,7 +302,7 @@ class FtActaController
      */
     public function prepareRoles()
     {
-        $response = new \stdClass();
+        $response = new stdClass();
         $president = $this->FtActa->getPresident();
 
         if ($president) {
@@ -319,12 +330,12 @@ class FtActaController
         $response = [];
 
         foreach ($this->FtActa->Documento->getTasks() as $Tarea) {
-            $managerIdentifications = \TareaFuncionario::findColumn(
+            $managerIdentifications = TareaFuncionario::findColumn(
                 'fk_funcionario',
                 [
                     'estado' => 1,
                     'fk_tarea' => $Tarea->getPK(),
-                    'tipo' => \TareaFuncionario::TIPO_RESPONSABLE
+                    'tipo' => TareaFuncionario::TIPO_RESPONSABLE
                 ]
             );
 
@@ -350,10 +361,10 @@ class FtActaController
     {
         global $rootPath;
 
-        $ActPlanning  = $this->FtActa->ActPlanning;
+        $ActPlanning = $this->FtActa->ActPlanning;
 
-        $DateInterval = new \DateInterval('PT1H');
-        $DateTime = new \DateTime($ActPlanning->date);
+        $DateInterval = new DateInterval('PT1H');
+        $DateTime = new DateTime($ActPlanning->date);
         $DateTime->add($DateInterval);
 
         $properties = [
@@ -361,25 +372,25 @@ class FtActaController
             'dtstart' => $ActPlanning->date,
             'dtend' => $DateTime->format('Y-m-d H:i:s'),
             'summary' => $ActPlanning->subject,
-            'organizer' => \SessionController::getValue('email')
+            'organizer' => SessionController::getValue('email')
         ];
 
-        $ics = new \IcsController($properties);
+        $ics = new IcsController($properties);
         $content = $ics->to_string();
 
-        $icsRoute = $rootPath . \SessionController::getTemporalDir() . '/invitacion.ics';
+        $icsRoute = $rootPath . SessionController::getTemporalDir() . '/invitacion.ics';
 
         if (!file_put_contents($icsRoute, $content)) {
-            throw new \Exception("Error al generar la invitacion", 1);
+            throw new Exception("Error al generar la invitacion", 1);
         }
 
-        $SendMailController = new \SendMailController('Invitación a reunión', ' ');
+        $SendMailController = new SendMailController('Invitación a reunión', ' ');
         $SendMailController->setDestinations(
-            \SendMailController::DESTINATION_TYPE_EMAIL,
+            SendMailController::DESTINATION_TYPE_EMAIL,
             $this->FtActa->getAssistantsEmail()
         );
         $SendMailController->setAttachments(
-            \SendMailController::ATTACHMENT_TYPE_ROUTE,
+            SendMailController::ATTACHMENT_TYPE_ROUTE,
             [$icsRoute]
         );
         $SendMailController->send();

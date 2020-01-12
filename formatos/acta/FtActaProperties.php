@@ -2,7 +2,9 @@
 
 namespace Saia\Actas\formatos\acta;
 
-class FtActaProperties extends \ModelFormat
+use Saia\core\model\ModelFormat;
+
+class FtActaProperties extends ModelFormat
 {
     public function __construct($id = null)
     {

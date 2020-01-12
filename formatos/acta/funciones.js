@@ -1,73 +1,73 @@
 let params = $('#add_edit_script').data('params');
 
 //evento ejecutado en el adicionar
-function add(){
-   
+function add() {
+
 }
 
 //evento ejecutado en el editar
-function edit(data){
-    
+function edit(data) {
+
 }
 
 //evento ejecutado en el mostrar
-function show(data){
-    
+function show(data) {
+
 }
 
 //evento ejecutado anterior al adicionar
-function beforeSendAdd(){
+function beforeSendAdd() {
     return new Promise((resolve, reject) => {
-      resolve();
+        resolve();
     });
 }
 
 //evento ejecutado posterior al adicionar
-function afterSendAdd(xhr){
+function afterSendAdd(xhr) {
     return new Promise((resolve, reject) => {
-      resolve();
+        resolve();
     });
 }
 
 //evento ejecutado anterior al editar
-function beforeSendEdit(){
+function beforeSendEdit() {
     return new Promise((resolve, reject) => {
-      resolve();
+        resolve();
     });
 }
 
 //evento ejecutado posterior al editar
-function afterSendEdit(xhr){
+function afterSendEdit(xhr) {
     return new Promise((resolve, reject) => {
-      resolve();
+        resolve();
     });
 }
 
 //evento ejecutado anterior al devolver o rechazar
-function beforeReject(){
+function beforeReject() {
     return new Promise((resolve, reject) => {
-      resolve();
+        resolve();
     });
 }
 
 //evento ejecutado posterior al devolver o rechazar
-function afterReject(xhr){
+function afterReject(xhr) {
     return new Promise((resolve, reject) => {
-      resolve();
+        resolve();
     });
 }
 
 //evento ejecutado anterior al confirmar o aprobar
-function beforeConfirm(){
+function beforeConfirm() {
     return new Promise((resolve, reject) => {
-      resolve();
+        resolve();
     });
 }
 
 //evento ejecutado posterior al confirmar o aprobar
-function afterConfirm(xhr){
+function afterConfirm(xhr) {
     return new Promise((resolve, reject) => {
-      resolve();
+        resolve();
     });
 }
 

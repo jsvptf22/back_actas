@@ -33,7 +33,7 @@ class PreparedPublicUserData
     }
 
     /**
-     * genera un objecto con datos especificos 
+     * genera un objecto con datos especificos
      * de la instancia ActDocumentUser
      *
      * @return object
@@ -43,7 +43,7 @@ class PreparedPublicUserData
     public function getPreparedData()
     {
         if (!$this->prepare) {
-            $this->prepare = (object) [
+            $this->prepare = (object)[
                 'id' => $this->ActDocumentUser->identification,
                 'name' => $this->ActDocumentUser->getUser()->getName(),
                 'text' => $this->ActDocumentUser->getUser()->getName(),

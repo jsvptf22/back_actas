@@ -1,4 +1,9 @@
 <?php
+
+use Saia\controllers\JwtController;
+use Saia\controllers\notificaciones\NotifierController;
+use Saia\core\DatabaseConnection;
+
 $max_salida = 10;
 $rootPath = $ruta = '';
 
@@ -14,7 +19,7 @@ while ($max_salida > 0) {
 
 include_once $rootPath . 'app/vendor/autoload.php';
 
-$Response = (object) [
+$Response = (object)[
     'data' => new stdClass(),
     'message' => '',
     'success' => 0,
@@ -26,7 +31,7 @@ try {
 
     if ($_REQUEST['term']) {
         $query = $_REQUEST['term'];
-        $data = Model::getQueryBuilder()
+        $data = DataBaseConnection::getQueryBuilder()
             ->select(['id', 'nombre_completo as name', 'externo as external'])
             ->from('v_act_user')
             ->where('nombre_completo like :query')
@@ -36,7 +41,7 @@ try {
             ->setMaxResults(20)
             ->execute()->fetchAll();
     } else if (!empty($_REQUEST['defaultUser'])) {
-        $data = Model::getQueryBuilder()
+        $data = DataBaseConnection::getQueryBuilder()
             ->select(['id', 'nombre_completo as name', 'externo as external'])
             ->from('v_act_user')
             ->where('id = :identificator')

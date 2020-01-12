@@ -1,6 +1,10 @@
 <?php
 
+use Saia\core\DatabaseConnection;
 use Saia\Actas\models\ActPlanning;
+use Saia\controllers\JwtController;
+use Saia\controllers\notificaciones\NotifierController;
+use Saia\controllers\SessionController;
 
 $max_salida = 10;
 $rootPath = $ruta = '';
@@ -17,7 +21,7 @@ while ($max_salida > 0) {
 
 include_once $rootPath . 'app/vendor/autoload.php';
 
-$Response = (object) [
+$Response = (object)[
     'data' => new stdClass(),
     'message' => '',
     'success' => 0,
@@ -27,7 +31,7 @@ $Response = (object) [
 try {
     JwtController::check($_REQUEST['token'], $_REQUEST['key']);
 
-    $QueryBuilder = Model::getQueryBuilder()
+    $QueryBuilder = DataBaseConnection::getQueryBuilder()
         ->select('a.*')
         ->from('act_planning', 'a')
         ->join('a', 'act_document_user', 'b', 'a.idact_planning = b.fk_act_planning')

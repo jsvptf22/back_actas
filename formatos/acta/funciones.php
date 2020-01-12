@@ -12,5 +12,3 @@ while ($max_salida > 0) {
 }
 
 include_once $rootPath . "app/vendor/autoload.php";
-
-use Saia\Actas\formatos\acta\FtActa;

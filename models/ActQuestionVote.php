@@ -2,7 +2,9 @@
 
 namespace Saia\Actas\models;
 
-class ActQuestionVote extends \Model
+use Saia\Core\model\Model;
+
+class ActQuestionVote extends Model
 {
     const ACTION_REJECT = 0;
     const ACTION_APPROVE = 1;
@@ -17,7 +19,7 @@ class ActQuestionVote extends \Model
      */
     protected function defineAttributes()
     {
-        $this->dbAttributes = (object) [
+        $this->dbAttributes = (object)[
             'safe' => [
                 'fk_funcionario',
                 'fk_act_question',

@@ -2,7 +2,9 @@
 
 namespace Saia\Actas\models;
 
-class ActPlanning extends \Model
+use Saia\Core\model\Model;
+
+class ActPlanning extends Model
 {
     /**
      * almacena las instancias de ActDocumentUser relacionadas
@@ -23,7 +25,7 @@ class ActPlanning extends \Model
      */
     protected function defineAttributes()
     {
-        $this->dbAttributes = (object) [
+        $this->dbAttributes = (object)[
             'safe' => [
                 'date',
                 'subject',

@@ -2,7 +2,9 @@
 
 namespace Saia\Actas\models;
 
-class ActDocumentTopic extends \Model
+use Saia\Core\model\Model;
+
+class ActDocumentTopic extends Model
 {
     function __construct($id = null)
     {
@@ -14,7 +16,7 @@ class ActDocumentTopic extends \Model
      */
     protected function defineAttributes()
     {
-        $this->dbAttributes = (object) [
+        $this->dbAttributes = (object)[
             'safe' => [
                 'fk_ft_acta',
                 'name',

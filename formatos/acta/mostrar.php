@@ -14,6 +14,7 @@ while ($max_salida > 0) {
 
 include_once $rootPath . 'app/vendor/autoload.php';
 
+use Saia\controllers\JwtController;
 use Saia\Actas\formatos\acta\FtActa;
 
 try {
@@ -48,7 +49,7 @@ try {
                     <div id="documento" class="row p-0 m-0">
                         <div id="pag-0" class="col-12 page_border bg-white">
                             <div class="page_margin_top mb-0" id="doc_header">
-                            <?php include_once $rootPath . "formatos/librerias/header_nuevo.php" ?>
+                            <?php include_once $rootPath . "views/formatos/librerias/header_nuevo.php" ?>
                             </div>
                             <div id="pag_content-0" class="page_content">
                                 <div id="page_overflow">
@@ -58,20 +59,20 @@ try {
             <tr>
             <td>Acta N°</td>
             <td>
-               <?= UtilitiesController::formato_numero($FtActa) ?>
+               <?= Saia\controllers\UtilitiesController::formato_numero($FtActa) ?>
             </td>
             <td>Tema / Asunto</td>
             <td colspan="3">
-                <?= ComponentFormGeneratorController::callShowValue('asunto',$FtActa,471) ?>
+                <?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue('asunto',$FtActa,471) ?>
             </td>
             </tr>
             <tr>
             <td>Fecha</td>
-            <td><?= ComponentFormGeneratorController::callShowValue('fecha_inicial',$FtActa,471) ?></td>
+            <td><?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue('fecha_inicial',$FtActa,471) ?></td>
             <td>Hora Inicio</td>
-            <td><?= ComponentFormGeneratorController::callShowValue('fecha_inicial',$FtActa,471) ?></td>
+            <td><?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue('fecha_inicial',$FtActa,471) ?></td>
             <td>Hora Final</td>
-            <td><?= ComponentFormGeneratorController::callShowValue('fecha_final',$FtActa,471) ?></td>
+            <td><?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue('fecha_final',$FtActa,471) ?></td>
             </tr>
             <tr>
             <td>Lugar</td>
@@ -169,7 +170,7 @@ try {
 </div>
                                 </div>
                             </div>
-                            <?php include_once $rootPath . "formatos/librerias/footer_nuevo.php" ?>
+                            <?php include_once $rootPath . "views/formatos/librerias/footer_nuevo.php" ?>
                         </div> <!-- end page-n -->
                     </div> <!-- end #documento-->
                 </div> <!-- end .container -->
@@ -182,7 +183,7 @@ try {
                 $(function(){
                     $.getScript('<?= ABSOLUTE_SAIA_ROUTE ?>app/modules/back_actas/formatos/acta/funciones.js', () => {
                         window.routeParams=<?= json_encode($params) ?>;
-                        show(<?= json_encode($params) ?>);
+                        show(<?= json_encode($params) ?>)
                     });
                 });
             </script>

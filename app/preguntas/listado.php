@@ -2,6 +2,7 @@
 
 use Saia\Actas\models\ActQuestion;
 use Saia\Actas\models\ActQuestionVote;
+use Saia\controllers\JwtController;
 
 $max_salida = 10;
 $rootPath = $ruta = '';
@@ -18,7 +19,7 @@ while ($max_salida > 0) {
 
 include_once $rootPath . 'app/vendor/autoload.php';
 
-$Response = (object) [
+$Response = (object)[
     "total" => 0,
     "rows" => []
 ];

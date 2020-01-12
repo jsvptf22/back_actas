@@ -14,6 +14,8 @@ while ($max_salida > 0) {
 include_once $rootPath . 'app/vendor/autoload.php';
 include_once $rootPath . 'views/assets/librerias.php';
 
+use Saia\controllers\JwtController;
+use Saia\controllers\AccionController;
 use Saia\Actas\formatos\acta\FtActa;
 
 JwtController::check($_REQUEST["token"], $_REQUEST["key"]); 
@@ -53,9 +55,11 @@ $FtActa = new FtActa;
                     <input type='hidden' name='encabezado' value='1'>
 <input type='hidden' name='firma' value='1'>
 <input type='hidden' name='idft_acta' value=''>
+
         <?php
+        use Saia\controllers\SessionController;use Saia\core\DatabaseConnection;
         $selected = $FtActa->dependencia ?? '';
-        $query = Model::getQueryBuilder();
+        $query = DatabaseConnection::getQueryBuilder();
         $roles = $query
             ->select("dependencia as nombre, iddependencia_cargo, cargo")
             ->from("vfuncionario_dc")
@@ -70,10 +74,11 @@ $FtActa = new FtActa;
     
         $total = count($roles);
 
-        echo "<div class='form-group' id='group_dependencie'>";
-    
         if ($total > 1) {
-            echo "<select class='full-width' name='dependencia' id='dependencia' required>";
+
+            echo "<div class='form-group form-group-default form-group-default-select2 required' id='group_dependencie'>
+            <label>Rol activo</label>
+            <select class='full-width select2-hidden-accessible' name='dependencia' id='dependencia' required>";
             foreach ($roles as $row) {
                 echo "<option value='{$row["iddependencia_cargo"]}'>
                     {$row["nombre"]} - ({$row["cargo"]})
@@ -90,8 +95,12 @@ $FtActa = new FtActa;
                 </script>
             ";
         } else if ($total == 1) {
-            echo "<input class='required' type='hidden' value='{$roles[0]['iddependencia_cargo']}' id='dependencia' name='dependencia'>
-                <label class ='form-control'>{$roles[0]["nombre"]} - ({$roles[0]["cargo"]})</label>";
+            echo "<div class='form-group form-group-default required' id='group_dependencie'>
+                <input class='required' type='hidden' value='{$roles[0]['iddependencia_cargo']}' id='dependencia' name='dependencia'>
+                <label>Rol activo</label>
+                <div class='form-group'>
+                    <label>{$roles[0]["nombre"]} - ({$roles[0]["cargo"]})</label>
+                </div>";
         } else {
             throw new Exception("Error al buscar la dependencia", 1);
         }
@@ -382,9 +391,9 @@ $FtActa = new FtActa;
             $.getScript('<?= $rootPath ?>app/modules/back_actas/formatos/acta/funciones.js', () => {
                 window.routeParams=<?= json_encode($params) ?>;
                 if (+'<?= $documentId ?>') {
-                    edit(<?= json_encode($params) ?>);
+                    edit(<?= json_encode($params) ?>)
                 } else {
-                    add(<?= json_encode($params) ?>);
+                    add(<?= json_encode($params) ?>)
                 }
             });
 
@@ -435,7 +444,7 @@ $FtActa = new FtActa;
                         $("#save_document").show();
                         $("#boton_enviando").remove();
                     }
-                })
+                });
                 $("#formulario_formatos").trigger('submit');
             }
 

@@ -14,6 +14,8 @@ while ($max_salida > 0) {
 include_once $rootPath . 'app/vendor/autoload.php';
 include_once $rootPath . 'views/assets/librerias.php';
 
+use Saia\controllers\JwtController;
+use Saia\controllers\AccionController;
 use Saia\Actas\formatos\acta\FtActa;
 
 JwtController::check($_REQUEST["token"], $_REQUEST["key"]); 
@@ -50,29 +52,31 @@ $FtActa = FtActa::findByDocumentId($documentId);
                     role='form' 
                     autocomplete='off' 
                     >
-                    <input type='hidden' name='documento_iddocumento' value='<?= ComponentFormGeneratorController::callShowValue(
+                    <input type='hidden' name='documento_iddocumento' value='<?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue(
                 'documento_iddocumento',
                 $FtActa,
                 471
             ) ?>'>
-<input type='hidden' name='encabezado' value='<?= ComponentFormGeneratorController::callShowValue(
+<input type='hidden' name='encabezado' value='<?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue(
                 'encabezado',
                 $FtActa,
                 471
             ) ?>'>
-<input type='hidden' name='firma' value='<?= ComponentFormGeneratorController::callShowValue(
+<input type='hidden' name='firma' value='<?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue(
                 'firma',
                 $FtActa,
                 471
             ) ?>'>
-<input type='hidden' name='idft_acta' value='<?= ComponentFormGeneratorController::callShowValue(
+<input type='hidden' name='idft_acta' value='<?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue(
                 'idft_acta',
                 $FtActa,
                 471
             ) ?>'>
+
         <?php
+        use Saia\controllers\SessionController;use Saia\core\DatabaseConnection;
         $selected = $FtActa->dependencia ?? '';
-        $query = Model::getQueryBuilder();
+        $query = DatabaseConnection::getQueryBuilder();
         $roles = $query
             ->select("dependencia as nombre, iddependencia_cargo, cargo")
             ->from("vfuncionario_dc")
@@ -87,10 +91,11 @@ $FtActa = FtActa::findByDocumentId($documentId);
     
         $total = count($roles);
 
-        echo "<div class='form-group' id='group_dependencie'>";
-    
         if ($total > 1) {
-            echo "<select class='full-width' name='dependencia' id='dependencia' required>";
+
+            echo "<div class='form-group form-group-default form-group-default-select2 required' id='group_dependencie'>
+            <label>Rol activo</label>
+            <select class='full-width select2-hidden-accessible' name='dependencia' id='dependencia' required>";
             foreach ($roles as $row) {
                 echo "<option value='{$row["iddependencia_cargo"]}'>
                     {$row["nombre"]} - ({$row["cargo"]})
@@ -107,8 +112,12 @@ $FtActa = FtActa::findByDocumentId($documentId);
                 </script>
             ";
         } else if ($total == 1) {
-            echo "<input class='required' type='hidden' value='{$roles[0]['iddependencia_cargo']}' id='dependencia' name='dependencia'>
-                <label class ='form-control'>{$roles[0]["nombre"]} - ({$roles[0]["cargo"]})</label>";
+            echo "<div class='form-group form-group-default required' id='group_dependencie'>
+                <input class='required' type='hidden' value='{$roles[0]['iddependencia_cargo']}' id='dependencia' name='dependencia'>
+                <label>Rol activo</label>
+                <div class='form-group'>
+                    <label>{$roles[0]["nombre"]} - ({$roles[0]["cargo"]})</label>
+                </div>";
         } else {
             throw new Exception("Error al buscar la dependencia", 1);
         }
@@ -124,7 +133,7 @@ $FtActa = FtActa::findByDocumentId($documentId);
                     id="asunto" 
                     rows="3" 
                     class="form-control required"
-                ><?= ComponentFormGeneratorController::callShowValue(
+                ><?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue(
                 'asunto',
                 $FtActa,
                 471
@@ -143,13 +152,18 @@ $FtActa = FtActa::findByDocumentId($documentId);
                         <i class='fa fa-calendar'></i>
                     </span>
                 </div>
-            </div>            <?php
-                $defaultDate = ComponentFormGeneratorController::callShowValue(
+            </div>
+<?php
+                $defaultDate = Saia\controllers\generador\ComponentFormGeneratorController::callShowValue(
                     'fecha_inicial',
                     $FtActa,
                     471
                 );
-                $defaultDate = DateController::convertDate($defaultDate, 'Y-m-d H:i:s', DateController::DEFAULT_FORMAT);
+                $defaultDate = Saia\controllers\DateController::convertDate(
+                    $defaultDate,
+                    'Y-m-d H:i:s',
+                    Saia\controllers\DateController::DEFAULT_FORMAT
+                );
             ?>        <script type='text/javascript'>
             $(function () {
                 let defaultDate = '<?= $defaultDate ?>';
@@ -193,13 +207,18 @@ $FtActa = FtActa::findByDocumentId($documentId);
                         <i class='fa fa-calendar'></i>
                     </span>
                 </div>
-            </div>            <?php
-                $defaultDate = ComponentFormGeneratorController::callShowValue(
+            </div>
+<?php
+                $defaultDate = Saia\controllers\generador\ComponentFormGeneratorController::callShowValue(
                     'fecha_final',
                     $FtActa,
                     471
                 );
-                $defaultDate = DateController::convertDate($defaultDate, 'Y-m-d H:i:s', DateController::DEFAULT_FORMAT);
+                $defaultDate = Saia\controllers\DateController::convertDate(
+                    $defaultDate,
+                    'Y-m-d H:i:s',
+                    Saia\controllers\DateController::DEFAULT_FORMAT
+                );
             ?>        <script type='text/javascript'>
             $(function () {
                 let defaultDate = '<?= $defaultDate ?>';
@@ -231,7 +250,7 @@ $FtActa = FtActa::findByDocumentId($documentId);
                 }
             });
         </script>
-<input type='hidden' name='estado' value='<?= ComponentFormGeneratorController::callShowValue(
+<input type='hidden' name='estado' value='<?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue(
                 'estado',
                 $FtActa,
                 471
@@ -421,7 +440,7 @@ $FtActa = FtActa::findByDocumentId($documentId);
                 }
             });
         </script>
-<input type='hidden' name='fk_act_planning' value='<?= ComponentFormGeneratorController::callShowValue(
+<input type='hidden' name='fk_act_planning' value='<?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue(
                 'fk_act_planning',
                 $FtActa,
                 471
@@ -463,9 +482,9 @@ $FtActa = FtActa::findByDocumentId($documentId);
             $.getScript('<?= $rootPath ?>app/modules/back_actas/formatos/acta/funciones.js', () => {
                 window.routeParams=<?= json_encode($params) ?>;
                 if (+'<?= $documentId ?>') {
-                    edit(<?= json_encode($params) ?>);
+                    edit(<?= json_encode($params) ?>)
                 } else {
-                    add(<?= json_encode($params) ?>);
+                    add(<?= json_encode($params) ?>)
                 }
             });
 
@@ -516,7 +535,7 @@ $FtActa = FtActa::findByDocumentId($documentId);
                         $("#save_document").show();
                         $("#boton_enviando").remove();
                     }
-                })
+                });
                 $("#formulario_formatos").trigger('submit');
             }
 

@@ -1,6 +1,7 @@
 <?php
 
 use Saia\Actas\models\ActQuestionVote;
+use Saia\controllers\notificaciones\NotifierController;
 
 $max_salida = 10;
 $rootPath = $ruta = '';
@@ -17,7 +18,7 @@ while ($max_salida > 0) {
 
 include_once $rootPath . 'app/vendor/autoload.php';
 
-$Response = (object) [
+$Response = (object)[
     'data' => new stdClass(),
     'message' => '',
     'success' => 0,

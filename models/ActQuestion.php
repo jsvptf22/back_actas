@@ -3,8 +3,11 @@
 namespace Saia\Actas\models;
 
 use Saia\Actas\formatos\acta\FtActa;
+use Saia\controllers\CriptoController;
+use Saia\controllers\SendMailController;
+use Saia\Core\model\Model;
 
-class ActQuestion extends \Model
+class ActQuestion extends Model
 {
     function __construct($id = null)
     {
@@ -16,7 +19,7 @@ class ActQuestion extends \Model
      */
     protected function defineAttributes()
     {
-        $this->dbAttributes = (object) [
+        $this->dbAttributes = (object)[
             'safe' => [
                 'question',
                 'state',
@@ -67,14 +70,6 @@ class ActQuestion extends \Model
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2019-03-19
      */
-    protected function beforeUpdate()
-    {
-        if (!$this->updated_at) {
-            $this->updated_at = date('Y-m-d H:i:s');
-        }
-
-        return true;
-    }
 
     /**
      * envia correo indicando enlace de la nueva pregunta
@@ -88,17 +83,26 @@ class ActQuestion extends \Model
         $FtActa = new FtActa($this->fk_ft_acta);
 
         $room = ABSOLUTE_SAIA_ROUTE . "views/modules/actas/views/question/decide.php?q=";
-        $room .= \CriptoController::encrypt_blowfish(json_encode([
+        $room .= CriptoController::encrypt_blowfish(json_encode([
             'id' => $this->getPK(),
             'question' => $this->question,
         ]));
         $body = "Para opinar a la pregunta {$this->question} haga click <a href='{$room}'>aquí</a>";
 
-        $SendMailController = new \SendMailController('Nueva decicion por opinar', $body);
+        $SendMailController = new SendMailController('Nueva decicion por opinar', $body);
         $SendMailController->setDestinations(
-            \SendMailController::DESTINATION_TYPE_EMAIL,
+            SendMailController::DESTINATION_TYPE_EMAIL,
             $FtActa->getAssistantsEmail()
         );
         $SendMailController->send();
+    }
+
+    protected function beforeUpdate()
+    {
+        if (!$this->updated_at) {
+            $this->updated_at = date('Y-m-d H:i:s');
+        }
+
+        return true;
     }
 }

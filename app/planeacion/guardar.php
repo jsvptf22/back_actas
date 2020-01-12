@@ -3,6 +3,9 @@
 use Saia\Actas\controllers\FtActaController;
 use Saia\Actas\formatos\acta\FtActa;
 use Saia\Actas\models\ActPlanning;
+use Saia\controllers\JwtController;
+use Saia\controllers\notificaciones\NotifierController;
+use Saia\controllers\SessionController;
 
 $max_salida = 10;
 $rootPath = $ruta = '';
@@ -19,7 +22,7 @@ while ($max_salida > 0) {
 
 include_once $rootPath . 'app/vendor/autoload.php';
 
-$Response = (object) [
+$Response = (object)[
     'data' => new stdClass(),
     'message' => '',
     'success' => 0,
@@ -48,14 +51,14 @@ try {
         throw new Exception("Error al agendar", 1);
     }
 
-    $defaultAssistant = (object) [
+    $defaultAssistant = (object)[
         'id' => SessionController::getValue('idfuncionario'),
         'external' => 0
     ];
     $userList = json_decode($_REQUEST['users']);
     array_push($userList, $defaultAssistant);
 
-    $data = (object) [
+    $data = (object)[
         'planning' => $ActPlanning->getPK(),
         'initialDate' => $ActPlanning->date,
         'subject' => $ActPlanning->subject,
