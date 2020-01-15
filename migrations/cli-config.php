@@ -1,5 +1,7 @@
 <?php
 
+use \Saia\core\DatabaseConnection;
+
 require '../../../vendor/autoload.php';
 
 use Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper;
