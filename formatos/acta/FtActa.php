@@ -55,6 +55,32 @@ class FtActa extends FtActaProperties
     }
 
     /**
+     * obtiene o genera la sala de la reunion
+     *
+     * @return string
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2020
+     */
+    public function getRoom()
+    {
+        if (!$this->room) {
+            $roomName = time();
+            $endPoint = "http://asker-jsv.herokuapp.com/api/room/{$roomName}";
+            $Client = new \GuzzleHttp\Client();
+            $clientRequest = $Client->request('POST', $endPoint);
+            $data = json_decode($clientRequest->getBody());
+
+            if (!$data->success) {
+                throw new \Exception("Error al generar la sala", 1);
+            }
+
+            $this->room = $data->data->roomId;
+        }
+
+        return $this->room;
+    }
+
+    /**
      * obtiene la lista de correos de los asistentes
      *
      * @return array
@@ -105,7 +131,7 @@ class FtActa extends FtActaProperties
         $assistants = $this->getAssistants();
 
         $internals = array_filter($assistants, function ($ActDocumentUser) {
-            return !(int)$ActDocumentUser->external;
+            return !(int) $ActDocumentUser->external;
         });
 
         $names = [];
@@ -148,11 +174,11 @@ class FtActa extends FtActaProperties
         $assistants = $this->getAssistants();
 
         $externals = array_filter($assistants, function ($ActDocumentUser) {
-            return (int)$ActDocumentUser->external;
+            return (int) $ActDocumentUser->external;
         });
 
         $names = [];
-        foreach ($externals as $key => $ActDocumentUser) {
+        foreach ($externals as $ActDocumentUser) {
             array_push($names, $ActDocumentUser->getUser()->getName());
         }
 

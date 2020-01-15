@@ -2,20 +2,15 @@
 
 namespace Saia\Actas\controllers;
 
-use stdClass;
-use DateInterval;
-use DateTime;
-use Exception;
-use Saia\models\documento\DocumentoTarea;
 use Saia\Actas\formatos\acta\FtActa;
-use Saia\Actas\models\ActDocumentTopic;
 use Saia\Actas\models\ActDocumentUser;
-use Saia\controllers\GuardarFtController;
-use Saia\controllers\IcsController;
-use Saia\controllers\SendMailController;
+use Saia\models\vistas\VfuncionarioDc;
+use Saia\Actas\models\ActDocumentTopic;
 use Saia\controllers\SessionController;
 use Saia\models\tarea\TareaFuncionario;
-use Saia\models\vistas\VfuncionarioDc;
+use Saia\controllers\GuardarFtController;
+use Saia\models\documento\DocumentoTarea;
+use Saia\Actas\controllers\ActaMailInvitation;
 
 class FtActaController
 {
@@ -50,7 +45,8 @@ class FtActaController
             'fecha_final' => $data->initialDate,
             'asunto' => $data->subject,
             'dependencia' => VfuncionarioDc::getFirstUserRole($userId),
-            'estado' => 1
+            'estado' => 1,
+            'room' => $this->FtActa->getRoom()
         ];
 
         $Formato = $this->FtActa->getFormat();
@@ -250,6 +246,10 @@ class FtActaController
             'userList' => $this->prepareAssistants(),
             'roles' => $this->prepareRoles(),
             'tasks' => $this->prepareTasks(),
+            'questions' => [
+                'room' => $this->FtActa->getRoom(),
+                'items' => []
+            ]
         ];
     }
 
@@ -302,7 +302,7 @@ class FtActaController
      */
     public function prepareRoles()
     {
-        $response = new stdClass();
+        $response = new \stdClass();
         $president = $this->FtActa->getPresident();
 
         if ($president) {
@@ -359,40 +359,7 @@ class FtActaController
      */
     public function sendInvitations()
     {
-        global $rootPath;
-
-        $ActPlanning = $this->FtActa->ActPlanning;
-
-        $DateInterval = new DateInterval('PT1H');
-        $DateTime = new DateTime($ActPlanning->date);
-        $DateTime->add($DateInterval);
-
-        $properties = [
-            'description' => $ActPlanning->subject,
-            'dtstart' => $ActPlanning->date,
-            'dtend' => $DateTime->format('Y-m-d H:i:s'),
-            'summary' => $ActPlanning->subject,
-            'organizer' => SessionController::getValue('email')
-        ];
-
-        $ics = new IcsController($properties);
-        $content = $ics->to_string();
-
-        $icsRoute = $rootPath . SessionController::getTemporalDir() . '/invitacion.ics';
-
-        if (!file_put_contents($icsRoute, $content)) {
-            throw new Exception("Error al generar la invitacion", 1);
-        }
-
-        $SendMailController = new SendMailController('Invitación a reunión', ' ');
-        $SendMailController->setDestinations(
-            SendMailController::DESTINATION_TYPE_EMAIL,
-            $this->FtActa->getAssistantsEmail()
-        );
-        $SendMailController->setAttachments(
-            SendMailController::ATTACHMENT_TYPE_ROUTE,
-            [$icsRoute]
-        );
-        $SendMailController->send();
+        $ActaMailInvitation = new ActaMailInvitation($this->FtActa);
+        $ActaMailInvitation->send();
     }
 }

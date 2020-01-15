@@ -16,6 +16,7 @@ include_once $rootPath . 'views/assets/librerias.php';
 
 use Saia\controllers\JwtController;
 use Saia\controllers\AccionController;
+use Saia\models\formatos\Formato;
 use Saia\Actas\formatos\acta\FtActa;
 
 JwtController::check($_REQUEST["token"], $_REQUEST["key"]); 
@@ -354,6 +355,7 @@ $FtActa = new FtActa;
                 });
             </script>
 <input type='hidden' name='fk_act_planning' value=''>
+<input type='hidden' name='room' value=''>
 <input type='hidden' name='campo_descripcion' value='9070'>
 					<input type='hidden' name='documentId' value='<?= $documentId ?>'>
 					<input type='hidden' id='tipo_radicado' name='tipo_radicado' value='apoyo'>

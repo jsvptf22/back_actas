@@ -26,7 +26,8 @@ class FtActaProperties extends ModelFormat
 				'fecha_inicial',
 				'firma',
 				'fk_act_planning',
-				'idft_acta' 
+				'idft_acta',
+				'room' 
             ],
             'date' => ['fecha_inicial',
 				'fecha_final'],

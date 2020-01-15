@@ -16,6 +16,7 @@ include_once $rootPath . 'views/assets/librerias.php';
 
 use Saia\controllers\JwtController;
 use Saia\controllers\AccionController;
+use Saia\models\formatos\Formato;
 use Saia\Actas\formatos\acta\FtActa;
 
 JwtController::check($_REQUEST["token"], $_REQUEST["key"]); 
@@ -442,6 +443,11 @@ $FtActa = FtActa::findByDocumentId($documentId);
         </script>
 <input type='hidden' name='fk_act_planning' value='<?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue(
                 'fk_act_planning',
+                $FtActa,
+                471
+            ) ?>'>
+<input type='hidden' name='room' value='<?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue(
+                'room',
                 $FtActa,
                 471
             ) ?>'>
