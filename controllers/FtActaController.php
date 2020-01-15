@@ -2,10 +2,11 @@
 
 namespace Saia\Actas\controllers;
 
+use stdClass;
 use DateInterval;
 use DateTime;
-use DocumentoTarea;
 use Exception;
+use Saia\models\documento\DocumentoTarea;
 use Saia\Actas\formatos\acta\FtActa;
 use Saia\Actas\models\ActDocumentTopic;
 use Saia\Actas\models\ActDocumentUser;
@@ -13,9 +14,8 @@ use Saia\controllers\GuardarFtController;
 use Saia\controllers\IcsController;
 use Saia\controllers\SendMailController;
 use Saia\controllers\SessionController;
-use stdClass;
-use TareaFuncionario;
-use VfuncionarioDc;
+use Saia\models\tarea\TareaFuncionario;
+use Saia\models\vistas\VfuncionarioDc;
 
 class FtActaController
 {
@@ -239,7 +239,7 @@ class FtActaController
      */
     public function getDocumentBuilderData()
     {
-        return (object)[
+        return (object) [
             'id' => $this->FtActa->getPK(),
             'documentId' => $this->FtActa->documento_iddocumento,
             'identificator' => $this->FtActa->Documento->numero,

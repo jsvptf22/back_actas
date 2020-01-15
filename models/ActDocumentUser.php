@@ -2,10 +2,10 @@
 
 namespace Saia\Actas\models;
 
-use Funcionario;
+use Saia\models\Funcionario;
 use Saia\Actas\controllers\PreparedPublicUserData;
 use Saia\Core\model\Model;
-use Tercero;
+use Saia\models\Tercero;
 
 class ActDocumentUser extends Model
 {
@@ -119,7 +119,7 @@ class ActDocumentUser extends Model
      */
     public function getUser()
     {
-        return (int)$this->external ? $this->Tercero : $this->Funcionario;
+        return (int) $this->external ? $this->Tercero : $this->Funcionario;
     }
 
     /**
@@ -143,7 +143,7 @@ class ActDocumentUser extends Model
      */
     protected function defineAttributes()
     {
-        $this->dbAttributes = (object)[
+        $this->dbAttributes = (object) [
             'safe' => [
                 'fk_ft_acta',
                 'relation',
