@@ -2,10 +2,14 @@
 
 namespace Saia\Actas\formatos\acta;
 
+use Exception;
 use Saia\core\DataBaseConnection;
-use Saia\Actas\models\ActDocumentTopic;
-use Saia\Actas\models\ActDocumentUser;
 use Saia\Actas\models\ActPlanning;
+use Saia\models\ruta\RutaDocumento;
+use Saia\Actas\models\ActDocumentUser;
+use Saia\Actas\models\ActDocumentTopic;
+use Saia\Actas\formatos\acta\FtActaProperties;
+use Saia\controllers\documento\RutaDocumentoController;
 
 class FtActa extends FtActaProperties
 {
@@ -52,6 +56,68 @@ class FtActa extends FtActaProperties
     public function __construct($id = null)
     {
         parent::__construct($id);
+    }
+
+    /**
+     * define atributos adicionales sobre el modelo
+     *
+     * @return array
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2020
+     */
+    protected function defineMoreAttributes()
+    {
+        return [
+            'relations' => [
+                'ActPlanning' => [
+                    'model' => ActPlanning::class,
+                    'attribute' => 'idact_planning',
+                    'primary' => 'fk_act_planning',
+                    'relation' => self::BELONGS_TO_ONE
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * accion a ejecutar despues de editar
+     *
+     * @return void
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2019
+     */
+    public function afterEdit()
+    {
+        $secretary = $this->getSecretary();
+        $president = $this->getPresident();
+
+        $data = [
+            'documentId' => $this->documento_iddocumento,
+            'type' => RutaDocumento::TIPO_RADICACION,
+            'flow' => RutaDocumento::FLUJO_SERIE,
+            'data' => [
+                [
+                    'type' => 1,
+                    'typeId' => $secretary->identification,
+                    'action' => 1,
+                    'order' => 1
+                ],
+                [
+                    'type' => 1,
+                    'typeId' => $president->identification,
+                    'action' => 1,
+                    'order' => 2
+                ]
+            ]
+        ];
+
+        $infoRuta = RutaDocumentoController::generateRoute($data);
+
+        if (!$infoRuta->success) {
+            throw new Exception("No fue posible generar la ruta de aprobación", 1);
+        }
+
+        return true;
     }
 
     /**
@@ -339,19 +405,5 @@ class FtActa extends FtActaProperties
         }
 
         return $this->ActDocumentUserPresident;
-    }
-
-    protected function defineMoreAttributes()
-    {
-        return [
-            'relations' => [
-                'ActPlanning' => [
-                    'model' => ActPlanning::class,
-                    'attribute' => 'idact_planning',
-                    'primary' => 'fk_act_planning',
-                    'relation' => self::BELONGS_TO_ONE
-                ]
-            ]
-        ];
     }
 }

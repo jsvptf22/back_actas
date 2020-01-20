@@ -246,6 +246,7 @@ class FtActaController
             'userList' => $this->prepareAssistants(),
             'roles' => $this->prepareRoles(),
             'tasks' => $this->prepareTasks(),
+            'planning' => $this->FtActa->fk_act_planning,
             'questions' => [
                 'room' => $this->FtActa->getRoom(),
                 'items' => []
