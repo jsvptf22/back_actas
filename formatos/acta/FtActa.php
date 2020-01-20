@@ -91,6 +91,10 @@ class FtActa extends FtActaProperties
         $secretary = $this->getSecretary();
         $president = $this->getPresident();
 
+        if (!$secretary || !$president) {
+            return true;
+        }
+
         $data = [
             'documentId' => $this->documento_iddocumento,
             'type' => RutaDocumento::TIPO_RADICACION,
