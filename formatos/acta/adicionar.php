@@ -214,12 +214,13 @@ $FtActa = new FtActa;
             </div>
             <script>
                 $(function(){
+                    var baseUrl = $('script[data-baseurl]').data('baseurl');
                     var select = $("#asistentes_externos");
                     select.select2({
                         minimumInputLength: 0,
                         language: 'es',
                         ajax: {
-                            url: `<?= $rootPath ?>app/tercero/autocompletar.php`,
+                            url: baseUrl+'app/tercero/autocompletar.php',
                             dataType: 'json',
                             data: function(params) {
                                 return {
@@ -340,7 +341,7 @@ $FtActa = new FtActa;
             </div>
             <script>
                 $(function () {
-                    let baseUrl = '<?= $rootPath ?>';
+                    let baseUrl = $('script[data-baseurl]').data('baseurl');
                     let users = new Users({
                             selector: '#asistentes_internos_ua',
                             baseUrl: baseUrl,
@@ -354,7 +355,7 @@ $FtActa = new FtActa;
                     }
                 });
             </script>
-<input type='hidden' name='fk_act_planning' value=''>
+<input type='hidden' name='fk_agendamiento_act' value=''>
 <input type='hidden' name='room' value=''>
 <input type='hidden' name='campo_descripcion' value='9070'>
 					<input type='hidden' name='documentId' value='<?= $documentId ?>'>
@@ -378,19 +379,28 @@ $FtActa = new FtActa;
     <?= fancyTree(true) ?>
     <?= dateTimePicker() ?>
     <?= dropzone() ?>
-    <?= users() ?>
-
+   
     <?php
+        $baseUrl= $rootPath;
+
+        if ($Formato->item){
+            $baseUrl = "../../";
+            echo users(1);
+        }
+        else{
+            echo users();
+        }
+
         if($documentId){
             $additionalParameters=$FtActa->getRouteParams(FtActa::SCOPE_ROUTE_PARAMS_EDIT); 
         }else{
             $additionalParameters=$FtActa->getRouteParams(FtActa::SCOPE_ROUTE_PARAMS_ADD); 
         }
-        $params=array_merge($_REQUEST,$additionalParameters,['baseUrl'=>'../../']);
+        $params=array_merge($_REQUEST,$additionalParameters,['baseUrl'=> $baseUrl]);
     ?>
-    <script>
+    <script data-baseurl='<?= $baseUrl ?>' >
         $(function() {
-            $.getScript('<?= $rootPath ?>app/modules/back_actas/formatos/acta/funciones.js', () => {
+            $.getScript('<?= $baseUrl ?>app/modules/back_actas/formatos/acta/funciones.js', () => {
                 window.routeParams=<?= json_encode($params) ?>;
                 if (+'<?= $documentId ?>') {
                     edit(<?= json_encode($params) ?>)
@@ -479,7 +489,7 @@ $FtActa = new FtActa;
                     });
     
                     $.post(
-                        '<?= $rootPath ?>app/documento/guardar_ft.php',
+                        '<?= $baseUrl ?>app/documento/guardar_ft.php',
                         data,
                         function(response) {
                             if (response.success) {

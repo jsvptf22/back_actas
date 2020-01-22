@@ -2,10 +2,10 @@
 
 namespace Saia\Actas\models;
 
-use Saia\models\Funcionario;
 use Saia\Actas\controllers\PreparedPublicUserData;
 use Saia\Core\model\Model;
 use Saia\models\Tercero;
+use Saia\models\vistas\VfuncionarioDc;
 
 class ActDocumentUser extends Model
 {
@@ -85,7 +85,7 @@ class ActDocumentUser extends Model
             'state' => 1,
             'relation' => $relationType,
             'identification' => $user->id,
-            'fk_act_planning' => $user->planning,
+            'fk_agendamiento_act' => $user->fk_agendamiento_act,
             'external' => $user->external ?? 1
         ]);
     }
@@ -106,20 +106,20 @@ class ActDocumentUser extends Model
      */
     public function getUserEmail()
     {
-        return $this->getUser() instanceof Funcionario ?
+        return $this->getUser() instanceof VfuncionarioDc ?
             $this->getUser()->email : $this->getUser()->correo;
     }
 
     /**
      * obtiene la instancia del usuario
      *
-     * @return Funcionario|Tercero
+     * @return VfuncionarioDc|Tercero
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2019-12-07
      */
     public function getUser()
     {
-        return (int) $this->external ? $this->Tercero : $this->Funcionario;
+        return (int) $this->external ? $this->Tercero : $this->VfuncionarioDc;
     }
 
     /**
@@ -152,15 +152,15 @@ class ActDocumentUser extends Model
                 'external',
                 'created_at',
                 'updated_at',
-                'fk_act_planning'
+                'fk_agendamiento_act'
             ],
             'date' => ['created_at', 'updated_at'],
             'table' => 'act_document_user',
             'primary' => 'idact_document_user',
             'relations' => [
-                'Funcionario' => [
-                    'model' => Funcionario::class,
-                    'attribute' => 'idfuncionario',
+                'VfuncionarioDc' => [
+                    'model' => VfuncionarioDc::class,
+                    'attribute' => 'iddependencia_cargo',
                     'primary' => 'identification',
                     'relation' => self::BELONGS_TO_ONE
                 ],

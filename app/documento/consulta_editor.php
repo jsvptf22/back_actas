@@ -19,7 +19,7 @@ use Saia\Actas\formatos\acta\FtActa;
 use Saia\controllers\JwtController;
 use Saia\controllers\notificaciones\NotifierController;
 
-$Response = (object)[
+$Response = (object) [
     'data' => new stdClass(),
     'message' => '',
     'success' => 0,
@@ -29,10 +29,10 @@ $Response = (object)[
 try {
     JwtController::check($_REQUEST['token'], $_REQUEST['key']);
 
-    $FtActa = isset($_REQUEST['documentId'])
+    $FtActa = !empty($_REQUEST['documentId'])
         ? FtActa::findByDocumentId($_REQUEST['documentId'])
         : FtActa::findByAttributes([
-            'fk_act_planning' => $_REQUEST['planning']
+            'fk_agendamiento_act' => $_REQUEST['schedule']
         ]);
 
     if (!$FtActa) {

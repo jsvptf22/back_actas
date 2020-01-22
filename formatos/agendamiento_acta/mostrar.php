@@ -15,14 +15,14 @@ while ($max_salida > 0) {
 include_once $rootPath . 'app/vendor/autoload.php';
 
 use Saia\controllers\JwtController;
-use Saia\Actas\formatos\acta\FtActa;
+use Saia\Actas\formatos\agendamiento_acta\FtAgendamientoActa;
 
 try {
     JwtController::check($_REQUEST["token"], $_REQUEST["key"]); 
     
     $documentId = $_REQUEST["documentId"];
-    $FtActa = FtActa::findByDocumentId($documentId);
-    $Documento = $FtActa->Documento;
+    $FtAgendamientoActa = FtAgendamientoActa::findByDocumentId($documentId);
+    $Documento = $FtAgendamientoActa->Documento;
     $Formato = $Documento->getFormat();
 
     if(
@@ -53,121 +53,8 @@ try {
                             </div>
                             <div id="pag_content-0" class="page_content">
                                 <div id="page_overflow">
-                                    <div class="row">
-    <div class="col-12">
-        <table class="table table-bordered">
-            <tr>
-            <td>Acta N°</td>
-            <td>
-               <?= Saia\controllers\UtilitiesController::formato_numero($FtActa) ?>
-            </td>
-            <td>Tema / Asunto</td>
-            <td colspan="3">
-                <?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue('asunto',$FtActa,471) ?>
-            </td>
-            </tr>
-            <tr>
-            <td>Fecha</td>
-            <td><?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue('fecha_inicial',$FtActa,471) ?></td>
-            <td>Hora Inicio</td>
-            <td><?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue('fecha_inicial',$FtActa,471) ?></td>
-            <td>Hora Final</td>
-            <td><?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue('fecha_final',$FtActa,471) ?></td>
-            </tr>
-            <tr>
-            <td>Lugar</td>
-            <td colspan="5"></td>
-            </tr>
-        </table>
-    </div>
-</div>
-<div class="row">
-    <div class="col-12">
-    <table class="table table-bordered">
-        <tr>
-        <td class="text-center">
-            Participantes
-        </td>
-        </tr>
-        <tr>
-        <td>
-            Asistentes:
-            <?= $FtActa->listInternalAssistants() ?>
-        </td>
-        </tr>
-        <tr>
-        <td>
-            Invitados:
-            <?= $FtActa->listExternalAssistants() ?>            
-        </td>
-        </tr>
-    </table>
-    </div>
-</div>
-<div class="row">
-    <div class="col-12">
-    <table class="table table-bordered">
-        <tr>
-        <td class="text-center">
-            Puntos a Tratar / Orden del día
-        </td>
-        </tr>
-        <tr>
-        <td>
-            <?= $FtActa->listTopics() ?>
-        </td>
-        </tr>
-    </table>
-    </div>
-</div>
-<div class="row">
-    <div class="col-12">
-    <table class="table table-bordered">
-        <tr>
-        <td class="text-center">
-            Puntos Tratados / Desarrollo
-        </td>
-        </tr>
-        <tr>
-        <td>
-            <?= $FtActa->listTopicDescriptions() ?>
-        </td>
-        </tr>
-    </table>
-    </div>
-</div>
-<div class="row">
-    <div class="col-12">
-    <table class="table table-bordered">
-        <tr>
-        <td class="text-center">
-            Responsabilidades
-        </td>
-        </tr>
-        <tr>
-        <td>
-            <?= $FtActa->listTasks() ?>
-        </td>
-        </tr>
-    </table>
-    </div>
-</div>
-<div class="row">
-    <div class="col-12">
-    <table class="table table-bordered">
-        <tr>
-        <td class="firm_square">
-            Revisado por:
-            <?= $FtActa->showSecretary() ?>
-        </td>
-        <td class="firm_square">
-            Aprobado por:
-            <?= $FtActa->showPresident() ?>
-        </td>
-        </tr>
-    </table>
-    </div>
-</div>
+                                    <p><?= $FtAgendamientoActa->asunto() ?></p>
+
                                 </div>
                             </div>
                             <?php include_once $rootPath . "views/formatos/librerias/footer_nuevo.php" ?>
@@ -176,12 +63,12 @@ try {
                 </div> <!-- end .container -->
             </body>
             <?php
-                $additionalParameters=$FtActa->getRouteParams(FtActa::SCOPE_ROUTE_PARAMS_SHOW);
+                $additionalParameters=$FtAgendamientoActa->getRouteParams(FtAgendamientoActa::SCOPE_ROUTE_PARAMS_SHOW);
                 $params=array_merge($_REQUEST,$additionalParameters);
             ?>
             <script>
                 $(function(){
-                    $.getScript('<?= ABSOLUTE_SAIA_ROUTE ?>app/modules/back_actas/formatos/acta/funciones.js', () => {
+                    $.getScript('<?= ABSOLUTE_SAIA_ROUTE ?>app/modules/back_actas/formatos/agendamiento_acta/funciones.js', () => {
                         window.routeParams=<?= json_encode($params) ?>;
                         show(<?= json_encode($params) ?>)
                     });

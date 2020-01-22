@@ -4,12 +4,12 @@ namespace Saia\Actas\formatos\acta;
 
 use Exception;
 use Saia\core\DataBaseConnection;
-use Saia\Actas\models\ActPlanning;
 use Saia\models\ruta\RutaDocumento;
 use Saia\Actas\models\ActDocumentUser;
 use Saia\Actas\models\ActDocumentTopic;
 use Saia\Actas\formatos\acta\FtActaProperties;
 use Saia\controllers\documento\RutaDocumentoController;
+use Saia\Actas\formatos\agendamiento_acta\FtAgendamientoActa;
 
 class FtActa extends FtActaProperties
 {
@@ -69,10 +69,10 @@ class FtActa extends FtActaProperties
     {
         return [
             'relations' => [
-                'ActPlanning' => [
-                    'model' => ActPlanning::class,
-                    'attribute' => 'idact_planning',
-                    'primary' => 'fk_act_planning',
+                'FtAgendamientoActa' => [
+                    'model' => FtAgendamientoActa::class,
+                    'attribute' => FtAgendamientoActa::getPrimaryLabel(),
+                    'primary' => 'fk_agendamiento_act',
                     'relation' => self::BELONGS_TO_ONE
                 ]
             ]
@@ -101,13 +101,13 @@ class FtActa extends FtActaProperties
             'flow' => RutaDocumento::FLUJO_SERIE,
             'data' => [
                 [
-                    'type' => 1,
+                    'type' => 5, //rol
                     'typeId' => $secretary->identification,
                     'action' => 1,
                     'order' => 1
                 ],
                 [
-                    'type' => 1,
+                    'type' => 5, //rol
                     'typeId' => $president->identification,
                     'action' => 1,
                     'order' => 2

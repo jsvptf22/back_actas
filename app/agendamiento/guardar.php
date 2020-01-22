@@ -1,4 +1,9 @@
 <?php
+
+use Saia\controllers\JwtController;
+use Saia\Actas\controllers\FtAgendamientoActaController;
+use Saia\controllers\notificaciones\NotifierController;
+
 $max_salida = 10;
 $rootPath = $ruta = '';
 
@@ -14,11 +19,6 @@ while ($max_salida > 0) {
 
 include_once $rootPath . 'app/vendor/autoload.php';
 
-use Saia\Actas\controllers\FtActaController;
-use Saia\Actas\formatos\acta\FtActa;
-use Saia\controllers\JwtController;
-use Saia\controllers\notificaciones\NotifierController;
-
 $Response = (object) [
     'data' => new stdClass(),
     'message' => '',
@@ -29,15 +29,14 @@ $Response = (object) [
 try {
     JwtController::check($_REQUEST['token'], $_REQUEST['key']);
 
-    $data = json_decode($_REQUEST['documentInformation']);
+    $data = (object) [
+        'subject' => $_REQUEST['subject'],
+        'initialDate' => $_REQUEST['initialDate'],
+        'users' => $_REQUEST['users'],
+    ];
+    $FtAgendamientoActaController = new FtAgendamientoActaController($data);
 
-
-    $FtActa = $data->documentId ?
-        FtActa::findByDocumentId($data->documentId) : new FtActa();
-    $FtActaController = new FtActaController($FtActa);
-    $FtActaController->saveDocument($data);
-
-    $Response->data = $FtActaController->getDocumentBuilderData();
+    $Response->message = "Agendamiento creado";
     $Response->notifications = NotifierController::prepare();
     $Response->success = 1;
 } catch (Throwable $th) {

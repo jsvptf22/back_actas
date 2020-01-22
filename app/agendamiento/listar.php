@@ -1,7 +1,7 @@
 <?php
 
+use Saia\Actas\formatos\agendamiento_acta\FtAgendamientoActa;
 use Saia\core\DatabaseConnection;
-use Saia\Actas\models\ActPlanning;
 use Saia\controllers\JwtController;
 use Saia\controllers\notificaciones\NotifierController;
 use Saia\controllers\SessionController;
@@ -21,7 +21,7 @@ while ($max_salida > 0) {
 
 include_once $rootPath . 'app/vendor/autoload.php';
 
-$Response = (object)[
+$Response = (object) [
     'data' => new stdClass(),
     'message' => '',
     'success' => 0,
@@ -33,20 +33,21 @@ try {
 
     $QueryBuilder = DataBaseConnection::getQueryBuilder()
         ->select('a.*')
-        ->from('act_planning', 'a')
-        ->join('a', 'act_document_user', 'b', 'a.idact_planning = b.fk_act_planning')
-        ->where('b.identification = :userId')
+        ->from('ft_agendamiento_acta', 'a')
+        ->join('a', 'act_document_user', 'b', 'a.idft_agendamiento_acta = b.fk_agendamiento_act')
+        ->join('b', 'vfuncionario_dc', 'c', 'b.identification = c.iddependencia_cargo')
+        ->where('c.idfuncionario = :userId')
         ->andWhere('b.state = 1 and a.state =1')
         ->setParameter('userId', SessionController::getValue('idfuncionario'))
         ->orderBy('a.date', 'asc');
 
-    $records = ActPlanning::findByQueryBuilder($QueryBuilder);
+    $records = FtAgendamientoActa::findByQueryBuilder($QueryBuilder);
 
-    foreach ($records as $key => $ActPlanning) {
+    foreach ($records as $key => $FtAgendamientoActa) {
         $Response->data->list[] = [
-            'id' => $ActPlanning->getPK(),
-            'label' => $ActPlanning->subject,
-            'date' => $ActPlanning->getDateAttribute('date'),
+            'id' => $FtAgendamientoActa->getPK(),
+            'label' => $FtAgendamientoActa->subject,
+            'date' => $FtAgendamientoActa->getDateAttribute('date'),
         ];
     }
 

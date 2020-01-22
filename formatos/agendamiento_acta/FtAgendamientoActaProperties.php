@@ -1,10 +1,10 @@
 <?php
 
-namespace Saia\Actas\formatos\acta;
+namespace Saia\Actas\formatos\agendamiento_acta;
 
 use Saia\core\model\ModelFormat;
 
-class FtActaProperties extends ModelFormat
+class FtAgendamientoActaProperties extends ModelFormat
 {
     public function __construct($id = null)
     {
@@ -15,24 +15,18 @@ class FtActaProperties extends ModelFormat
     {
         return [
             'safe' => [
-                'asistentes_externos',
-				'asistentes_internos',
-				'asunto',
+                'date',
 				'dependencia',
 				'documento_iddocumento',
 				'encabezado',
-				'estado',
-				'fecha_final',
-				'fecha_inicial',
 				'firma',
-				'fk_agendamiento_act',
-				'idft_acta',
-				'room' 
+				'idft_agendamiento_acta',
+				'state',
+				'subject' 
             ],
-            'date' => ['fecha_inicial',
-				'fecha_final'],
-            'table' => 'ft_acta',
-            'primary' => 'idft_acta'
+            'date' => ['date'],
+            'table' => 'ft_agendamiento_acta',
+            'primary' => 'idft_agendamiento_acta'
         ];
     }
 

@@ -41,7 +41,7 @@ class FtActaController
     {
         $userId = SessionController::getValue('idfuncionario');
         $attributes = [
-            'fk_act_planning' => $data->planning,
+            'fk_agendamiento_act' => $data->fk_agendamiento_act,
             'fecha_final' => $data->initialDate,
             'asunto' => $data->subject,
             'dependencia' => VfuncionarioDc::getFirstUserRole($userId),
@@ -49,8 +49,7 @@ class FtActaController
             'room' => $this->FtActa->getRoom()
         ];
 
-        $Formato = $this->FtActa->getFormat();
-        $GuardarFtController = new GuardarFtController($Formato->getPK());
+        $GuardarFtController = new GuardarFtController($this->FtActa->getFormat());
 
         if ($this->FtActa->getPK()) {
             $documentId = $GuardarFtController->edit(
@@ -65,7 +64,7 @@ class FtActaController
         }
 
         $this->refreshTopics($data->topicList, $data->topicListDescription);
-        $this->refreshAssistants($data->userList, $data->planning);
+        $this->refreshAssistants($data->userList, $data->fk_agendamiento_act);
         $this->refreshRoles($data->roles);
         $this->refreshTasks($data->tasks);
 
@@ -124,12 +123,12 @@ class FtActaController
      * almacena los asistentes de la reunion
      *
      * @param array $userList
-     * @param integer $fkActPlanning
+     * @param integer $fk_agendamiento_act
      * @return void
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2019-12-06
      */
-    public function refreshAssistants($userList, $fkActPlanning = null)
+    public function refreshAssistants($userList, $fk_agendamiento_act = null)
     {
         ActDocumentUser::inactiveUsersByRelation(
             $this->FtActa->getPK(),
@@ -137,7 +136,8 @@ class FtActaController
         );
 
         foreach ($userList as $user) {
-            $user->planning = $fkActPlanning;
+            $user->fk_agendamiento_act = $fk_agendamiento_act;
+
             ActDocumentUser::updateUserRelation(
                 $this->FtActa->getPK(),
                 $user,
@@ -246,7 +246,7 @@ class FtActaController
             'userList' => $this->prepareAssistants(),
             'roles' => $this->prepareRoles(),
             'tasks' => $this->prepareTasks(),
-            'planning' => $this->FtActa->fk_act_planning,
+            'fk_agendamiento_act' => $this->FtActa->fk_agendamiento_act,
             'questions' => [
                 'room' => $this->FtActa->getRoom(),
                 'items' => []

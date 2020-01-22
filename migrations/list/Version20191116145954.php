@@ -46,7 +46,7 @@ final class Version20191116145954 extends AbstractMigration
             'tipo' => '1',
             'imagen' => 'fa fa-calendar',
             'etiqueta' => 'Agenda',
-            'enlace' => 'views/modules/actas/views/planning/index.php',
+            'enlace' => 'views/modules/actas/dist/schedule/index.html',
             'cod_padre' => $grouper,
             'orden' => '1'
         ]);
