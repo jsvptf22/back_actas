@@ -36,7 +36,7 @@ try {
     ];
     $FtAgendamientoActaController = new FtAgendamientoActaController($data);
 
-    $Response->message = "Agendamiento creado";
+    $Response->message = "Agendamiento creado con éxito";
     $Response->notifications = NotifierController::prepare();
     $Response->success = 1;
 } catch (Throwable $th) {

@@ -6,6 +6,7 @@ use Saia\controllers\IcsController;
 use Saia\Actas\formatos\acta\FtActa;
 use Saia\controllers\SessionController;
 use Saia\controllers\SendMailController;
+use Saia\models\vistas\VfuncionarioDc;
 
 class ActaMailInvitation
 {
@@ -35,17 +36,17 @@ class ActaMailInvitation
     {
         global $rootPath;
 
-        $ActPlanning = $this->FtActa->ActPlanning;
+        $FtAgendamientoActa = $this->FtActa->FtAgendamientoActa;
 
         $DateInterval = new \DateInterval('PT1H');
-        $DateTime = new \DateTime($ActPlanning->date);
+        $DateTime = new \DateTime($FtAgendamientoActa->date);
         $DateTime->add($DateInterval);
 
         $properties = [
-            'description' => $ActPlanning->subject,
-            'dtstart' => $ActPlanning->date,
+            'description' => $FtAgendamientoActa->subject,
+            'dtstart' => $FtAgendamientoActa->date,
             'dtend' => $DateTime->format('Y-m-d H:i:s'),
-            'summary' => $ActPlanning->subject,
+            'summary' => $FtAgendamientoActa->subject,
             'organizer' => SessionController::getValue('email')
         ];
 
@@ -72,7 +73,29 @@ class ActaMailInvitation
     {
         $roomName = $this->FtActa->getRoom();
         $roomRoute = "https://asker-jsv.herokuapp.com/room.html?room={$roomName}";
-        return "Para ingresar a la sala de interacción con la toma de decisiones haga click <a href='{$roomRoute}' >aquí</a>";
+
+        $FtAgendamientoActa = $this->FtActa->FtAgendamientoActa;
+        $VfuncionarioDc = VfuncionarioDc::findByRole($FtAgendamientoActa->dependencia);
+        $username = $VfuncionarioDc->getName();
+
+        $assistants = $this->FtActa->getAssistants();
+
+        $names = [];
+        foreach ($assistants as $ActDocumentUser) {
+            array_push($names, $ActDocumentUser->getUser()->getName());
+        }
+
+        $assistantsName = implode('<br>', $names);
+
+        return <<<HTML
+        Tienes una invitación para la siguiente reunión.<br><br>
+        {$FtAgendamientoActa->subject}<br><br>
+        Organizador: {$username}<br><br>
+        {$assistantsName}<br><br>
+        El día de la reunión podrás participar en la toma de decisiones y opinar haciendo clic en 
+        <a class="btn btn-complete" href='{$roomRoute}' >aquí</a><br><br><br>
+        Mensaje automático enviado por SAIA-ACTAS
+HTML;
     }
 
     /**
@@ -87,7 +110,15 @@ class ActaMailInvitation
         $icsRoute = $this->generateIcsFile();
         $body = $this->generateBody();
 
-        $SendMailController = new SendMailController('Invitación a reunión', $body);
+        $FtAgendamientoActa = $this->FtActa->FtAgendamientoActa;
+        $DateTime = new \DateTime($FtAgendamientoActa->date);
+        $formated = strftime(
+            "%A %d de %B de %Y - %H:%M",
+            $DateTime->getTimestamp()
+        );
+        $subject = "Invitación  {$FtAgendamientoActa->subject} el {$formated}";
+
+        $SendMailController = new SendMailController($subject, $body);
         $SendMailController->setDestinations(
             SendMailController::DESTINATION_TYPE_EMAIL,
             $this->FtActa->getAssistantsEmail()

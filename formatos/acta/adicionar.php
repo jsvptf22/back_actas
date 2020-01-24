@@ -21,7 +21,7 @@ use Saia\Actas\formatos\acta\FtActa;
 
 JwtController::check($_REQUEST["token"], $_REQUEST["key"]); 
 
-$Formato = new Formato(471);
+$Formato = new Formato(475);
 $documentId=$_REQUEST['documentId'] ?? 0;
 
 $FtActa = new FtActa;
@@ -268,7 +268,7 @@ $FtActa = new FtActa;
                         top.topModal({
                             url: 'views/tercero/formularioDinamico.php',
                             params: {
-                                fieldId : 9068,
+                                fieldId : 9101,
                                 id: item.id
                             },
                             title: 'Tercero',
@@ -357,10 +357,10 @@ $FtActa = new FtActa;
             </script>
 <input type='hidden' name='fk_agendamiento_act' value=''>
 <input type='hidden' name='room' value=''>
-<input type='hidden' name='campo_descripcion' value='9070'>
+<input type='hidden' name='campo_descripcion' value='9103'>
 					<input type='hidden' name='documentId' value='<?= $documentId ?>'>
 					<input type='hidden' id='tipo_radicado' name='tipo_radicado' value='apoyo'>
-					<input type='hidden' name='formatId' value='471'>
+					<input type='hidden' name='formatId' value='475'>
 					<input type='hidden' name='tabla' value='ft_acta'>
 					<input type='hidden' name='formato' value='acta'>
 					<div class='form-group px-0 pt-3' id='form_buttons'><button class='btn btn-complete' id='save_document' type='button'>Continuar</button><div class='progress-circle-indeterminate d-none' id='spiner'></div></div>

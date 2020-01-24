@@ -63,16 +63,16 @@ try {
             </td>
             <td>Tema / Asunto</td>
             <td colspan="3">
-                <?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue('asunto',$FtActa,471) ?>
+                <?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue('asunto',$FtActa,475) ?>
             </td>
             </tr>
             <tr>
             <td>Fecha</td>
-            <td><?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue('fecha_inicial',$FtActa,471) ?></td>
+            <td><?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue('fecha_inicial',$FtActa,475) ?></td>
             <td>Hora Inicio</td>
-            <td><?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue('fecha_inicial',$FtActa,471) ?></td>
+            <td><?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue('fecha_inicial',$FtActa,475) ?></td>
             <td>Hora Final</td>
-            <td><?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue('fecha_final',$FtActa,471) ?></td>
+            <td><?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue('fecha_final',$FtActa,475) ?></td>
             </tr>
             <tr>
             <td>Lugar</td>
@@ -157,11 +157,11 @@ try {
     <table class="table table-bordered">
         <tr>
         <td class="firm_square">
-            Revisado por:
+            SECRETARIO:
             <?= $FtActa->showSecretary() ?>
         </td>
         <td class="firm_square">
-            Aprobado por:
+            PRESIDENTE:
             <?= $FtActa->showPresident() ?>
         </td>
         </tr>
