@@ -66,117 +66,141 @@ final class Version20191207194028 extends AbstractMigration
     <div class="col-12">
         <table class="table table-bordered">
             <tr>
-            <td>Acta N°</td>
-            <td>
-               {*formato_numero*}
-            </td>
-            <td>Tema / Asunto</td>
-            <td colspan="3">
-                {*asunto*}
-            </td>
+                <td class="bold">Acta N°</td>
+                <td>
+                    {*formato_numero*}
+                </td>
             </tr>
             <tr>
-            <td>Fecha</td>
-            <td>{*fecha_inicial*}</td>
-            <td>Hora Inicio</td>
-            <td>{*fecha_inicial*}</td>
-            <td>Hora Final</td>
-            <td>{*fecha_final*}</td>
+                <td class="bold">Tema / Asunto</td>
+                <td colspan="3">
+                    {*asunto*}
+                </td>
             </tr>
             <tr>
-            <td>Lugar</td>
-            <td colspan="5"></td>
+                <td class="bold">Inicio</td>
+                <td>
+                    {*fecha_inicial*}
+                </td>
+            </tr>
+            <tr>
+                <td class="bold">Fin</td>
+                <td>{*fecha_final*}</td>
             </tr>
         </table>
     </div>
 </div>
 <div class="row">
     <div class="col-12">
-    <table class="table table-bordered">
-        <tr>
-        <td class="text-center">
-            Participantes
-        </td>
-        </tr>
-        <tr>
-        <td>
-            Asistentes:
-            {*listInternalAssistants*}
-        </td>
-        </tr>
-        <tr>
-        <td>
-            Invitados:
-            {*listExternalAssistants*}            
-        </td>
-        </tr>
-    </table>
+        <table class="table table-bordered">
+            <tr>
+                <td class="text-center">
+                    Participantes
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span class="bold">Asistentes:</span>
+                    {*listInternalAssistants*}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span class="bold">Invitados:</span>
+                    {*listExternalAssistants*}        
+                </td>
+            </tr>
+        </table>
     </div>
 </div>
 <div class="row">
     <div class="col-12">
-    <table class="table table-bordered">
-        <tr>
-        <td class="text-center">
-            Puntos a Tratar / Orden del día
-        </td>
-        </tr>
-        <tr>
-        <td>
-            {*listTopics*}
-        </td>
-        </tr>
-    </table>
+        <table class="table table-bordered">
+            <tr>
+                <td class="text-center bold">
+                    Puntos a Tratar / Orden del día
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <ul>
+                        <li
+                            v-for="topic of documentInformation.topicList"
+                            v-bind:key="topic.id"
+                        >
+                        {*listTopics*}
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        </table>
     </div>
 </div>
 <div class="row">
     <div class="col-12">
-    <table class="table table-bordered">
-        <tr>
-        <td class="text-center">
-            Puntos Tratados / Desarrollo
-        </td>
-        </tr>
-        <tr>
-        <td>
-            {*listTopicDescriptions*}
-        </td>
-        </tr>
-    </table>
+        <table class="table table-bordered">
+            <tr>
+                <td class="text-center bold">
+                    Puntos Tratados / Desarrollo
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    {*listTopicDescriptions*}
+                </td>
+            </tr>
+        </table>
     </div>
 </div>
 <div class="row">
     <div class="col-12">
-    <table class="table table-bordered">
-        <tr>
-        <td class="text-center">
-            Responsabilidades
-        </td>
-        </tr>
-        <tr>
-        <td>
-            {*listTasks*}
-        </td>
-        </tr>
-    </table>
+        <table class="table table-bordered">
+            <tr>
+                <td class="text-center bold">
+                    Decisiones
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    {*listQuestions*}
+                </td>
+            </tr>
+        </table>
     </div>
 </div>
 <div class="row">
     <div class="col-12">
-    <table class="table table-bordered">
-        <tr>
-        <td class="firm_square">
-            SECRETARIO:
-            {*showSecretary*}
-        </td>
-        <td class="firm_square">
-            PRESIDENTE:
-            {*showPresident*}
-        </td>
-        </tr>
-    </table>
+        <table class="table table-bordered">
+            <tr>
+                <td class="text-center bold">
+                    Compromisos
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    {*listTasks*}
+                </td>
+            </tr>
+        </table>
     </div>
 </div>
+<div class="row">
+    <div class="col-12">
+        <table class="table table-bordered">
+            <tr>
+                <td>
+                    <span class="bold">SECRETARIO:</span>
+                    <span>{*showSecretary*}</span>
+                </td>
+                <td>
+                    <span class="bold">PRESIDENTE:</span>
+                    <span>{*showPresident*}</span>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
 HTML;
 
         $acta = [

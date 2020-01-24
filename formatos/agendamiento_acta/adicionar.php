@@ -15,13 +15,14 @@ include_once $rootPath . 'app/vendor/autoload.php';
 include_once $rootPath . 'views/assets/librerias.php';
 
 use Saia\controllers\JwtController;
+use Saia\controllers\generador\ComponentFormGeneratorController;
 use Saia\controllers\AccionController;
 use Saia\models\formatos\Formato;
 use Saia\Actas\formatos\agendamiento_acta\FtAgendamientoActa;
 
 JwtController::check($_REQUEST["token"], $_REQUEST["key"]); 
 
-$Formato = new Formato(474);
+$Formato = new Formato(476);
 $documentId=$_REQUEST['documentId'] ?? 0;
 
 $FtAgendamientoActa = new FtAgendamientoActa;
@@ -53,9 +54,9 @@ $FtAgendamientoActa = new FtAgendamientoActa;
                     role='form' 
                     autocomplete='off' 
                     >
-                    <input type='hidden' name='idft_agendamiento_acta' value=''>
-<input type='hidden' name='encabezado' value='1'>
+                    <input type='hidden' name='encabezado' value='1'>
 <input type='hidden' name='firma' value='1'>
+<input type='hidden' name='idft_agendamiento_acta' value=''>
 
         <?php
         use Saia\controllers\SessionController;use Saia\core\DatabaseConnection;
@@ -156,10 +157,11 @@ $FtAgendamientoActa = new FtAgendamientoActa;
             });
         </script>
 <input type='hidden' name='state' value=''>
-<input type='hidden' name='campo_descripcion' value='9081'>
+<input type='hidden' name='anterior' value='<?= $_REQUEST['anterior'] ?>'>
+					<input type='hidden' name='campo_descripcion' value='9121'>
 					<input type='hidden' name='documentId' value='<?= $documentId ?>'>
 					<input type='hidden' id='tipo_radicado' name='tipo_radicado' value='agendamiento_acta'>
-					<input type='hidden' name='formatId' value='474'>
+					<input type='hidden' name='formatId' value='476'>
 					<input type='hidden' name='tabla' value='ft_agendamiento_acta'>
 					<input type='hidden' name='formato' value='agendamiento_acta'>
 					<div class='form-group px-0 pt-3' id='form_buttons'><button class='btn btn-complete' id='save_document' type='button'>Continuar</button><div class='progress-circle-indeterminate d-none' id='spiner'></div></div>

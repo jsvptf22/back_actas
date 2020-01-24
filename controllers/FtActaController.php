@@ -2,6 +2,7 @@
 
 namespace Saia\Actas\controllers;
 
+use Saia\Actas\models\ActQuestion;
 use Saia\Actas\formatos\acta\FtActa;
 use Saia\Actas\models\ActDocumentUser;
 use Saia\models\vistas\VfuncionarioDc;
@@ -67,6 +68,7 @@ class FtActaController
         $this->refreshAssistants($data->userList, $data->fk_agendamiento_act);
         $this->refreshRoles($data->roles);
         $this->refreshTasks($data->tasks);
+        $this->refreshQuestions($data->questions);
 
         return $this->FtActa;
     }
@@ -226,6 +228,34 @@ class FtActaController
     }
 
     /**
+     * actualiza las preguntas del documento
+     *
+     * @param array $data
+     * @return true
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2020
+     */
+    public function refreshQuestions($data)
+    {
+        $userId = SessionController::getValue('idfuncionario');
+        ActQuestion::executeDelete([
+            'fk_ft_acta' => $this->FtActa->getPK()
+        ]);
+
+        foreach ($data->items as  $question) {
+            ActQuestion::newRecord([
+                'fk_ft_acta' => $this->FtActa->getPK(),
+                'label' => $question->label,
+                'fk_funcionario' => $userId,
+                'approve' => $question->approve,
+                'reject' => $question->reject
+            ]);
+        }
+
+        return true;
+    }
+
+    /**
      * obtiene la informacion para actualiza el
      * documentbuilder
      *
@@ -249,7 +279,7 @@ class FtActaController
             'fk_agendamiento_act' => $this->FtActa->fk_agendamiento_act,
             'questions' => [
                 'room' => $this->FtActa->getRoom(),
-                'items' => []
+                'items' => $this->prepareQuestions()
             ]
         ];
     }
@@ -348,6 +378,25 @@ class FtActaController
         }
 
         return $response;
+    }
+
+    /**
+     * obtiene el listado de preguntas
+     *
+     * @return array
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2020
+     */
+    public function prepareQuestions()
+    {
+        $data = [];
+        $questions = $this->FtActa->questions;
+
+        foreach ($questions as $ActQuestion) {
+            array_push($data, $ActQuestion->getAttributes());
+        }
+
+        return $data;
     }
 
     /**

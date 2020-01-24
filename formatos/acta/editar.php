@@ -15,6 +15,7 @@ include_once $rootPath . 'app/vendor/autoload.php';
 include_once $rootPath . 'views/assets/librerias.php';
 
 use Saia\controllers\JwtController;
+use Saia\controllers\generador\ComponentFormGeneratorController;
 use Saia\controllers\AccionController;
 use Saia\models\formatos\Formato;
 use Saia\Actas\formatos\acta\FtActa;
@@ -433,6 +434,7 @@ $FtActa = FtActa::findByDocumentId($documentId);
                         selector: '#asistentes_internos_ua',
                         baseUrl: baseUrl,
                         identificator: 'asistentes_internos',
+                        tipoDependencia: 0,
                         change: () => {fillHidden()}
                     });
                     users.setList('<?= $FtActa->asistentes_internos ?>'.split(','))

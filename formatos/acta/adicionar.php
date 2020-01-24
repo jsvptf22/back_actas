@@ -15,6 +15,7 @@ include_once $rootPath . 'app/vendor/autoload.php';
 include_once $rootPath . 'views/assets/librerias.php';
 
 use Saia\controllers\JwtController;
+use Saia\controllers\generador\ComponentFormGeneratorController;
 use Saia\controllers\AccionController;
 use Saia\models\formatos\Formato;
 use Saia\Actas\formatos\acta\FtActa;
@@ -357,7 +358,8 @@ $FtActa = new FtActa;
             </script>
 <input type='hidden' name='fk_agendamiento_act' value=''>
 <input type='hidden' name='room' value=''>
-<input type='hidden' name='campo_descripcion' value='9103'>
+<input type='hidden' name='anterior' value='<?= $_REQUEST['anterior'] ?>'>
+					<input type='hidden' name='campo_descripcion' value='9103'>
 					<input type='hidden' name='documentId' value='<?= $documentId ?>'>
 					<input type='hidden' id='tipo_radicado' name='tipo_radicado' value='apoyo'>
 					<input type='hidden' name='formatId' value='475'>

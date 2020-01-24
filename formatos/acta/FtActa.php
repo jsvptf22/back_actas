@@ -10,6 +10,7 @@ use Saia\Actas\models\ActDocumentTopic;
 use Saia\Actas\formatos\acta\FtActaProperties;
 use Saia\controllers\documento\RutaDocumentoController;
 use Saia\Actas\formatos\agendamiento_acta\FtAgendamientoActa;
+use Saia\Actas\models\ActQuestion;
 
 class FtActa extends FtActaProperties
 {
@@ -74,6 +75,12 @@ class FtActa extends FtActaProperties
                     'attribute' => FtAgendamientoActa::getPrimaryLabel(),
                     'primary' => 'fk_agendamiento_act',
                     'relation' => self::BELONGS_TO_ONE
+                ],
+                'questions' => [
+                    'model' => ActQuestion::class,
+                    'attribute' => 'fk_ft_acta',
+                    'primary' => 'idft_acta',
+                    'relation' => self::BELONGS_TO_MANY
                 ]
             ]
         ];
@@ -338,6 +345,25 @@ class FtActa extends FtActaProperties
             }
 
             $response .= sprintf("%s - %s<br>", $Tarea->getName(), implode(', ', $names));
+        }
+
+        return $response;
+    }
+
+    /**
+     * lista las preguntas del acta
+     *
+     * @return void
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2020
+     */
+    public function listQuestions()
+    {
+        $response = "";
+
+        foreach ($this->questions as $key => $ActQuestion) {
+            $approve = $ActQuestion->approve > $ActQuestion->reject ? 'Aprobado' : 'Rechazado';
+            $response .= sprintf("%s - %s<br>", $ActQuestion->label, $approve);
         }
 
         return $response;

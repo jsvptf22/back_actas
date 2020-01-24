@@ -15,13 +15,14 @@ include_once $rootPath . 'app/vendor/autoload.php';
 include_once $rootPath . 'views/assets/librerias.php';
 
 use Saia\controllers\JwtController;
+use Saia\controllers\generador\ComponentFormGeneratorController;
 use Saia\controllers\AccionController;
 use Saia\models\formatos\Formato;
 use Saia\Actas\formatos\agendamiento_acta\FtAgendamientoActa;
 
 JwtController::check($_REQUEST["token"], $_REQUEST["key"]); 
 
-$Formato = new Formato(474);
+$Formato = new Formato(476);
 $documentId=$_REQUEST['documentId'] ?? 0;
 
 $FtAgendamientoActa = FtAgendamientoActa::findByDocumentId($documentId);
@@ -53,25 +54,25 @@ $FtAgendamientoActa = FtAgendamientoActa::findByDocumentId($documentId);
                     role='form' 
                     autocomplete='off' 
                     >
-                    <input type='hidden' name='idft_agendamiento_acta' value='<?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue(
-                'idft_agendamiento_acta',
-                $FtAgendamientoActa,
-                474
-            ) ?>'>
-<input type='hidden' name='documento_iddocumento' value='<?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue(
+                    <input type='hidden' name='documento_iddocumento' value='<?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue(
                 'documento_iddocumento',
                 $FtAgendamientoActa,
-                474
+                476
             ) ?>'>
 <input type='hidden' name='encabezado' value='<?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue(
                 'encabezado',
                 $FtAgendamientoActa,
-                474
+                476
             ) ?>'>
 <input type='hidden' name='firma' value='<?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue(
                 'firma',
                 $FtAgendamientoActa,
-                474
+                476
+            ) ?>'>
+<input type='hidden' name='idft_agendamiento_acta' value='<?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue(
+                'idft_agendamiento_acta',
+                $FtAgendamientoActa,
+                476
             ) ?>'>
 
         <?php
@@ -130,7 +131,7 @@ $FtAgendamientoActa = FtAgendamientoActa::findByDocumentId($documentId);
             <input class='form-control required' type='text' id='subject' name='subject' value='<?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue(
                 'subject',
                 $FtAgendamientoActa,
-                474
+                476
             ) ?>' maxLength='250'/>
         </div>
             <div class="form-group form-group-default input-group  date" id="group_date">
@@ -150,7 +151,7 @@ $FtAgendamientoActa = FtAgendamientoActa::findByDocumentId($documentId);
                 $defaultDate = Saia\controllers\generador\ComponentFormGeneratorController::callShowValue(
                     'date',
                     $FtAgendamientoActa,
-                    474
+                    476
                 );
                 $defaultDate = Saia\controllers\DateController::convertDate(
                     $defaultDate,
@@ -191,12 +192,12 @@ $FtAgendamientoActa = FtAgendamientoActa::findByDocumentId($documentId);
 <input type='hidden' name='state' value='<?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue(
                 'state',
                 $FtAgendamientoActa,
-                474
+                476
             ) ?>'>
-<input type='hidden' name='campo_descripcion' value='9081'>
+<input type='hidden' name='campo_descripcion' value='9121'>
 					<input type='hidden' name='documentId' value='<?= $documentId ?>'>
 					<input type='hidden' id='tipo_radicado' name='tipo_radicado' value='agendamiento_acta'>
-					<input type='hidden' name='formatId' value='474'>
+					<input type='hidden' name='formatId' value='476'>
 					<input type='hidden' name='tabla' value='ft_agendamiento_acta'>
 					<input type='hidden' name='formato' value='agendamiento_acta'>
 					<div class='form-group px-0 pt-3' id='form_buttons'><button class='btn btn-complete' id='save_document' type='button'>Continuar</button><div class='progress-circle-indeterminate d-none' id='spiner'></div></div>
