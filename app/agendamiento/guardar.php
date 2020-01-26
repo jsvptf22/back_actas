@@ -30,6 +30,7 @@ try {
     JwtController::check($_REQUEST['token'], $_REQUEST['key']);
 
     $data = (object) [
+        'duration' => $_REQUEST['duration'],
         'subject' => $_REQUEST['subject'],
         'initialDate' => $_REQUEST['initialDate'],
         'users' => $_REQUEST['users'],

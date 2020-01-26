@@ -13,6 +13,16 @@ class FtAgendamientoActaController
 {
 
     /**
+     * almacena los datos con los que se creara 
+     * el agendamiento
+     *
+     * @var array
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2020
+     */
+    protected $params;
+
+    /**
      * almacena la instancia de la ft
      *
      * @var FtAgendamientoActa
@@ -23,56 +33,117 @@ class FtAgendamientoActaController
 
     public function __construct(object $data)
     {
-        $this->createDocument($data);
+        $this->params = $data;
+        $this->init();
     }
 
-    public function createDocument($data)
+    public function init()
     {
-        if (!$data->subject) {
+        $this->checkRequired();
+        $this->saveSchedule();
+        $this->createEmptyDocument();
+    }
+
+    /**
+     * verifica los datos requeridos
+     *
+     * @return void
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2020
+     */
+    public function checkRequired()
+    {
+        if (!$this->params->subject) {
             throw new \Exception('Debe indicar el asunto', 1);
         }
 
-        if (!$data->initialDate) {
+        if (!$this->params->initialDate) {
             throw new \Exception('Debe indicar la fecha', 1);
         }
 
-        $FtAgendamientoActa = new FtAgendamientoActa();
-        $GuardarFtController = new GuardarFtController($FtAgendamientoActa->getFormat());
+        if (!$this->params->duration) {
+            throw new \Exception('Debe indicar la duración de la reunión', 1);
+        }
+    }
 
+    /**
+     * crea el registro en FtAgendamientoActa
+     *
+     * @return void
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2020
+     */
+    public function saveSchedule()
+    {
         $userId = SessionController::getValue('idfuncionario');
         $firstRole = VfuncionarioDc::getFirstUserRole($userId);
 
-        $documentId = $GuardarFtController->create([
+        $this->FtAgendamientoActa = new FtAgendamientoActa();
+        $this->FtAgendamientoActa->setAttributes([
+            'documento_iddocumento' => 0,
             'dependencia' => $firstRole,
-            'subject' => $data->subject,
-            'date' => $data->initialDate,
+            'subject' => $this->params->subject,
+            'date' => $this->params->initialDate,
             'state' => 1,
+            'duration' => $this->params->duration
         ]);
 
-        if (!$documentId) {
-            throw new \Exception("Error al agendar", 1);
-        }
+        $this->FtAgendamientoActa->save();
+    }
 
-        $this->FtAgendamientoActa = FtAgendamientoActa::findByDocumentId($documentId);
-
-        $defaultAssistant = (object) [
-            'id' => $firstRole,
-            'external' => 0
-        ];
-        $userList = json_decode($data->users);
-        array_push($userList, $defaultAssistant);
-
-        $date = $this->FtAgendamientoActa->getDateAttribute('date', 'Y-m-d H:i:s');
-        $documentData = (object) [
-            'fk_agendamiento_act' => $this->FtAgendamientoActa->getPK(),
-            'initialDate' => $date,
-            'subject' => $this->FtAgendamientoActa->subject,
-            'userList' => $userList
-        ];
+    /**
+     * crea el acta con los valores del agendamiento
+     *
+     * @return void
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2020
+     */
+    public function createEmptyDocument()
+    {
+        $documentData = $this->getDocumentInitialData();
 
         $FtActa = new FtActa();
         $FtActaController = new FtActaController($FtActa);
         $FtActaController->saveDocument($documentData);
         $FtActaController->sendInvitations();
+    }
+
+    /**
+     * genera los datos iniciales para el acta
+     *
+     * @return object
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2020
+     */
+    public function getDocumentInitialData()
+    {
+        $date = $this->FtAgendamientoActa->getDateAttribute('date', 'Y-m-d H:i:s');
+        return (object) [
+            'fk_agendamiento_act' => $this->FtAgendamientoActa->getPK(),
+            'initialDate' => $date,
+            'subject' => $this->FtAgendamientoActa->subject,
+            'userList' => $this->getAssistants()
+        ];
+    }
+
+    /**
+     * genera los asistentes del encuentro
+     *
+     * @return array
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2020
+     */
+    public function getAssistants()
+    {
+        $userId = SessionController::getValue('idfuncionario');
+        $firstRole = VfuncionarioDc::getFirstUserRole($userId);
+        $defaultAssistant = (object) [
+            'id' => $firstRole,
+            'external' => 0
+        ];
+        $userList = json_decode($this->params->users);
+        array_push($userList, $defaultAssistant);
+
+        return $userList;
     }
 }

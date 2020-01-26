@@ -22,7 +22,7 @@ use Saia\Actas\formatos\acta\FtActa;
 
 JwtController::check($_REQUEST["token"], $_REQUEST["key"]); 
 
-$Formato = new Formato(475);
+$Formato = new Formato(482);
 $documentId=$_REQUEST['documentId'] ?? 0;
 
 $FtActa = FtActa::findByDocumentId($documentId);
@@ -57,22 +57,22 @@ $FtActa = FtActa::findByDocumentId($documentId);
                     <input type='hidden' name='documento_iddocumento' value='<?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue(
                 'documento_iddocumento',
                 $FtActa,
-                475
+                482
             ) ?>'>
 <input type='hidden' name='encabezado' value='<?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue(
                 'encabezado',
                 $FtActa,
-                475
+                482
             ) ?>'>
 <input type='hidden' name='firma' value='<?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue(
                 'firma',
                 $FtActa,
-                475
+                482
             ) ?>'>
 <input type='hidden' name='idft_acta' value='<?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue(
                 'idft_acta',
                 $FtActa,
-                475
+                482
             ) ?>'>
 
         <?php
@@ -138,7 +138,7 @@ $FtActa = FtActa::findByDocumentId($documentId);
                 ><?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue(
                 'asunto',
                 $FtActa,
-                475
+                482
             ) ?></textarea>
                 
             </div>
@@ -159,7 +159,7 @@ $FtActa = FtActa::findByDocumentId($documentId);
                 $defaultDate = Saia\controllers\generador\ComponentFormGeneratorController::callShowValue(
                     'fecha_inicial',
                     $FtActa,
-                    475
+                    482
                 );
                 $defaultDate = Saia\controllers\DateController::convertDate(
                     $defaultDate,
@@ -214,7 +214,7 @@ $FtActa = FtActa::findByDocumentId($documentId);
                 $defaultDate = Saia\controllers\generador\ComponentFormGeneratorController::callShowValue(
                     'fecha_final',
                     $FtActa,
-                    475
+                    482
                 );
                 $defaultDate = Saia\controllers\DateController::convertDate(
                     $defaultDate,
@@ -255,7 +255,7 @@ $FtActa = FtActa::findByDocumentId($documentId);
 <input type='hidden' name='estado' value='<?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue(
                 'estado',
                 $FtActa,
-                475
+                482
             ) ?>'>
             <div class='form-group form-group-default form-group-default-select2 required' id='group_asistentes_externos'>
                 <label title=''>ASISTENTES EXTERNOS</label>
@@ -318,7 +318,7 @@ $FtActa = FtActa::findByDocumentId($documentId);
                         top.topModal({
                             url: 'views/tercero/formularioDinamico.php',
                             params: {
-                                fieldId : 9101,
+                                fieldId : 9128,
                                 id: item.id
                             },
                             title: 'Tercero',
@@ -448,17 +448,17 @@ $FtActa = FtActa::findByDocumentId($documentId);
 <input type='hidden' name='fk_agendamiento_act' value='<?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue(
                 'fk_agendamiento_act',
                 $FtActa,
-                475
+                482
             ) ?>'>
 <input type='hidden' name='room' value='<?= Saia\controllers\generador\ComponentFormGeneratorController::callShowValue(
                 'room',
                 $FtActa,
-                475
+                482
             ) ?>'>
-<input type='hidden' name='campo_descripcion' value='9103'>
+<input type='hidden' name='campo_descripcion' value='9130'>
 					<input type='hidden' name='documentId' value='<?= $documentId ?>'>
 					<input type='hidden' id='tipo_radicado' name='tipo_radicado' value='apoyo'>
-					<input type='hidden' name='formatId' value='475'>
+					<input type='hidden' name='formatId' value='482'>
 					<input type='hidden' name='tabla' value='ft_acta'>
 					<input type='hidden' name='formato' value='acta'>
 					<div class='form-group px-0 pt-3' id='form_buttons'><button class='btn btn-complete' id='save_document' type='button'>Continuar</button><div class='progress-circle-indeterminate d-none' id='spiner'></div></div>

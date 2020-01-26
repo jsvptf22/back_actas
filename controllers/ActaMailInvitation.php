@@ -38,7 +38,7 @@ class ActaMailInvitation
 
         $FtAgendamientoActa = $this->FtActa->FtAgendamientoActa;
 
-        $DateInterval = new \DateInterval('PT1H');
+        $DateInterval = new \DateInterval("PT{$FtAgendamientoActa->duration}M");
         $DateTime = new \DateTime($FtAgendamientoActa->date);
         $DateTime->add($DateInterval);
 

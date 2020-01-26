@@ -22,7 +22,7 @@ use Saia\Actas\formatos\agendamiento_acta\FtAgendamientoActa;
 
 JwtController::check($_REQUEST["token"], $_REQUEST["key"]); 
 
-$Formato = new Formato(476);
+$Formato = new Formato(483);
 $documentId=$_REQUEST['documentId'] ?? 0;
 
 $FtAgendamientoActa = new FtAgendamientoActa;
@@ -157,11 +157,15 @@ $FtAgendamientoActa = new FtAgendamientoActa;
             });
         </script>
 <input type='hidden' name='state' value=''>
+<div class='form-group form-group-default  col-12 ' id='group_duration'>
+<label title='' for='duration'>DURACIóN</label>
+<input class='form-control'   type='number' id='duration' name='duration'  value=''>
+</div>
 <input type='hidden' name='anterior' value='<?= $_REQUEST['anterior'] ?>'>
-					<input type='hidden' name='campo_descripcion' value='9121'>
+					<input type='hidden' name='campo_descripcion' value='9148'>
 					<input type='hidden' name='documentId' value='<?= $documentId ?>'>
 					<input type='hidden' id='tipo_radicado' name='tipo_radicado' value='agendamiento_acta'>
-					<input type='hidden' name='formatId' value='476'>
+					<input type='hidden' name='formatId' value='483'>
 					<input type='hidden' name='tabla' value='ft_agendamiento_acta'>
 					<input type='hidden' name='formato' value='agendamiento_acta'>
 					<div class='form-group px-0 pt-3' id='form_buttons'><button class='btn btn-complete' id='save_document' type='button'>Continuar</button><div class='progress-circle-indeterminate d-none' id='spiner'></div></div>

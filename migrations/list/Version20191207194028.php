@@ -798,6 +798,28 @@ HTML;
                 "opciones" => "{\"clase\":\"col-md-12\"}",
                 "estilo" => null,
                 "listable" => 1
+            ],
+            [
+                "formato_idformato" => $agendamientoId,
+                "nombre" => "duration",
+                "etiqueta" => "Duración",
+                "tipo_dato" => "string",
+                "longitud" => "255",
+                "obligatoriedad" => 1,
+                "valor" => "",
+                "acciones" => "a,e,p",
+                "ayuda" => "",
+                "predeterminado" => "",
+                "banderas" => "",
+                "etiqueta_html" => "spin",
+                "orden" => 5,
+                "adicionales" => "",
+                "fila_visible" => 1,
+                "placeholder" => null,
+                "longitud_vis" => null,
+                "opciones" => null,
+                "estilo" => null,
+                "listable" => 1
             ]
         ];
 

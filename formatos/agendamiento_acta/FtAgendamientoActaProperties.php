@@ -18,6 +18,7 @@ class FtAgendamientoActaProperties extends ModelFormat
                 'date',
 				'dependencia',
 				'documento_iddocumento',
+				'duration',
 				'encabezado',
 				'firma',
 				'idft_agendamiento_acta',
