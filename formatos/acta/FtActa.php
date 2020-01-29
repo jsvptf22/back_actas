@@ -144,7 +144,11 @@ class FtActa extends FtActaProperties
             $roomName = time();
             $endPoint = "https://asker-jsv.herokuapp.com/api/room/{$roomName}";
             $Client = new \GuzzleHttp\Client();
-            $clientRequest = $Client->request('POST', $endPoint);
+            $clientRequest = $Client->request('POST', $endPoint, [
+                'form_params' => [
+                    'hidden' => 1
+                ]
+            ]);
             $data = json_decode($clientRequest->getBody());
 
             if (!$data->success) {
