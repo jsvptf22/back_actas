@@ -895,11 +895,11 @@ HTML;
             'nombre' => 'actas'
         ]);
 
-        $idpantalla_grafico = $this->connection->insert('pantalla_grafico', [
+        $this->connection->insert('pantalla_grafico', [
             'nombre' => 'actas'
         ]);
 
-
+        $idpantalla_grafico = $this->connection->lastInsertId();
 
         $this->connection->delete('grafico', [
             "nombre" => "estado_tareas_acta",
