@@ -35,7 +35,8 @@ final class Version20191116145954 extends AbstractMigration
             'etiqueta' => 'Actas',
             'enlace' => '',
             'cod_padre' => '0',
-            'orden' => '5'
+            'orden' => '5',
+            'color' => 'bg-complete'
         ]);
 
         $grouper = $this->connection->lastInsertId();

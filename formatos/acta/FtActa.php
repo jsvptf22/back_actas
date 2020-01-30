@@ -11,6 +11,7 @@ use Saia\Actas\formatos\acta\FtActaProperties;
 use Saia\controllers\documento\RutaDocumentoController;
 use Saia\Actas\formatos\agendamiento_acta\FtAgendamientoActa;
 use Saia\Actas\models\ActQuestion;
+use Saia\models\ruta\Ruta;
 
 class FtActa extends FtActaProperties
 {
@@ -108,16 +109,12 @@ class FtActa extends FtActaProperties
             'flow' => RutaDocumento::FLUJO_SERIE,
             'data' => [
                 [
-                    'type' => 5, //rol
-                    'typeId' => $secretary->identification,
-                    'action' => 1,
-                    'order' => 1
+                    'funCod' => $secretary->getUser()->funcionario_codigo,
+                    'action' => Ruta::FIRMA_VISIBLE,
                 ],
                 [
-                    'type' => 5, //rol
-                    'typeId' => $president->identification,
-                    'action' => 1,
-                    'order' => 2
+                    'funCod' => $president->getUser()->funcionario_codigo,
+                    'action' => Ruta::FIRMA_VISIBLE,
                 ]
             ]
         ];
