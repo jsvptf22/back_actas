@@ -12,6 +12,7 @@ use Saia\models\tarea\TareaFuncionario;
 use Saia\controllers\GuardarFtController;
 use Saia\models\documento\DocumentoTarea;
 use Saia\Actas\controllers\ActaMailInvitation;
+use Saia\controllers\documento\QRDocumentoController;
 
 class FtActaController
 {
@@ -50,16 +51,21 @@ class FtActaController
             'room' => $this->FtActa->getRoom()
         ];
 
-        $GuardarFtController = new GuardarFtController($this->FtActa->getFormat());
-
         if ($this->FtActa->getPK()) {
+            $GuardarFtController = new GuardarFtController(
+                $this->FtActa->getFormat(),
+                $attributes
+            );
             $documentId = $GuardarFtController->edit(
-                $attributes,
                 $this->FtActa->documento_iddocumento
             );
             $this->FtActa->refresh();
         } else {
             $attributes['fecha_inicial'] = date('Y-m-d H:i:s');
+            $GuardarFtController = new GuardarFtController(
+                $this->FtActa->getFormat(),
+                $attributes
+            );
             $documentId = $GuardarFtController->create($attributes);
             $this->FtActa = FtActa::findByDocumentId($documentId);
         }
@@ -69,6 +75,7 @@ class FtActaController
         $this->refreshRoles($data->roles);
         $this->refreshTasks($data->tasks);
         $this->refreshQuestions($data->questions);
+        $this->generateQr();
 
         return $this->FtActa;
     }
@@ -280,7 +287,8 @@ class FtActaController
             'questions' => [
                 'room' => $this->FtActa->getRoom(),
                 'items' => $this->prepareQuestions()
-            ]
+            ],
+            'qrUrl' => $this->FtActa->Documento->getQR()
         ];
     }
 
@@ -411,5 +419,30 @@ class FtActaController
     {
         $ActaMailInvitation = new ActaMailInvitation($this->FtActa);
         $ActaMailInvitation->send();
+    }
+
+    /**
+     * Genera el codigo qr en caso de no existir
+     *
+     * @return void
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2020
+     */
+    public function generateQr()
+    {
+        if (!$this->FtActa->Documento->DocumentoVerificacion) {
+            $route = sprintf(
+                "%s%s%s",
+                ABSOLUTE_SAIA_ROUTE,
+                "views/modules/actas/dist/qr/index.html?id=",
+                $this->FtActa->getPK()
+            );
+
+            $QR = new QRDocumentoController(
+                $this->FtActa->Documento,
+                $route
+            );
+            $QR->getRouteQR();
+        }
     }
 }

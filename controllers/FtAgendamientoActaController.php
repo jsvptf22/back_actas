@@ -5,7 +5,6 @@ namespace Saia\Actas\controllers;
 use Saia\Actas\formatos\acta\FtActa;
 use Saia\models\vistas\VfuncionarioDc;
 use Saia\controllers\SessionController;
-use Saia\controllers\GuardarFtController;
 use Saia\Actas\controllers\FtActaController;
 use Saia\Actas\formatos\agendamiento_acta\FtAgendamientoActa;
 

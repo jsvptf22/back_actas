@@ -3,15 +3,16 @@
 namespace Saia\Actas\formatos\acta;
 
 use Exception;
+use Saia\models\ruta\Ruta;
 use Saia\core\DataBaseConnection;
+use Saia\Actas\models\ActQuestion;
 use Saia\models\ruta\RutaDocumento;
 use Saia\Actas\models\ActDocumentUser;
 use Saia\Actas\models\ActDocumentTopic;
 use Saia\Actas\formatos\acta\FtActaProperties;
+use Saia\controllers\documento\QRDocumentoController;
 use Saia\controllers\documento\RutaDocumentoController;
 use Saia\Actas\formatos\agendamiento_acta\FtAgendamientoActa;
-use Saia\Actas\models\ActQuestion;
-use Saia\models\ruta\Ruta;
 
 class FtActa extends FtActaProperties
 {
@@ -304,6 +305,23 @@ class FtActa extends FtActaProperties
     /**
      * funciones para el mostrar
      */
+
+    /**
+     * obtiene la imagen del codigo qr
+     *
+     * @param object $Ft
+     * @param integer $width
+     * @param integer $height
+     * @return string
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2019-11-27
+     */
+    public function qrCodeHtml()
+    {
+        $QR = new QRDocumentoController($this->Documento, $this->getQrUrl());
+        $route = ABSOLUTE_SAIA_ROUTE . $QR->getRouteQR();
+        return "<img src='{$route}' width='80px' height='80px'>";
+    }
 
     /**
      * lista los detalles de los temas tratados
