@@ -2,6 +2,7 @@
 
 namespace Saia\Actas\controllers;
 
+use Exception;
 use Saia\Actas\models\ActQuestion;
 use Saia\Actas\formatos\acta\FtActa;
 use Saia\Actas\models\ActDocumentUser;
@@ -11,7 +12,6 @@ use Saia\controllers\SessionController;
 use Saia\models\tarea\TareaFuncionario;
 use Saia\controllers\GuardarFtController;
 use Saia\models\documento\DocumentoTarea;
-use Saia\Actas\controllers\ActaMailInvitation;
 use Saia\controllers\documento\QRDocumentoController;
 
 class FtActaController
@@ -24,7 +24,7 @@ class FtActaController
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2019-12-06
      */
-    protected $FtActa;
+    protected FtActa $FtActa;
 
     public function __construct(FtActa $FtActa)
     {
@@ -35,7 +35,8 @@ class FtActaController
      * crea o modifica el documento
      *
      * @param array $data
-     * @return void
+     * @return FtActa
+     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2019-12-06
      */
@@ -56,7 +57,7 @@ class FtActaController
                 $this->FtActa->getFormat(),
                 $attributes
             );
-            $documentId = $GuardarFtController->edit(
+            $GuardarFtController->edit(
                 $this->FtActa->documento_iddocumento
             );
             $this->FtActa->refresh();
@@ -66,7 +67,7 @@ class FtActaController
                 $this->FtActa->getFormat(),
                 $attributes
             );
-            $documentId = $GuardarFtController->create($attributes);
+            $documentId = $GuardarFtController->create();
             $this->FtActa = FtActa::findByDocumentId($documentId);
         }
 
@@ -85,7 +86,8 @@ class FtActaController
      *
      * @param array $topicList
      * @param array $topicListDescriptions
-     * @return array
+     * @return void
+     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2019-11-26
      */
@@ -206,6 +208,7 @@ class FtActaController
      *
      * @param array $tasks
      * @return void
+     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2019-12-07
      */
@@ -239,6 +242,7 @@ class FtActaController
      *
      * @param array $data
      * @return true
+     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2020
      */
@@ -267,6 +271,7 @@ class FtActaController
      * documentbuilder
      *
      * @return object
+     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2019-12-06
      */
@@ -296,6 +301,7 @@ class FtActaController
      * obtiene la lista de temas del documento
      *
      * @return array
+     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2019-12-06
      */
@@ -318,6 +324,7 @@ class FtActaController
      * obtiene la lista de asistentes del documento
      *
      * @return array
+     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2019-12-07
      */
@@ -336,6 +343,7 @@ class FtActaController
      * obtiene las instancias de los usuarios asignados a roles
      *
      * @return object
+     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2019-12-07
      */
@@ -361,6 +369,7 @@ class FtActaController
      * obtiene la lista de tareas del documento
      *
      * @return array
+     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2019-12-07
      */

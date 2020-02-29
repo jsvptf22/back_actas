@@ -9,8 +9,6 @@ use Saia\Actas\models\ActQuestion;
 use Saia\models\ruta\RutaDocumento;
 use Saia\Actas\models\ActDocumentUser;
 use Saia\Actas\models\ActDocumentTopic;
-use Saia\Actas\formatos\acta\FtActaProperties;
-use Saia\controllers\documento\QRDocumentoController;
 use Saia\controllers\documento\RutaDocumentoController;
 use Saia\Actas\formatos\agendamiento_acta\FtAgendamientoActa;
 
@@ -34,27 +32,27 @@ class FtActa extends FtActaProperties
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2019
      */
-    protected $assistants;
+    protected array $assistants;
 
     /**
      * almacena las instancia de ActdocumentUser
      * de tipo ActDocumentUser::RELATION_PRESIDENT
      *
-     * @var array
+     * @var ActDocumentUser
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2019
      */
-    protected $ActDocumentUserPresident;
+    protected ActDocumentUser $ActDocumentUserPresident;
 
     /**
      * almacena las instancia de ActdocumentUser
      * de tipo ActDocumentUser::RELATION_PRESIDENT
      *
-     * @var array
+     * @var ActDocumentUser
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2019
      */
-    protected $ActDocumentUserSecretary;
+    protected ActDocumentUser $ActDocumentUserSecretary;
 
     public function __construct($id = null)
     {
@@ -91,7 +89,8 @@ class FtActa extends FtActaProperties
     /**
      * accion a ejecutar despues de editar
      *
-     * @return void
+     * @return bool
+     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2019
      */
@@ -133,6 +132,7 @@ class FtActa extends FtActaProperties
      * obtiene o genera la sala de la reunion
      *
      * @return string
+     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2020
      */
@@ -225,6 +225,7 @@ class FtActa extends FtActaProperties
      * obtiene los asistentes de la reunion
      *
      * @return ActDocumentUser[]
+     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2019-12-06
      */
@@ -245,6 +246,7 @@ class FtActa extends FtActaProperties
      * lista los nombres de los asistentes externos
      *
      * @return string
+     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2019-12-07
      */
@@ -287,6 +289,7 @@ class FtActa extends FtActaProperties
      * obtiene los temas activos del documento
      *
      * @return ActDocumentTopic[]
+     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2019-12-06
      */
@@ -309,24 +312,21 @@ class FtActa extends FtActaProperties
     /**
      * obtiene la imagen del codigo qr
      *
-     * @param object $Ft
-     * @param integer $width
-     * @param integer $height
      * @return string
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2019-11-27
      */
     public function qrCodeHtml()
     {
-        $QR = new QRDocumentoController($this->Documento, $this->getQrUrl());
-        $route = ABSOLUTE_SAIA_ROUTE . $QR->getRouteQR();
-        return "<img src='{$route}' width='80px' height='80px'>";
+        $route = $this->Documento->getQr();
+        return "<img src='{$route}' width='80px' height='80px' alt=''>";
     }
 
     /**
      * lista los detalles de los temas tratados
      *
      * @return string
+     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2019-12-07
      */
@@ -372,7 +372,7 @@ class FtActa extends FtActaProperties
     /**
      * lista las preguntas del acta
      *
-     * @return void
+     * @return string
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2020
      */
@@ -406,6 +406,7 @@ class FtActa extends FtActaProperties
      * obtiene la instancia de ActDocumentUserSecretary
      *
      * @return ActDocumentUser|null
+     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2019
      */
@@ -440,6 +441,7 @@ class FtActa extends FtActaProperties
      * obtiene la instancia de ActDocumentUserPresident
      *
      * @return ActDocumentUser|null
+     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2019
      */
