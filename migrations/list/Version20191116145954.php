@@ -127,143 +127,126 @@ final class Version20191116145954 extends AbstractMigration
         $body = <<<HTML
 <div class="row">
 <div class="col-12">
+<p>{*qrCodeHtml*}</p>
+
+<p>&nbsp;</p>
+
 <table class="table table-bordered">
-    <tr>
-        <td class="bold">Acta N°</td>
-        <td>
-            {*formato_numero*}
-        </td>
-    </tr>
-    <tr>
-        <td class="bold">Tema / Asunto</td>
-        <td colspan="3">
-            {*asunto*}
-        </td>
-    </tr>
-    <tr>
-        <td class="bold">Inicio</td>
-        <td>
-            {*fecha_inicial*}
-        </td>
-    </tr>
-    <tr>
-        <td class="bold">Fin</td>
-        <td>{*fecha_final*}</td>
-    </tr>
-</table>
-</div>
-</div>
-<div class="row">
-<div class="col-12">
-<table class="table table-bordered">
-    <tr>
-        <td class="text-center">
-            Participantes
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <span class="bold">Asistentes:</span>
-            {*listInternalAssistants*}
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <span class="bold">Invitados:</span>
-            {*listExternalAssistants*}        
-        </td>
-    </tr>
-</table>
-</div>
-</div>
-<div class="row">
-<div class="col-12">
-<table class="table table-bordered">
-    <tr>
-        <td class="text-center bold">
-            Puntos a Tratar / Orden del día
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <ul>
-                <li
-                    v-for="topic of documentInformation.topicList"
-                    v-bind:key="topic.id"
-                >
-                {*listTopics*}
-                </li>
-            </ul>
-        </td>
-    </tr>
-</table>
-</div>
-</div>
-<div class="row">
-<div class="col-12">
-<table class="table table-bordered">
-    <tr>
-        <td class="text-center bold">
-            Puntos Tratados / Desarrollo
-        </td>
-    </tr>
-    <tr>
-        <td>
-            {*listTopicDescriptions*}
-        </td>
-    </tr>
-</table>
-</div>
-</div>
-<div class="row">
-<div class="col-12">
-<table class="table table-bordered">
-    <tr>
-        <td class="text-center bold">
-            Decisiones
-        </td>
-    </tr>
-    <tr>
-        <td>
-            {*listQuestions*}
-        </td>
-    </tr>
-</table>
-</div>
-</div>
-<div class="row">
-<div class="col-12">
-<table class="table table-bordered">
-    <tr>
-        <td class="text-center bold">
-            Compromisos
-        </td>
-    </tr>
-    <tr>
-        <td>
-            {*listTasks*}
-        </td>
-    </tr>
-</table>
-</div>
-</div>
-<div class="row">
-<div class="col-12">
-<table class="table table-bordered">
-    <tr>
-        <td>
-            <span class="bold">SECRETARIO:</span>
-            <span>{*showSecretary*}</span>
-        </td>
-        <td>
-            <span class="bold">PRESIDENTE:</span>
-            <span>{*showPresident*}</span>
-        </td>
-    </tr>
+	<tbody>
+		<tr>
+			<td class="bold">Acta N&deg;</td>
+			<td>{*formato_numero*}</td>
+		</tr>
+		<tr>
+			<td class="bold">Tema / Asunto</td>
+			<td colspan="3">{*asunto*}</td>
+		</tr>
+		<tr>
+			<td class="bold">Inicio</td>
+			<td>{*fecha_inicial*}</td>
+		</tr>
+		<tr>
+			<td class="bold">Fin</td>
+			<td>{*fecha_final*}</td>
+		</tr>
+	</tbody>
 </table>
 </div>
 </div>
 
+<div class="row">
+<div class="col-12">
+<table class="table table-bordered">
+	<tbody>
+		<tr>
+			<td class="text-center">Participantes</td>
+		</tr>
+		<tr>
+			<td><span class="bold">Asistentes:</span> {*listInternalAssistants*}</td>
+		</tr>
+		<tr>
+			<td><span class="bold">Invitados:</span> {*listExternalAssistants*}</td>
+		</tr>
+	</tbody>
+</table>
+</div>
+</div>
+
+<div class="row">
+<div class="col-12">
+<table class="table table-bordered">
+	<tbody>
+		<tr>
+			<td class="bold text-center">Puntos a Tratar / Orden del d&iacute;a</td>
+		</tr>
+		<tr>
+			<td>
+			<ul>
+				<li v-bind:key="topic.id" v-for="topic of documentInformation.topicList">{*listTopics*}</li>
+			</ul>
+			</td>
+		</tr>
+	</tbody>
+</table>
+</div>
+</div>
+
+<div class="row">
+<div class="col-12">
+<table class="table table-bordered">
+	<tbody>
+		<tr>
+			<td class="bold text-center">Puntos Tratados / Desarrollo</td>
+		</tr>
+		<tr>
+			<td>{*listTopicDescriptions*}</td>
+		</tr>
+	</tbody>
+</table>
+</div>
+</div>
+
+<div class="row">
+<div class="col-12">
+<table class="table table-bordered">
+	<tbody>
+		<tr>
+			<td class="bold text-center">Decisiones</td>
+		</tr>
+		<tr>
+			<td>{*listQuestions*}</td>
+		</tr>
+	</tbody>
+</table>
+</div>
+</div>
+
+<div class="row">
+<div class="col-12">
+<table class="table table-bordered">
+	<tbody>
+		<tr>
+			<td class="bold text-center">Compromisos</td>
+		</tr>
+		<tr>
+			<td>{*listTasks*}</td>
+		</tr>
+	</tbody>
+</table>
+</div>
+</div>
+
+<div class="row">
+<div class="col-12">
+<table class="table table-bordered">
+	<tbody>
+		<tr>
+			<td>{*mostrar_estado_proceso*}</td>
+		</tr>
+	</tbody>
+</table>
+</div>
+</div>
 HTML;
 
         $acta = [
