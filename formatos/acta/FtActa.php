@@ -32,7 +32,7 @@ class FtActa extends FtActaProperties
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2019
      */
-    protected array $assistants;
+    protected array $assistants = [];
 
     /**
      * almacena las instancia de ActdocumentUser
@@ -42,7 +42,7 @@ class FtActa extends FtActaProperties
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2019
      */
-    protected ActDocumentUser $ActDocumentUserPresident;
+    protected ?ActDocumentUser $ActDocumentUserPresident = null;
 
     /**
      * almacena las instancia de ActdocumentUser
@@ -52,7 +52,7 @@ class FtActa extends FtActaProperties
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2019
      */
-    protected ActDocumentUser $ActDocumentUserSecretary;
+    protected ?ActDocumentUser $ActDocumentUserSecretary = null;
 
     public function __construct($id = null)
     {
