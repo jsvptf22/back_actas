@@ -443,8 +443,8 @@ class FtActaController
             $route = sprintf(
                 "%s%s%s",
                 ABSOLUTE_SAIA_ROUTE,
-                "views/modules/actas/dist/qr/index.html?id=",
-                $this->FtActa->getPK()
+                "views/modules/actas/dist/qr/index.html?documentId=",
+                $this->FtActa->documento_iddocumento
             );
 
             $QR = new QRDocumentoController(

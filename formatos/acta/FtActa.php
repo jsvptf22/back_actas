@@ -140,7 +140,7 @@ class FtActa extends FtActaProperties
     {
         if (!$this->room) {
             $roomName = time();
-            $endPoint = "https://asker-jsv.herokuapp.com/api/room/{$roomName}";
+            $endPoint = ACTAS_NODE_SERVER . "api/room/{$roomName}";
             $Client = new \GuzzleHttp\Client();
             $clientRequest = $Client->request('POST', $endPoint, [
                 'form_params' => [

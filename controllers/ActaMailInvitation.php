@@ -71,8 +71,12 @@ class ActaMailInvitation
      */
     public function generateBody()
     {
-        $roomName = $this->FtActa->getRoom();
-        $roomRoute = "https://asker-jsv.herokuapp.com/room.html?room={$roomName}";
+        $roomRoute = sprintf(
+            "%s%s%s",
+            ABSOLUTE_SAIA_ROUTE,
+            "views/modules/actas/dist/qr/index.html?documentId=",
+            $this->FtActa->documento_iddocumento
+        );
 
         $FtAgendamientoActa = $this->FtActa->FtAgendamientoActa;
         $VfuncionarioDc = VfuncionarioDc::findByRole($FtAgendamientoActa->dependencia);
