@@ -1,10 +1,10 @@
 <?php
 
-use Saia\models\formatos\Formato;
 use Saia\controllers\JwtController;
-use Saia\models\formatos\FuncionNucleo;
-use Saia\controllers\UtilitiesController;
 use Saia\controllers\notificaciones\NotifierController;
+use Saia\controllers\Utilities;
+use Saia\models\formatos\Formato;
+use Saia\models\formatos\FuncionNucleo;
 
 $max_salida = 10;
 $rootPath = $ruta = '';
@@ -21,7 +21,7 @@ while ($max_salida > 0) {
 
 include_once $rootPath . 'app/vendor/autoload.php';
 
-$Response = (object) [
+$Response = (object)[
     'data' => new stdClass(),
     'message' => '',
     'success' => 0,
@@ -55,7 +55,7 @@ echo json_encode($Response);
 function replaceFunction($content, $Formato)
 {
     $systemFuntions = FuncionNucleo::findColumn('nombre');
-    $functions = UtilitiesController::getFunctionsFromString($content);
+    $functions = Utilities::getFunctionsFromString($content);
 
     foreach ($functions as $representation) {
         $method = str_replace(['{*', '*}'], '', $representation);
@@ -64,7 +64,7 @@ function replaceFunction($content, $Formato)
             $content = str_replace(
                 $representation,
                 call_user_func(
-                    [UtilitiesController::class, $method],
+                    [Utilities::class, $method],
                     null,
                     $Formato->getPK()
                 ),

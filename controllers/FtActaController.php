@@ -3,16 +3,16 @@
 namespace Saia\Actas\controllers;
 
 use Exception;
-use Saia\Actas\models\ActQuestion;
 use Saia\Actas\formatos\acta\FtActa;
-use Saia\Actas\models\ActDocumentUser;
-use Saia\models\vistas\VfuncionarioDc;
 use Saia\Actas\models\ActDocumentTopic;
-use Saia\controllers\SessionController;
-use Saia\models\tarea\TareaFuncionario;
-use Saia\controllers\GuardarFtController;
-use Saia\models\documento\DocumentoTarea;
+use Saia\Actas\models\ActDocumentUser;
+use Saia\Actas\models\ActQuestion;
 use Saia\controllers\documento\QRDocumentoController;
+use Saia\controllers\SaveDocument;
+use Saia\controllers\SessionController;
+use Saia\models\documento\DocumentoTarea;
+use Saia\models\tarea\TareaFuncionario;
+use Saia\models\vistas\VfuncionarioDc;
 
 class FtActaController
 {
@@ -53,7 +53,7 @@ class FtActaController
         ];
 
         if ($this->FtActa->getPK()) {
-            $GuardarFtController = new GuardarFtController(
+            $GuardarFtController = new SaveDocument(
                 $this->FtActa->getFormat(),
                 $attributes
             );
@@ -63,7 +63,7 @@ class FtActaController
             $this->FtActa->refresh();
         } else {
             $attributes['fecha_inicial'] = date('Y-m-d H:i:s');
-            $GuardarFtController = new GuardarFtController(
+            $GuardarFtController = new SaveDocument(
                 $this->FtActa->getFormat(),
                 $attributes
             );
@@ -253,7 +253,7 @@ class FtActaController
             'fk_ft_acta' => $this->FtActa->getPK()
         ]);
 
-        foreach ($data->items as  $question) {
+        foreach ($data->items as $question) {
             ActQuestion::newRecord([
                 'fk_ft_acta' => $this->FtActa->getPK(),
                 'label' => $question->label,
@@ -277,7 +277,7 @@ class FtActaController
      */
     public function getDocumentBuilderData()
     {
-        return (object) [
+        return (object)[
             'id' => $this->FtActa->getPK(),
             'documentId' => $this->FtActa->documento_iddocumento,
             'identificator' => $this->FtActa->Documento->numero,

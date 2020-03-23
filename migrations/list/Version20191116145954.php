@@ -2,10 +2,18 @@
 
 declare(strict_types=1);
 
-namespace SAIA\Migrations\Actas;
+namespace Saia\Migrations\Actas;
 
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
+use Saia\controllers\generator\component\Date;
+use Saia\controllers\generator\component\ExternalUser;
+use Saia\controllers\generator\component\Hidden;
+use Saia\controllers\generator\component\Method;
+use Saia\controllers\generator\component\Number;
+use Saia\controllers\generator\component\Text;
+use Saia\controllers\generator\component\Textarea;
+use Saia\controllers\generator\component\UserAutocomplete;
 
 /**
  * Auto-generated Migration: Please modify to your needs!
@@ -350,7 +358,7 @@ HTML;
             'pertenece_nucleo' => 1,
             'nombre' => 'crear_acta',
             'tipo' => '2',
-            'imagen' => NULL,
+            'imagen' => null,
             'etiqueta' => 'Acta',
             'enlace' => "views/modules/actas/views/document/index.php",
             'cod_padre' => $parentModuleId,
@@ -365,7 +373,7 @@ HTML;
             'pertenece_nucleo' => 1,
             'nombre' => 'crear_agendamiento_acta',
             'tipo' => '2',
-            'imagen' => NULL,
+            'imagen' => null,
             'etiqueta' => 'Agendamiento de reunión',
             'enlace' => "views/modules/actas/dist/schedule/index.html",
             'cod_padre' => $parentModuleId,
@@ -385,7 +393,7 @@ HTML;
                 "ayuda" => "",
                 "predeterminado" => null,
                 "banderas" => "",
-                "etiqueta_html" => "ejecutor",
+                "etiqueta_html" => ExternalUser::getIdentification(),
                 "orden" => 6,
                 "adicionales" => "",
                 "fila_visible" => 1,
@@ -407,7 +415,7 @@ HTML;
                 "ayuda" => "",
                 "predeterminado" => "",
                 "banderas" => "",
-                "etiqueta_html" => "autocompletar_funcionario",
+                "etiqueta_html" => UserAutocomplete::getIdentification(),
                 "orden" => 7,
                 "adicionales" => "",
                 "fila_visible" => 1,
@@ -429,7 +437,7 @@ HTML;
                 "ayuda" => "",
                 "predeterminado" => "",
                 "banderas" => "",
-                "etiqueta_html" => "textarea_cke",
+                "etiqueta_html" => Textarea::getIdentification(),
                 "orden" => 2,
                 "adicionales" => "",
                 "fila_visible" => 1,
@@ -451,7 +459,7 @@ HTML;
                 "ayuda" => null,
                 "predeterminado" => null,
                 "banderas" => "i",
-                "etiqueta_html" => "funcion",
+                "etiqueta_html" => Method::getIdentification(),
                 "orden" => 1,
                 "adicionales" => null,
                 "fila_visible" => 1,
@@ -473,7 +481,7 @@ HTML;
                 "ayuda" => null,
                 "predeterminado" => null,
                 "banderas" => "i",
-                "etiqueta_html" => "hidden",
+                "etiqueta_html" => Hidden::getIdentification(),
                 "orden" => 0,
                 "adicionales" => null,
                 "fila_visible" => 1,
@@ -495,7 +503,7 @@ HTML;
                 "ayuda" => null,
                 "predeterminado" => "1",
                 "banderas" => null,
-                "etiqueta_html" => "hidden",
+                "etiqueta_html" => Hidden::getIdentification(),
                 "orden" => 0,
                 "adicionales" => null,
                 "fila_visible" => 1,
@@ -517,7 +525,7 @@ HTML;
                 "ayuda" => "",
                 "predeterminado" => "",
                 "banderas" => "",
-                "etiqueta_html" => "hidden",
+                "etiqueta_html" => Hidden::getIdentification(),
                 "orden" => 5,
                 "adicionales" => "",
                 "fila_visible" => 1,
@@ -539,7 +547,7 @@ HTML;
                 "ayuda" => null,
                 "predeterminado" => null,
                 "banderas" => null,
-                "etiqueta_html" => "fecha",
+                "etiqueta_html" => Date::getIdentification(),
                 "orden" => 4,
                 "adicionales" => null,
                 "fila_visible" => 1,
@@ -561,7 +569,7 @@ HTML;
                 "ayuda" => null,
                 "predeterminado" => null,
                 "banderas" => null,
-                "etiqueta_html" => "fecha",
+                "etiqueta_html" => Date::getIdentification(),
                 "orden" => 3,
                 "adicionales" => null,
                 "fila_visible" => 1,
@@ -583,7 +591,7 @@ HTML;
                 "ayuda" => null,
                 "predeterminado" => "1",
                 "banderas" => null,
-                "etiqueta_html" => "hidden",
+                "etiqueta_html" => Hidden::getIdentification(),
                 "orden" => 0,
                 "adicionales" => null,
                 "fila_visible" => 1,
@@ -605,7 +613,7 @@ HTML;
                 "ayuda" => "",
                 "predeterminado" => "",
                 "banderas" => "",
-                "etiqueta_html" => "hidden",
+                "etiqueta_html" => Hidden::getIdentification(),
                 "orden" => 8,
                 "adicionales" => "",
                 "fila_visible" => 1,
@@ -627,7 +635,7 @@ HTML;
                 "ayuda" => null,
                 "predeterminado" => null,
                 "banderas" => "ai,pk",
-                "etiqueta_html" => "hidden",
+                "etiqueta_html" => Hidden::getIdentification(),
                 "orden" => 0,
                 "adicionales" => null,
                 "fila_visible" => 1,
@@ -649,7 +657,7 @@ HTML;
                 "ayuda" => "",
                 "predeterminado" => "",
                 "banderas" => "",
-                "etiqueta_html" => "hidden",
+                "etiqueta_html" => Hidden::getIdentification(),
                 "orden" => 9,
                 "adicionales" => "",
                 "fila_visible" => 1,
@@ -679,7 +687,7 @@ HTML;
                 "ayuda" => null,
                 "predeterminado" => null,
                 "banderas" => null,
-                "etiqueta_html" => "fecha",
+                "etiqueta_html" => Date::getIdentification(),
                 "orden" => 3,
                 "adicionales" => null,
                 "fila_visible" => 1,
@@ -701,7 +709,7 @@ HTML;
                 "ayuda" => null,
                 "predeterminado" => null,
                 "banderas" => "i",
-                "etiqueta_html" => "funcion",
+                "etiqueta_html" => Method::getIdentification(),
                 "orden" => 1,
                 "adicionales" => null,
                 "fila_visible" => 1,
@@ -723,7 +731,7 @@ HTML;
                 "ayuda" => null,
                 "predeterminado" => null,
                 "banderas" => "i",
-                "etiqueta_html" => "hidden",
+                "etiqueta_html" => Hidden::getIdentification(),
                 "orden" => null,
                 "adicionales" => null,
                 "fila_visible" => 1,
@@ -745,7 +753,7 @@ HTML;
                 "ayuda" => null,
                 "predeterminado" => "1",
                 "banderas" => null,
-                "etiqueta_html" => "hidden",
+                "etiqueta_html" => Hidden::getIdentification(),
                 "orden" => null,
                 "adicionales" => null,
                 "fila_visible" => 1,
@@ -767,7 +775,7 @@ HTML;
                 "ayuda" => null,
                 "predeterminado" => "1",
                 "banderas" => null,
-                "etiqueta_html" => "hidden",
+                "etiqueta_html" => Hidden::getIdentification(),
                 "orden" => null,
                 "adicionales" => null,
                 "fila_visible" => 1,
@@ -789,7 +797,7 @@ HTML;
                 "ayuda" => null,
                 "predeterminado" => null,
                 "banderas" => "ai,pk",
-                "etiqueta_html" => "hidden",
+                "etiqueta_html" => Hidden::getIdentification(),
                 "orden" => null,
                 "adicionales" => null,
                 "fila_visible" => 1,
@@ -811,7 +819,7 @@ HTML;
                 "ayuda" => "",
                 "predeterminado" => "",
                 "banderas" => "",
-                "etiqueta_html" => "hidden",
+                "etiqueta_html" => Hidden::getIdentification(),
                 "orden" => 4,
                 "adicionales" => "",
                 "fila_visible" => 1,
@@ -833,7 +841,7 @@ HTML;
                 "ayuda" => "",
                 "predeterminado" => "",
                 "banderas" => "",
-                "etiqueta_html" => "text",
+                "etiqueta_html" => Text::getIdentification(),
                 "orden" => 2,
                 "adicionales" => "",
                 "fila_visible" => 1,
@@ -855,7 +863,7 @@ HTML;
                 "ayuda" => "",
                 "predeterminado" => "",
                 "banderas" => "",
-                "etiqueta_html" => "spin",
+                "etiqueta_html" => Number::getIdentification(),
                 "orden" => 5,
                 "adicionales" => "",
                 "fila_visible" => 1,
@@ -891,7 +899,7 @@ HTML;
             "fk_pantalla_grafico" => $idpantalla_grafico,
             "nombre" => "estado_tareas_acta",
             "tipo" => "2",
-            "configuracion" => NULL,
+            "configuracion" => null,
             "estado" => 1,
             "query" => 'SELECT b.valor,COUNT(*) FROM tarea a JOIN tarea_estado b ON a.idtarea = b.fk_tarea JOIN tarea_funcionario c ON a.idtarea = c.fk_tarea JOIN documento_tarea d ON a.idtarea = d.fk_tarea JOIN documento e ON d.fk_documento = e.iddocumento WHERE b.estado = 1 AND c.estado = 1 AND c.fk_funcionario = {*logged_userId*} AND c.tipo = 1 AND e.plantilla = \'acta\' GROUP BY b.valor',
             "modelo" => 'Saia\\models\\tarea\\TareaEstado',
@@ -916,10 +924,154 @@ HTML;
             "enlace" => 'views/graficos/dashboard.php?screen=' . $idpantalla_grafico,
             "cod_padre" => $grouper,
             "orden" => '2',
-            "color" => NULL
+            "color" => null
         ]);
 
-        $this->connection->executeQuery("truncate table migrations_actas");
+        if ($schema->hasTable('act_document_topic')) {
+            $schema->dropTable('act_document_topic');
+        }
+
+        $table = $schema->createTable('act_document_topic');
+        $table->addColumn('idact_document_topic', 'integer', [
+            'autoincrement' => true,
+            'length' => 11
+        ]);
+        $table->setPrimaryKey(['idact_document_topic']);
+        $table->addColumn('name', 'text', [
+            'notnull' => true,
+        ]);
+        $table->addColumn('description', 'text', [
+            'notnull' => true,
+        ]);
+        $table->addColumn('fk_ft_acta', 'integer', [
+            'notnull' => true,
+            'length' => 11
+        ]);
+        $table->addColumn('state', 'integer', [
+            'notnull' => true,
+            'length' => 11,
+            'default' => 1
+        ]);
+        $table->addColumn('created_at', 'datetime', [
+            'notnull' => true,
+        ]);
+        $table->addColumn('updated_at', 'datetime', [
+            'notnull' => false,
+        ]);
+
+
+        if ($schema->hasTable('act_document_user')) {
+            $schema->dropTable('act_document_user');
+        }
+
+        $table = $schema->createTable('act_document_user');
+        $table->addColumn('idact_document_user', 'integer', [
+            'autoincrement' => true,
+            'length' => 11
+        ]);
+        $table->setPrimaryKey(['idact_document_user']);
+        $table->addColumn('fk_ft_acta', 'integer', [
+            'notnull' => true,
+            'length' => 11
+        ]);
+        $table->addColumn('fk_agendamiento_act', 'integer', [
+            'notnull' => false,
+            'length' => 11
+        ]);
+        $table->addColumn('relation', 'integer', [
+            'notnull' => true,
+            'length' => 11,
+        ]);
+        $table->addColumn('state', 'integer', [
+            'notnull' => true,
+            'length' => 11,
+            'default' => 1
+        ]);
+        $table->addColumn('identification', 'integer', [
+            'notnull' => true,
+            'length' => 11,
+        ]);
+        $table->addColumn('external', 'integer', [
+            'notnull' => true,
+            'length' => 11,
+        ]);
+        $table->addColumn('created_at', 'datetime', [
+            'notnull' => true,
+        ]);
+        $table->addColumn('updated_at', 'datetime', [
+            'notnull' => false,
+        ]);
+
+
+        if ($schema->hasTable('act_planning')) {
+            $schema->dropTable('act_planning');
+        }
+
+        $table = $schema->createTable('act_planning');
+        $table->addColumn('idact_planning', 'integer', [
+            'autoincrement' => true,
+            'length' => 11
+        ]);
+        $table->setPrimaryKey(['idact_planning']);
+        $table->addColumn('date', 'datetime', [
+            'notnull' => true,
+        ]);
+        $table->addColumn('subject', 'text', [
+            'notnull' => true,
+        ]);
+        $table->addColumn('state', 'integer', [
+            'notnull' => true,
+            'length' => 11,
+            'default' => 1
+        ]);
+        $table->addColumn('created_at', 'datetime', [
+            'notnull' => true,
+        ]);
+        $table->addColumn('updated_at', 'datetime', [
+            'notnull' => false,
+        ]);
+
+
+        if ($schema->hasTable('act_question')) {
+            $schema->dropTable('act_question');
+        }
+
+        $table = $schema->createTable('act_question');
+        $table->addColumn('idact_question', 'integer', [
+            'autoincrement' => true,
+            'length' => 11
+        ]);
+        $table->setPrimaryKey(['idact_question']);
+        $table->addColumn('label', 'text', [
+            'notnull' => true,
+        ]);
+        $table->addColumn('state', 'integer', [
+            'notnull' => true,
+            'length' => 11,
+            'default' => 1
+        ]);
+        $table->addColumn('fk_funcionario', 'integer', [
+            'notnull' => false,
+            'length' => 11
+        ]);
+        $table->addColumn('fk_ft_acta', 'integer', [
+            'notnull' => false,
+            'length' => 11
+        ]);
+        $table->addColumn('approve', 'integer', [
+            'notnull' => false,
+            'length' => 11
+        ]);
+        $table->addColumn('reject', 'integer', [
+            'notnull' => false,
+            'length' => 11
+        ]);
+        $table->addColumn('created_at', 'datetime', [
+            'notnull' => true,
+        ]);
+        $table->addColumn('updated_at', 'datetime', [
+            'notnull' => false,
+        ]);
     }
 
     public function down(Schema $schema): void

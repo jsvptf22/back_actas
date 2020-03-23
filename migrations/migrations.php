@@ -2,7 +2,7 @@
 
 return [
     'name' => 'SAIA Migrations',
-    'migrations_namespace' => 'SAIA\Migrations\Actas',
+    'migrations_namespace' => 'Saia\Migrations\Actas',
     'table_name' => 'migrations_actas',
     'column_name' => 'version',
     'column_length' => 14,
