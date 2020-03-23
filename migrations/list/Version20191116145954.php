@@ -279,7 +279,6 @@ HTML;
             "detalle" => "0",
             "tipo_edicion" => 0,
             "item" => "0",
-            "serie_idserie" => 0,
             "ayuda" => null,
             "font_size" => "11",
             "banderas" => "asunto_padre",
@@ -295,7 +294,6 @@ HTML;
             "proceso_pertenece" => 0,
             "version" => 1,
             "documentacion" => null,
-            "mostrar_tipodoc_pdf" => 0,
             "publicar" => 0,
             "module" => "actas"
         ];
@@ -321,7 +319,6 @@ HTML;
             "detalle" => "0",
             "tipo_edicion" => 0,
             "item" => "0",
-            "serie_idserie" => 0,
             "ayuda" => null,
             "font_size" => "11",
             "banderas" => "asunto_padre",
@@ -337,7 +334,6 @@ HTML;
             "proceso_pertenece" => null,
             "version" => 1,
             "documentacion" => null,
-            "mostrar_tipodoc_pdf" => 0,
             "publicar" => null,
             "module" => "actas"
         ];
@@ -880,7 +876,7 @@ HTML;
             $this->connection->insert('campos_formato', $field);
         }
 
-        $this->connection->delete('pantalla_grafico', [
+        /*$this->connection->delete('pantalla_grafico', [
             'nombre' => 'actas'
         ]);
 
@@ -926,7 +922,7 @@ HTML;
             "orden" => '2',
             "color" => null
         ]);
-
+*/
         if ($schema->hasTable('act_document_topic')) {
             $schema->dropTable('act_document_topic');
         }
