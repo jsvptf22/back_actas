@@ -16,10 +16,10 @@ include_once $rootPath . 'app/vendor/autoload.php';
 
 use Saia\Actas\controllers\FtActaController;
 use Saia\Actas\formatos\acta\FtActa;
-use Saia\controllers\JwtController;
 use Saia\controllers\notificaciones\NotifierController;
+use Saia\controllers\SessionController;
 
-$Response = (object) [
+$Response = (object)[
     'data' => new stdClass(),
     'message' => '',
     'success' => 0,
@@ -27,7 +27,7 @@ $Response = (object) [
 ];
 
 try {
-    JwtController::check($_REQUEST['token'], $_REQUEST['key']);
+    SessionController::goUp($_REQUEST['token'], $_REQUEST['key']);
 
     $FtActa = !empty($_REQUEST['documentId'])
         ? FtActa::findByDocumentId($_REQUEST['documentId'])

@@ -3,14 +3,16 @@
 namespace Saia\Actas\formatos\acta;
 
 use Exception;
-use Saia\models\ruta\Ruta;
-use Saia\core\DataBaseConnection;
-use Saia\Actas\models\ActQuestion;
-use Saia\models\ruta\RutaDocumento;
-use Saia\Actas\models\ActDocumentUser;
-use Saia\Actas\models\ActDocumentTopic;
-use Saia\controllers\documento\RutaDocumentoController;
 use Saia\Actas\formatos\agendamiento_acta\FtAgendamientoActa;
+use Saia\Actas\models\ActDocumentTopic;
+use Saia\Actas\models\ActDocumentUser;
+use Saia\Actas\models\ActQuestion;
+use Saia\controllers\documento\RutaDocumentoController;
+use Saia\controllers\pdf\DocumentPdfGenerator;
+use Saia\controllers\SendMailController;
+use Saia\core\DataBaseConnection;
+use Saia\models\ruta\Ruta;
+use Saia\models\ruta\RutaDocumento;
 
 class FtActa extends FtActaProperties
 {
@@ -111,10 +113,12 @@ class FtActa extends FtActaProperties
                 [
                     'funCod' => $secretary->getUser()->funcionario_codigo,
                     'action' => Ruta::FIRMA_VISIBLE,
+                    'limitdate' => date('Y-m-d H:i:s')
                 ],
                 [
                     'funCod' => $president->getUser()->funcionario_codigo,
                     'action' => Ruta::FIRMA_VISIBLE,
+                    'limitdate' => date('Y-m-d H:i:s')
                 ]
             ]
         ];
@@ -210,7 +214,7 @@ class FtActa extends FtActaProperties
         $assistants = $this->getAssistants();
 
         $internals = array_filter($assistants, function ($ActDocumentUser) {
-            return !(int) $ActDocumentUser->external;
+            return !(int)$ActDocumentUser->external;
         });
 
         $names = [];
@@ -255,7 +259,7 @@ class FtActa extends FtActaProperties
         $assistants = $this->getAssistants();
 
         $externals = array_filter($assistants, function ($ActDocumentUser) {
-            return (int) $ActDocumentUser->external;
+            return (int)$ActDocumentUser->external;
         });
 
         $names = [];
@@ -270,6 +274,7 @@ class FtActa extends FtActaProperties
      * lista los nombres de los temas tratados
      *
      * @return string
+     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2019-12-07
      */
@@ -456,5 +461,37 @@ class FtActa extends FtActaProperties
         }
 
         return $this->ActDocumentUserPresident;
+    }
+
+    /**
+     * accion a ejecutar despues de radicar
+     *
+     * @return bool
+     * @throws \Doctrine\DBAL\DBALException
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2019
+     */
+    public function afterRad()
+    {
+        $DocumentPdfGenerator = new DocumentPdfGenerator($this->Documento);
+        $route = $DocumentPdfGenerator->refreshFile();
+
+        $SendMailController = new SendMailController(
+            'Acta sobre ' . $this->asunto,
+            'Se adjunta documento generado en la reunión'
+        );
+
+        $SendMailController->setDestinations(
+            SendMailController::DESTINATION_TYPE_EMAIL,
+            $this->getAssistantsEmail()
+        );
+
+        $SendMailController->setAttachments(
+            SendMailController::ATTACHMENT_TYPE_JSON,
+            [$route]
+        );
+
+        $SendMailController->send();
+        return true;
     }
 }

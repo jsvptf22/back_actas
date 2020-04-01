@@ -2,10 +2,10 @@
 
 namespace Saia\Actas\controllers;
 
-use Saia\controllers\IcsController;
 use Saia\Actas\formatos\acta\FtActa;
-use Saia\controllers\SessionController;
+use Saia\controllers\IcsController;
 use Saia\controllers\SendMailController;
+use Saia\controllers\SessionController;
 use Saia\models\vistas\VfuncionarioDc;
 
 class ActaMailInvitation
@@ -29,6 +29,7 @@ class ActaMailInvitation
      * genera el archivo ics de la reunion
      *
      * @return string
+     * @throws \Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2020
      */
@@ -43,7 +44,7 @@ class ActaMailInvitation
         $DateTime->add($DateInterval);
 
         $properties = [
-            'description' => $FtAgendamientoActa->subject,
+            'description' => $this->getIcsDescription($FtAgendamientoActa),
             'dtstart' => $FtAgendamientoActa->date,
             'dtend' => $DateTime->format('Y-m-d H:i:s'),
             'summary' => $FtAgendamientoActa->subject,
@@ -66,17 +67,13 @@ class ActaMailInvitation
      * genera el cuerpo del correo
      *
      * @return string
+     * @throws \Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2020
      */
     public function generateBody()
     {
-        $roomRoute = sprintf(
-            "%s%s%s",
-            ABSOLUTE_SAIA_ROUTE,
-            "views/modules/actas/dist/qr/index.html?documentId=",
-            $this->FtActa->documento_iddocumento
-        );
+        $roomRoute = $this->getRoomRoute();
 
         $FtAgendamientoActa = $this->FtActa->FtAgendamientoActa;
         $VfuncionarioDc = VfuncionarioDc::findByRole($FtAgendamientoActa->dependencia);
@@ -105,12 +102,18 @@ HTML;
     /**
      * ejecuta el envio del correo
      *
+     * @param array $destinations
      * @return void
+     * @throws \Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2020
      */
-    public function send()
+    public function send(array $destinations = [])
     {
+        if (!$destinations) {
+            $destinations = $this->FtActa->getAssistantsEmail();
+        }
+
         $icsRoute = $this->generateIcsFile();
         $body = $this->generateBody();
 
@@ -125,12 +128,38 @@ HTML;
         $SendMailController = new SendMailController($subject, $body);
         $SendMailController->setDestinations(
             SendMailController::DESTINATION_TYPE_EMAIL,
-            $this->FtActa->getAssistantsEmail()
+            $destinations
         );
         $SendMailController->setAttachments(
             SendMailController::ATTACHMENT_TYPE_ROUTE,
             [$icsRoute]
         );
+
         $SendMailController->send();
+    }
+
+    protected function getRoomRoute(): string
+    {
+        return sprintf(
+            "%s%s%s",
+            ABSOLUTE_SAIA_ROUTE,
+            "views/modules/actas/dist/qr/index.html?documentId=",
+            $this->FtActa->documento_iddocumento
+        );
+    }
+
+    /**
+     * ${CARET}
+     * @param $FtAgendamientoActa
+     * @return string
+     * @date 2020-04-01
+     * @author jhon sebastian valencia <sebasjsv97@gmail.com>
+     */
+    protected function getIcsDescription($FtAgendamientoActa): string
+    {
+        $roomRoute = $this->getRoomRoute();
+        $link = "<br><br>El día de la reunión podrás participar en la toma de decisiones y opinar haciendo clic en 
+        <a class=\"btn btn-complete\" href='{$roomRoute}' >aquí</a><br><br><br>";
+        return sprintf("%s %s", $FtAgendamientoActa->subject, $link);
     }
 }

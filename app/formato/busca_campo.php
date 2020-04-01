@@ -1,7 +1,7 @@
 <?php
 
-use Saia\controllers\JwtController;
 use Saia\controllers\notificaciones\NotifierController;
+use Saia\controllers\SessionController;
 use Saia\models\formatos\CamposFormato;
 use Saia\models\formatos\Formato;
 
@@ -20,7 +20,7 @@ while ($max_salida > 0) {
 
 include_once $rootPath . 'app/vendor/autoload.php';
 
-$Response = (object) [
+$Response = (object)[
     'data' => new stdClass(),
     'message' => '',
     'success' => 0,
@@ -28,7 +28,7 @@ $Response = (object) [
 ];
 
 try {
-    JwtController::check($_REQUEST['token'], $_REQUEST['key']);
+    SessionController::goUp($_REQUEST['token'], $_REQUEST['key']);
 
     if (!$_REQUEST['field']) {
         throw new \Exception('Debe indicar el nombre del campo', 1);

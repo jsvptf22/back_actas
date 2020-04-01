@@ -1,9 +1,10 @@
 <?php
 
-use Saia\Actas\models\ActQuestion;
+use Saia\Actas\controllers\ActaMailInvitation;
+use Saia\Actas\formatos\acta\FtActa;
+use Saia\Actas\models\ActDocumentUser;
 use Saia\controllers\JwtController;
 use Saia\controllers\notificaciones\NotifierController;
-use Saia\controllers\SessionController;
 
 $max_salida = 10;
 $rootPath = $ruta = '';
@@ -30,21 +31,21 @@ $Response = (object)[
 try {
     JwtController::check($_REQUEST['token'], $_REQUEST['key']);
 
-    if (!$_REQUEST['question']) {
-        throw new Exception('Debe indicar la pregunta', 1);
+    if (!$_REQUEST['documentId']) {
+        throw new \Exception('Documento invalido', 1);
     }
 
-    $pk = ActQuestion::newRecord([
-        'question' => $_REQUEST['question'],
-        'fk_funcionario' => SessionController::getValue('idfuncionario'),
-        'fk_ft_acta' => $_REQUEST['id']
-    ]);
+    $emails = [];
 
-    if (!$pk) {
-        throw new Exception("Error al publicar", 1);
+    foreach ($_REQUEST['data'] as $item) {
+        $ActDocumentUser = new ActDocumentUser($item['id']);
+        array_push($emails, $ActDocumentUser->getUserEmail());
     }
 
-    $Response->message = "Pregunta publicada";
+    $FtActa = FtActa::findByDocumentId($_REQUEST['documentId']);
+    $ActaMailInvitation = new ActaMailInvitation($FtActa);
+    $ActaMailInvitation->send($emails);
+
     $Response->notifications = NotifierController::prepare();
     $Response->success = 1;
 } catch (Throwable $th) {

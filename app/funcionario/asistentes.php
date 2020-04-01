@@ -1,7 +1,7 @@
 <?php
 
-use Saia\controllers\JwtController;
 use Saia\controllers\notificaciones\NotifierController;
+use Saia\controllers\SessionController;
 use Saia\core\DatabaseConnection;
 
 $max_salida = 10;
@@ -27,7 +27,7 @@ $Response = (object)[
 ];
 
 try {
-    JwtController::check($_REQUEST['token'], $_REQUEST['key']);
+    SessionController::goUp($_REQUEST['token'], $_REQUEST['key']);
 
     if ($_REQUEST['term']) {
         $query = $_REQUEST['term'];

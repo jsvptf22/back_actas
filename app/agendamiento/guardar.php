@@ -1,8 +1,8 @@
 <?php
 
-use Saia\controllers\JwtController;
 use Saia\Actas\controllers\FtAgendamientoActaController;
 use Saia\controllers\notificaciones\NotifierController;
+use Saia\controllers\SessionController;
 
 $max_salida = 10;
 $rootPath = $ruta = '';
@@ -19,7 +19,7 @@ while ($max_salida > 0) {
 
 include_once $rootPath . 'app/vendor/autoload.php';
 
-$Response = (object) [
+$Response = (object)[
     'data' => new stdClass(),
     'message' => '',
     'success' => 0,
@@ -27,9 +27,9 @@ $Response = (object) [
 ];
 
 try {
-    JwtController::check($_REQUEST['token'], $_REQUEST['key']);
+    SessionController::goUp($_REQUEST['token'], $_REQUEST['key']);
 
-    $data = (object) [
+    $data = (object)[
         'duration' => $_REQUEST['duration'],
         'subject' => $_REQUEST['subject'],
         'initialDate' => $_REQUEST['initialDate'],

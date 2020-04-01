@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Saia\Migrations\Actas;
 
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
 use Saia\controllers\generator\component\Date;
 use Saia\controllers\generator\component\ExternalUser;
@@ -14,6 +15,8 @@ use Saia\controllers\generator\component\Number;
 use Saia\controllers\generator\component\Text;
 use Saia\controllers\generator\component\Textarea;
 use Saia\controllers\generator\component\UserAutocomplete;
+use Saia\models\formatos\CamposFormato;
+use Saia\models\formatosCamposFormato;
 
 /**
  * Auto-generated Migration: Please modify to your needs!
@@ -134,32 +137,34 @@ final class Version20191116145954 extends AbstractMigration
 
         $body = <<<HTML
 <div class="row">
-<div class="col-12">
-<p>{*qrCodeHtml*}</p>
-
-<p>&nbsp;</p>
-
-<table class="table table-bordered">
-	<tbody>
-		<tr>
-			<td class="bold">Acta N&deg;</td>
-			<td>{*formato_numero*}</td>
-		</tr>
-		<tr>
-			<td class="bold">Tema / Asunto</td>
-			<td colspan="3">{*asunto*}</td>
-		</tr>
-		<tr>
-			<td class="bold">Inicio</td>
-			<td>{*fecha_inicial*}</td>
-		</tr>
-		<tr>
-			<td class="bold">Fin</td>
-			<td>{*fecha_final*}</td>
-		</tr>
-	</tbody>
-</table>
-</div>
+    <div class="col-12">
+        <table class="table table-bordered">
+            <tbody>
+                <tr>
+                    <td class="bold">Acta N&deg;</td>
+                    <td>{*formato_numero*}</td>
+                    <td
+                        rowspan="4"
+                        class="text-center align-middle"
+                    >
+                        {*qrCodeHtml*}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="bold">Tema / Asunto</td>
+                    <td>{*asunto*}</td>
+                </tr>
+                <tr>
+                    <td class="bold">Inicio</td>
+                    <td>{*fecha_inicial*}</td>
+                </tr>
+                <tr>
+                    <td class="bold">Fin</td>
+                    <td>{*fecha_final*}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <div class="row">
@@ -189,9 +194,7 @@ final class Version20191116145954 extends AbstractMigration
 		</tr>
 		<tr>
 			<td>
-			<ul>
-				<li v-bind:key="topic.id" v-for="topic of documentInformation.topicList">{*listTopics*}</li>
-			</ul>
+				{*listTopics*}
 			</td>
 		</tr>
 	</tbody>
@@ -288,7 +291,7 @@ HTML;
             "fk_categoria_formato" => $category,
             "funcion_predeterminada" => "0",
             "paginar" => "0",
-            "pertenece_nucleo" => 0,
+            "pertenece_nucleo" => 1,
             "permite_imprimir" => 1,
             "descripcion_formato" => "acta",
             "proceso_pertenece" => 0,
@@ -328,7 +331,7 @@ HTML;
             "fk_categoria_formato" => $category,
             "funcion_predeterminada" => "0",
             "paginar" => "0",
-            "pertenece_nucleo" => 0,
+            "pertenece_nucleo" => 1,
             "permite_imprimir" => 1,
             "descripcion_formato" => "Agendamiento de reunión",
             "proceso_pertenece" => null,
@@ -381,11 +384,11 @@ HTML;
                 "formato_idformato" => $actaId,
                 "nombre" => "asistentes_externos",
                 "etiqueta" => "Asistentes externos",
-                "tipo_dato" => "string",
+                "tipo_dato" => Types::STRING,
                 "longitud" => "255",
                 "obligatoriedad" => 1,
                 "valor" => null,
-                "acciones" => "a,e",
+                'acciones' => sprintf("%s,%s", CamposFormato::ACTION_ADD, CamposFormato::ACTION_EDIT),
                 "ayuda" => "",
                 "predeterminado" => null,
                 "banderas" => "",
@@ -403,11 +406,11 @@ HTML;
                 "formato_idformato" => $actaId,
                 "nombre" => "asistentes_internos",
                 "etiqueta" => "Asistentes internos",
-                "tipo_dato" => "string",
+                "tipo_dato" => Types::STRING,
                 "longitud" => "255",
                 "obligatoriedad" => 1,
                 "valor" => "",
-                "acciones" => "a,e",
+                'acciones' => sprintf("%s,%s", CamposFormato::ACTION_ADD, CamposFormato::ACTION_EDIT),
                 "ayuda" => "",
                 "predeterminado" => "",
                 "banderas" => "",
@@ -425,11 +428,11 @@ HTML;
                 "formato_idformato" => $actaId,
                 "nombre" => "asunto",
                 "etiqueta" => "asunto",
-                "tipo_dato" => "string",
+                "tipo_dato" => Types::STRING,
                 "longitud" => "255",
                 "obligatoriedad" => 1,
                 "valor" => "",
-                "acciones" => "a,e,p",
+                'acciones' => sprintf("%s,%s,%s", CamposFormato::ACTION_ADD, CamposFormato::ACTION_EDIT, CamposFormato::ACTION_DESCRIPTION),
                 "ayuda" => "",
                 "predeterminado" => "",
                 "banderas" => "",
@@ -447,14 +450,14 @@ HTML;
                 "formato_idformato" => $actaId,
                 "nombre" => "dependencia",
                 "etiqueta" => "DEPENDENCIA DEL CREADOR DEL DOCUMENTO",
-                "tipo_dato" => "integer",
+                "tipo_dato" => Types::INTEGER,
                 "longitud" => "11",
                 "obligatoriedad" => 1,
                 "valor" => "",
-                "acciones" => "a,e",
+                'acciones' => sprintf("%s,%s", CamposFormato::ACTION_ADD, CamposFormato::ACTION_EDIT),
                 "ayuda" => null,
                 "predeterminado" => null,
-                "banderas" => "i",
+                "banderas" => CamposFormato::FLAG_INDEX,
                 "etiqueta_html" => Method::getIdentification(),
                 "orden" => 1,
                 "adicionales" => null,
@@ -469,14 +472,14 @@ HTML;
                 "formato_idformato" => $actaId,
                 "nombre" => "documento_iddocumento",
                 "etiqueta" => "DOCUMENTO ASOCIADO",
-                "tipo_dato" => "integer",
+                "tipo_dato" => Types::INTEGER,
                 "longitud" => "11",
                 "obligatoriedad" => 1,
                 "valor" => null,
-                "acciones" => "e",
+                "acciones" => CamposFormato::ACTION_EDIT,
                 "ayuda" => null,
                 "predeterminado" => null,
-                "banderas" => "i",
+                "banderas" => CamposFormato::FLAG_INDEX,
                 "etiqueta_html" => Hidden::getIdentification(),
                 "orden" => 0,
                 "adicionales" => null,
@@ -491,11 +494,11 @@ HTML;
                 "formato_idformato" => $actaId,
                 "nombre" => "encabezado",
                 "etiqueta" => "ENCABEZADO",
-                "tipo_dato" => "integer",
+                "tipo_dato" => Types::INTEGER,
                 "longitud" => "11",
                 "obligatoriedad" => 1,
                 "valor" => null,
-                "acciones" => "a,e",
+                'acciones' => sprintf("%s,%s", CamposFormato::ACTION_ADD, CamposFormato::ACTION_EDIT),
                 "ayuda" => null,
                 "predeterminado" => "1",
                 "banderas" => null,
@@ -513,11 +516,11 @@ HTML;
                 "formato_idformato" => $actaId,
                 "nombre" => "estado",
                 "etiqueta" => "Estado",
-                "tipo_dato" => "string",
+                "tipo_dato" => Types::STRING,
                 "longitud" => "255",
                 "obligatoriedad" => 0,
                 "valor" => "",
-                "acciones" => "a,e,b",
+                'acciones' => sprintf("%s,%s", CamposFormato::ACTION_ADD, CamposFormato::ACTION_EDIT),
                 "ayuda" => "",
                 "predeterminado" => "",
                 "banderas" => "",
@@ -535,11 +538,11 @@ HTML;
                 "formato_idformato" => $actaId,
                 "nombre" => "fecha_final",
                 "etiqueta" => "Fecha final",
-                "tipo_dato" => "datetime",
+                "tipo_dato" => Types::DATETIME_MUTABLE,
                 "longitud" => null,
                 "obligatoriedad" => 1,
                 "valor" => "",
-                "acciones" => "a,e",
+                'acciones' => sprintf("%s,%s", CamposFormato::ACTION_ADD, CamposFormato::ACTION_EDIT),
                 "ayuda" => null,
                 "predeterminado" => null,
                 "banderas" => null,
@@ -557,11 +560,11 @@ HTML;
                 "formato_idformato" => $actaId,
                 "nombre" => "fecha_inicial",
                 "etiqueta" => "Fecha inicial",
-                "tipo_dato" => "datetime",
+                "tipo_dato" => Types::DATETIME_MUTABLE,
                 "longitud" => null,
                 "obligatoriedad" => 1,
                 "valor" => "",
-                "acciones" => "a,e",
+                'acciones' => sprintf("%s,%s", CamposFormato::ACTION_ADD, CamposFormato::ACTION_EDIT),
                 "ayuda" => null,
                 "predeterminado" => null,
                 "banderas" => null,
@@ -579,11 +582,11 @@ HTML;
                 "formato_idformato" => $actaId,
                 "nombre" => "firma",
                 "etiqueta" => "FIRMAS DIGITALES",
-                "tipo_dato" => "integer",
+                "tipo_dato" => Types::INTEGER,
                 "longitud" => "11",
                 "obligatoriedad" => 1,
                 "valor" => null,
-                "acciones" => "a,e",
+                'acciones' => sprintf("%s,%s", CamposFormato::ACTION_ADD, CamposFormato::ACTION_EDIT),
                 "ayuda" => null,
                 "predeterminado" => "1",
                 "banderas" => null,
@@ -601,11 +604,11 @@ HTML;
                 "formato_idformato" => $actaId,
                 "nombre" => "fk_agendamiento_act",
                 "etiqueta" => "fk act planning",
-                "tipo_dato" => "string",
+                "tipo_dato" => Types::STRING,
                 "longitud" => "255",
                 "obligatoriedad" => 0,
                 "valor" => "",
-                "acciones" => "a,e,b",
+                "acciones" => sprintf("%s,%s", CamposFormato::ACTION_ADD, CamposFormato::ACTION_EDIT),
                 "ayuda" => "",
                 "predeterminado" => "",
                 "banderas" => "",
@@ -623,14 +626,14 @@ HTML;
                 "formato_idformato" => $actaId,
                 "nombre" => "idft_acta",
                 "etiqueta" => "acta",
-                "tipo_dato" => "integer",
+                "tipo_dato" => Types::INTEGER,
                 "longitud" => "11",
                 "obligatoriedad" => 1,
                 "valor" => null,
-                "acciones" => "a,e",
+                'acciones' => sprintf("%s,%s", CamposFormato::ACTION_ADD, CamposFormato::ACTION_EDIT),
                 "ayuda" => null,
                 "predeterminado" => null,
-                "banderas" => "ai,pk",
+                "banderas" => sprintf("%s,%s", CamposFormato::FLAG_AUTOINCREMENT, CamposFormato::FLAG_PRIMARYKEY),
                 "etiqueta_html" => Hidden::getIdentification(),
                 "orden" => 0,
                 "adicionales" => null,
@@ -645,11 +648,11 @@ HTML;
                 "formato_idformato" => $actaId,
                 "nombre" => "room",
                 "etiqueta" => "Sala",
-                "tipo_dato" => "string",
+                "tipo_dato" => Types::STRING,
                 "longitud" => "255",
                 "obligatoriedad" => 0,
                 "valor" => "",
-                "acciones" => "a,e,b",
+                "acciones" => sprintf("%s,%s", CamposFormato::ACTION_ADD, CamposFormato::ACTION_EDIT),
                 "ayuda" => "",
                 "predeterminado" => "",
                 "banderas" => "",
@@ -675,11 +678,11 @@ HTML;
                 "formato_idformato" => $agendamientoId,
                 "nombre" => "date",
                 "etiqueta" => "Fecha y Hora",
-                "tipo_dato" => "datetime",
+                "tipo_dato" => Types::DATETIME_MUTABLE,
                 "longitud" => null,
                 "obligatoriedad" => 0,
                 "valor" => "",
-                "acciones" => "a,e",
+                'acciones' => sprintf("%s,%s", CamposFormato::ACTION_ADD, CamposFormato::ACTION_EDIT),
                 "ayuda" => null,
                 "predeterminado" => null,
                 "banderas" => null,
@@ -697,14 +700,14 @@ HTML;
                 "formato_idformato" => $agendamientoId,
                 "nombre" => "dependencia",
                 "etiqueta" => "DEPENDENCIA DEL CREADOR DEL DOCUMENTO",
-                "tipo_dato" => "integer",
+                "tipo_dato" => Types::INTEGER,
                 "longitud" => "11",
                 "obligatoriedad" => 1,
                 "valor" => "",
-                "acciones" => "a,e",
+                'acciones' => sprintf("%s,%s", CamposFormato::ACTION_ADD, CamposFormato::ACTION_EDIT),
                 "ayuda" => null,
                 "predeterminado" => null,
-                "banderas" => "i",
+                "banderas" => CamposFormato::FLAG_INDEX,
                 "etiqueta_html" => Method::getIdentification(),
                 "orden" => 1,
                 "adicionales" => null,
@@ -719,14 +722,14 @@ HTML;
                 "formato_idformato" => $agendamientoId,
                 "nombre" => "documento_iddocumento",
                 "etiqueta" => "DOCUMENTO ASOCIADO",
-                "tipo_dato" => "integer",
+                "tipo_dato" => Types::INTEGER,
                 "longitud" => "11",
                 "obligatoriedad" => 1,
                 "valor" => null,
-                "acciones" => "e",
+                "acciones" => CamposFormato::ACTION_EDIT,
                 "ayuda" => null,
                 "predeterminado" => null,
-                "banderas" => "i",
+                "banderas" => CamposFormato::FLAG_INDEX,
                 "etiqueta_html" => Hidden::getIdentification(),
                 "orden" => null,
                 "adicionales" => null,
@@ -741,11 +744,11 @@ HTML;
                 "formato_idformato" => $agendamientoId,
                 "nombre" => "encabezado",
                 "etiqueta" => "ENCABEZADO",
-                "tipo_dato" => "integer",
+                "tipo_dato" => Types::INTEGER,
                 "longitud" => "11",
                 "obligatoriedad" => 1,
                 "valor" => null,
-                "acciones" => "a,e",
+                'acciones' => sprintf("%s,%s", CamposFormato::ACTION_ADD, CamposFormato::ACTION_EDIT),
                 "ayuda" => null,
                 "predeterminado" => "1",
                 "banderas" => null,
@@ -763,11 +766,11 @@ HTML;
                 "formato_idformato" => $agendamientoId,
                 "nombre" => "firma",
                 "etiqueta" => "FIRMAS DIGITALES",
-                "tipo_dato" => "integer",
+                "tipo_dato" => Types::INTEGER,
                 "longitud" => "11",
                 "obligatoriedad" => 1,
                 "valor" => null,
-                "acciones" => "a,e",
+                'acciones' => sprintf("%s,%s", CamposFormato::ACTION_ADD, CamposFormato::ACTION_EDIT),
                 "ayuda" => null,
                 "predeterminado" => "1",
                 "banderas" => null,
@@ -785,14 +788,14 @@ HTML;
                 "formato_idformato" => $agendamientoId,
                 "nombre" => "idft_agendamiento_acta",
                 "etiqueta" => "agendamiento_acta",
-                "tipo_dato" => "integer",
+                "tipo_dato" => Types::INTEGER,
                 "longitud" => "11",
                 "obligatoriedad" => 1,
                 "valor" => null,
-                "acciones" => "a,e",
+                'acciones' => sprintf("%s,%s", CamposFormato::ACTION_ADD, CamposFormato::ACTION_EDIT),
                 "ayuda" => null,
                 "predeterminado" => null,
-                "banderas" => "ai,pk",
+                "banderas" => sprintf("%s,%s", CamposFormato::FLAG_AUTOINCREMENT, CamposFormato::FLAG_PRIMARYKEY),
                 "etiqueta_html" => Hidden::getIdentification(),
                 "orden" => null,
                 "adicionales" => null,
@@ -807,11 +810,11 @@ HTML;
                 "formato_idformato" => $agendamientoId,
                 "nombre" => "state",
                 "etiqueta" => "Estado",
-                "tipo_dato" => "string",
+                "tipo_dato" => Types::STRING,
                 "longitud" => "255",
                 "obligatoriedad" => null,
                 "valor" => "",
-                "acciones" => "a,e,b",
+                'acciones' => sprintf("%s,%s,%s", CamposFormato::ACTION_ADD, CamposFormato::ACTION_EDIT, CamposFormato::ACTION_DESCRIPTION),
                 "ayuda" => "",
                 "predeterminado" => "",
                 "banderas" => "",
@@ -829,11 +832,11 @@ HTML;
                 "formato_idformato" => $agendamientoId,
                 "nombre" => "subject",
                 "etiqueta" => "Asunto",
-                "tipo_dato" => "string",
+                "tipo_dato" => Types::STRING,
                 "longitud" => "255",
                 "obligatoriedad" => 1,
                 "valor" => "",
-                "acciones" => "a,e,p",
+                "acciones" => sprintf("%s,%s", CamposFormato::ACTION_ADD, CamposFormato::ACTION_EDIT, CamposFormato::ACTION_DESCRIPTION),
                 "ayuda" => "",
                 "predeterminado" => "",
                 "banderas" => "",
@@ -851,11 +854,11 @@ HTML;
                 "formato_idformato" => $agendamientoId,
                 "nombre" => "duration",
                 "etiqueta" => "Duración",
-                "tipo_dato" => "string",
+                "tipo_dato" => Types::STRING,
                 "longitud" => "255",
                 "obligatoriedad" => 1,
                 "valor" => "",
-                "acciones" => "a,e,p",
+                "acciones" => sprintf("%s,%s", CamposFormato::ACTION_ADD, CamposFormato::ACTION_EDIT),
                 "ayuda" => "",
                 "predeterminado" => "",
                 "banderas" => "",

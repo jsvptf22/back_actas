@@ -1,10 +1,11 @@
 <?php
 
-use Saia\controllers\JwtController;
+use Saia\controllers\functions\CoreFunctions;
+use Saia\controllers\functions\Header;
 use Saia\controllers\notificaciones\NotifierController;
+use Saia\controllers\SessionController;
 use Saia\controllers\Utilities;
 use Saia\models\formatos\Formato;
-use Saia\models\formatos\FuncionNucleo;
 
 $max_salida = 10;
 $rootPath = $ruta = '';
@@ -29,7 +30,7 @@ $Response = (object)[
 ];
 
 try {
-    JwtController::check($_REQUEST['token'], $_REQUEST['key']);
+    SessionController::goUp($_REQUEST['token'], $_REQUEST['key']);
 
     if (!$_REQUEST['format']) {
         throw new \Exception('Debe indicar el formato', 1);
@@ -42,8 +43,8 @@ try {
     $headerBase = $Formato->getHeader()->contenido;
     $footerBase = $Formato->getFooter()->contenido;
 
-    $Response->data->header = replaceFunction($headerBase, $Formato);
-    $Response->data->footer = replaceFunction($footerBase, $Formato);
+    $Response->data->header = replaceFunction($headerBase);
+    $Response->data->footer = replaceFunction($footerBase);
     $Response->notifications = NotifierController::prepare();
     $Response->success = 1;
 } catch (Throwable $th) {
@@ -52,26 +53,21 @@ try {
 
 echo json_encode($Response);
 
-function replaceFunction($content, $Formato)
+function replaceFunction($baseContent)
 {
-    $systemFuntions = FuncionNucleo::findColumn('nombre');
-    $functions = Utilities::getFunctionsFromString($content);
+    $Formato = Formato::findByAttributes(['nombre' => 'acta']);
+    $functions = Header::getFunctionsFromString($baseContent);
+    $functions = str_replace(['{*', '*}'], '', $functions);
+    $values = CoreFunctions::getVariableValue($functions);
+    $values['nombre_formato'] = CoreFunctions::nombre_formato(null, $Formato->getPK());
 
-    foreach ($functions as $representation) {
-        $method = str_replace(['{*', '*}'], '', $representation);
-
-        if (in_array($method, $systemFuntions)) {
-            $content = str_replace(
-                $representation,
-                call_user_func(
-                    [Utilities::class, $method],
-                    null,
-                    $Formato->getPK()
-                ),
-                $content
-            );
-        }
+    foreach ($values as $key => $value) {
+        $baseContent = str_replace(
+            "{*{$key}*}",
+            $value,
+            $baseContent
+        );
     }
 
-    return $content;
+    return $baseContent;
 }

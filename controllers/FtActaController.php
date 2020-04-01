@@ -390,7 +390,8 @@ class FtActaController
             array_push($response, [
                 'id' => $Tarea->getPK(),
                 'name' => $Tarea->getName(),
-                'managers' => $managerIdentifications
+                'managers' => $managerIdentifications,
+                'limitDate' => $Tarea->getDateAttribute('fecha_final')
             ]);
         }
 
@@ -421,6 +422,7 @@ class FtActaController
      * a los usuarios indicados en la planeacion
      *
      * @return void
+     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2019-12-10
      */
