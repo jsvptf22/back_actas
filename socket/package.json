@@ -1,0 +1,16 @@
+{
+    "name": "actas_socket",
+    "version": "1.0.0",
+    "description": "",
+    "main": "app/index.js",
+    "dependencies": {
+        "socket.io": "^2.3.0"
+    },
+    "devDependencies": {},
+    "scripts": {
+        "start": "node app/index.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC"
+}

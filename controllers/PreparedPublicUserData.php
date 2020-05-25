@@ -10,11 +10,11 @@ class PreparedPublicUserData
     /**
      * almacena la instancia de AcDocumentUser
      *
-     * @var AcDocumentUser
+     * @var ActDocumentUser
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2019-12-07
      */
-    protected $ActDocumentUser;
+    protected ActDocumentUser $ActDocumentUser;
 
 
     /**

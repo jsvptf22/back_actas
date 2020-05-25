@@ -34,13 +34,13 @@ class FtActaController
     /**
      * crea o modifica el documento
      *
-     * @param array $data
+     * @param object $data
      * @return FtActa
      * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-06
+     * @date   2019-12-06
      */
-    public function saveDocument($data)
+    public function saveDocument(object $data)
     {
         $userId = SessionController::getValue('idfuncionario');
         $attributes = [
@@ -49,7 +49,6 @@ class FtActaController
             'asunto' => $data->subject,
             'dependencia' => VfuncionarioDc::getFirstUserRole($userId),
             'estado' => 1,
-            'room' => $this->FtActa->getRoom()
         ];
 
         if ($this->FtActa->getPK()) {
@@ -133,11 +132,12 @@ class FtActaController
     /**
      * almacena los asistentes de la reunion
      *
-     * @param array $userList
+     * @param array   $userList
      * @param integer $fk_agendamiento_act
      * @return void
+     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-06
+     * @date   2019-12-06
      */
     public function refreshAssistants($userList, $fk_agendamiento_act = null)
     {
@@ -181,11 +181,12 @@ class FtActaController
     /**
      * actualiza un rol en el documento
      *
-     * @param object $user
+     * @param object  $user
      * @param integer $relationType ej. ActDocumentUser::RELATION_*
      * @return void
+     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019
+     * @date   2019
      */
     public function updateRole($user, $relationType)
     {
@@ -290,7 +291,7 @@ class FtActaController
             'tasks' => $this->prepareTasks(),
             'fk_agendamiento_act' => $this->FtActa->fk_agendamiento_act,
             'questions' => [
-                'room' => $this->FtActa->getRoom(),
+                'room' => $this->FtActa->documento_iddocumento,
                 'items' => $this->prepareQuestions()
             ],
             'qrUrl' => $this->FtActa->Documento->getQR()
@@ -428,7 +429,7 @@ class FtActaController
      */
     public function sendInvitations()
     {
-        $ActaMailInvitation = new ActaMailInvitation($this->FtActa);
+        $ActaMailInvitation = new MeetMailInvitation($this->FtActa);
         $ActaMailInvitation->send();
     }
 

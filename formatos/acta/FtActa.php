@@ -133,56 +133,28 @@ class FtActa extends FtActaProperties
     }
 
     /**
-     * obtiene o genera la sala de la reunion
-     *
-     * @return string
-     * @throws Exception
-     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2020
-     */
-    public function getRoom()
-    {
-        if (!$this->room) {
-            $roomName = time();
-            $endPoint = ACTAS_NODE_SERVER . "api/room/{$roomName}";
-            $Client = new \GuzzleHttp\Client();
-            $clientRequest = $Client->request('POST', $endPoint, [
-                'form_params' => [
-                    'hidden' => 1
-                ]
-            ]);
-            $data = json_decode($clientRequest->getBody());
-
-            if (!$data->success) {
-                throw new \Exception("Error al generar la sala", 1);
-            }
-
-            $this->room = $data->data->roomId;
-        }
-
-        return $this->room;
-    }
-
-    /**
      * obtiene la lista de correos de los asistentes
      *
      * @return array
+     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-17
+     * @date   2019-12-17
      */
     public function getAssistantsEmail()
     {
         $emails = [];
-        $users = DataBaseConnection::getQueryBuilder()
+        $users = DataBaseConnection::getDefaultConnection()
+            ->createQueryBuilder()
             ->select('a.email')
-            ->from('funcionario', 'a')
-            ->join('a', 'act_document_user', 'b', 'a.idfuncionario = b.identification')
+            ->from('vfuncionario_dc', 'a')
+            ->join('a', 'act_document_user', 'b', 'a.iddependencia_cargo = b.identification')
             ->where('b.external = 0')
             ->andWhere('b.fk_ft_acta = :ft')
             ->setParameter('ft', $this->getPK())
             ->execute()->fetchAll();
 
-        $externals = DataBaseConnection::getQueryBuilder()
+        $externals = DataBaseConnection::getDefaultConnection()
+            ->createQueryBuilder()
             ->select('a.correo')
             ->from('tercero', 'a')
             ->join('a', 'act_document_user', 'b', 'a.idtercero = b.identification')
@@ -206,8 +178,9 @@ class FtActa extends FtActaProperties
      * lista los nombres de los asistentes internos
      *
      * @return string
+     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-07
+     * @date   2019-12-07
      */
     public function listInternalAssistants()
     {

@@ -40,105 +40,6 @@ class ActDocumentUser extends Model
     }
 
     /**
-     * inactiva todas las relaciones de un documento
-     * basadas en un tipo de relacion
-     *
-     * @param integer $fk_ft_acta
-     * @param integer $relationType
-     * @return boolean
-     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-07
-     */
-    public static function inactiveUsersByRelation($fk_ft_acta, $relationType)
-    {
-        return ActDocumentUser::executeUpdate([
-            'state' => 0,
-            'updated_at' => date('Y-m-d H:i:s'),
-        ], [
-            'state' => 1,
-            'relation' => $relationType,
-            'fk_ft_acta' => $fk_ft_acta
-        ]);
-    }
-
-    /* funcionalidad a ejecutar antes de crear un registro
-     *
-     * @return boolean
-     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-07
-     */
-
-    /**
-     * crea o actualiza la relacion de un usuario con el documento
-     *
-     * @param integer $fk_ft_acta
-     * @param object $user
-     * @param integer $relationType
-     * @return void
-     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-07
-     */
-    public static function updateUserRelation($fk_ft_acta, $user, $relationType)
-    {
-        ActDocumentUser::newRecord([
-            'fk_ft_acta' => $fk_ft_acta,
-            'state' => 1,
-            'relation' => $relationType,
-            'identification' => $user->id,
-            'fk_agendamiento_act' => $user->fk_agendamiento_act,
-            'external' => $user->external ?? 1
-        ]);
-    }
-
-    /* funcionalidad a ejecutar antes de editar un registro
-     *
-     * @return boolean
-     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-07
-     */
-
-    /**
-     * obtiene el correo del usuario
-     *
-     * @return string
-     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-10
-     */
-    public function getUserEmail()
-    {
-        return $this->getUser() instanceof VfuncionarioDc ?
-            $this->getUser()->email : $this->getUser()->correo;
-    }
-
-    /**
-     * obtiene la instancia del usuario
-     *
-     * @return VfuncionarioDc|Tercero
-     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-07
-     */
-    public function getUser()
-    {
-        return (int) $this->external ? $this->Tercero : $this->VfuncionarioDc;
-    }
-
-    /**
-     * obtiene la informacion preparada
-     *
-     * @return object
-     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-07
-     */
-    public function prepareData()
-    {
-        if (!$this->PreparedPublicUserData) {
-            $this->PreparedPublicUserData = new PreparedPublicUserData($this);
-        }
-
-        return $this->PreparedPublicUserData->getPreparedData();
-    }
-
-    /**
      * define values for dbAttributes
      */
     protected function defineAttributes()
@@ -190,5 +91,93 @@ class ActDocumentUser extends Model
         }
 
         return true;
+    }
+
+    /**
+     * inactiva todas las relaciones de un documento
+     * basadas en un tipo de relacion
+     *
+     * @param integer $fk_ft_acta
+     * @param integer $relationType
+     * @return boolean
+     * @throws \Exception
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date   2019-12-07
+     */
+    public static function inactiveUsersByRelation($fk_ft_acta, $relationType)
+    {
+        return ActDocumentUser::executeUpdate([
+            'state' => 0,
+            'updated_at' => date('Y-m-d H:i:s'),
+        ], [
+            'state' => 1,
+            'relation' => $relationType,
+            'fk_ft_acta' => $fk_ft_acta
+        ]);
+    }
+
+    /**
+     * crea o actualiza la relacion de un usuario con el documento
+     *
+     * @param integer $fk_ft_acta
+     * @param object  $user
+     * @param integer $relationType
+     * @return void
+     * @throws \Exception
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date   2019-12-07
+     */
+    public static function updateUserRelation($fk_ft_acta, $user, $relationType)
+    {
+        ActDocumentUser::newRecord([
+            'fk_ft_acta' => $fk_ft_acta,
+            'state' => 1,
+            'relation' => $relationType,
+            'identification' => $user->id,
+            'fk_agendamiento_act' => $user->fk_agendamiento_act,
+            'external' => $user->external ?? 1
+        ]);
+    }
+
+    /**
+     * obtiene el correo del usuario
+     *
+     * @return string
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2019-12-10
+     */
+    public function getUserEmail()
+    {
+        $Entity = $this->getUser();
+        return $Entity instanceof VfuncionarioDc ?
+            $Entity->email : $Entity->correo;
+    }
+
+    /**
+     * obtiene la instancia del usuario
+     *
+     * @return VfuncionarioDc|Tercero
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2019-12-07
+     */
+    public function getUser()
+    {
+        return (int) $this->external ? $this->Tercero : $this->VfuncionarioDc;
+    }
+
+    /**
+     * obtiene la informacion preparada
+     *
+     * @return object
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date 2019-12-07
+     */
+    public function prepareData()
+    {
+        if (!$this->PreparedPublicUserData) {
+            $this->PreparedPublicUserData = new PreparedPublicUserData($this);
+        }
+
+        return $this->PreparedPublicUserData->getPreparedData();
     }
 }

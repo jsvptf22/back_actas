@@ -1,6 +1,6 @@
 <?php
 
-use Saia\Actas\controllers\ActaMailInvitation;
+use Saia\Actas\controllers\MeetMailInvitation;
 use Saia\Actas\formatos\acta\FtActa;
 use Saia\Actas\models\ActDocumentUser;
 use Saia\controllers\JwtController;
@@ -38,17 +38,24 @@ try {
     $emails = [];
 
     foreach ($_REQUEST['data'] as $item) {
-        $ActDocumentUser = new ActDocumentUser($item['id']);
+        $ActDocumentUser = new ActDocumentUser();
+        $ActDocumentUser->setAttributes([
+            'identification' => $item['id'],
+        ]);
         array_push($emails, $ActDocumentUser->getUserEmail());
     }
 
     $FtActa = FtActa::findByDocumentId($_REQUEST['documentId']);
-    $ActaMailInvitation = new ActaMailInvitation($FtActa);
+    $ActaMailInvitation = new MeetMailInvitation($FtActa);
     $ActaMailInvitation->send($emails);
 
     $Response->notifications = NotifierController::prepare();
     $Response->success = 1;
 } catch (Throwable $th) {
+    echo "<pre>";
+    var_dump($th);
+    echo "</pre>";
+    exit;
     $Response->message = $th->getMessage();
 }
 

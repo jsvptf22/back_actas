@@ -2,6 +2,7 @@
 
 namespace Saia\Actas\controllers;
 
+use Exception;
 use Saia\Actas\formatos\acta\FtActa;
 use Saia\models\vistas\VfuncionarioDc;
 use Saia\controllers\SessionController;
@@ -47,21 +48,22 @@ class FtAgendamientoActaController
      * verifica los datos requeridos
      *
      * @return void
+     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2020
+     * @date   2020
      */
     public function checkRequired()
     {
         if (!$this->params->subject) {
-            throw new \Exception('Debe indicar el asunto', 1);
+            throw new Exception('Debe indicar el asunto', 1);
         }
 
         if (!$this->params->initialDate) {
-            throw new \Exception('Debe indicar la fecha', 1);
+            throw new Exception('Debe indicar la fecha', 1);
         }
 
         if (!$this->params->duration) {
-            throw new \Exception('Debe indicar la duración de la reunión', 1);
+            throw new Exception('Debe indicar la duración de la reunión', 1);
         }
     }
 
@@ -69,8 +71,9 @@ class FtAgendamientoActaController
      * crea el registro en FtAgendamientoActa
      *
      * @return void
+     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2020
+     * @date   2020
      */
     public function saveSchedule()
     {
@@ -94,8 +97,9 @@ class FtAgendamientoActaController
      * crea el acta con los valores del agendamiento
      *
      * @return void
+     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2020
+     * @date   2020
      */
     public function createEmptyDocument()
     {
@@ -111,8 +115,9 @@ class FtAgendamientoActaController
      * genera los datos iniciales para el acta
      *
      * @return object
+     * @throws \Doctrine\DBAL\DBALException
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2020
+     * @date   2020
      */
     public function getDocumentInitialData()
     {
@@ -129,8 +134,9 @@ class FtAgendamientoActaController
      * genera los asistentes del encuentro
      *
      * @return array
+     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2020
+     * @date   2020
      */
     public function getAssistants()
     {

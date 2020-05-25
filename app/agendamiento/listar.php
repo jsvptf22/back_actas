@@ -30,7 +30,8 @@ $Response = (object)[
 try {
     SessionController::goUp($_REQUEST['token'], $_REQUEST['key']);
 
-    $QueryBuilder = DataBaseConnection::getQueryBuilder()
+    $QueryBuilder = DataBaseConnection::getDefaultConnection()
+        ->createQueryBuilder()
         ->select('a.*')
         ->from('ft_agendamiento_acta', 'a')
         ->join('a', 'act_document_user', 'b', 'a.idft_agendamiento_acta = b.fk_agendamiento_act')

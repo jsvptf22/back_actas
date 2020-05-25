@@ -8,7 +8,7 @@ use Saia\controllers\SendMailController;
 use Saia\controllers\SessionController;
 use Saia\models\vistas\VfuncionarioDc;
 
-class ActaMailInvitation
+class MeetMailInvitation
 {
 
     /**
@@ -149,7 +149,8 @@ HTML;
     }
 
     /**
-     * ${CARET}
+     * gets the ics description
+     *
      * @param $FtAgendamientoActa
      * @return string
      * @date 2020-04-01

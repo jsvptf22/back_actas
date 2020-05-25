@@ -31,7 +31,8 @@ try {
 
     if ($_REQUEST['term']) {
         $query = $_REQUEST['term'];
-        $data = DataBaseConnection::getQueryBuilder()
+        $data = DataBaseConnection::getDefaultConnection()
+            ->createQueryBuilder()
             ->select(['id', 'nombre_completo as name', 'externo as external'])
             ->from('v_act_user')
             ->where('nombre_completo like :query')
@@ -41,7 +42,8 @@ try {
             ->setMaxResults(20)
             ->execute()->fetchAll();
     } else if (!empty($_REQUEST['defaultUser'])) {
-        $data = DataBaseConnection::getQueryBuilder()
+        $data = DataBaseConnection::getDefaultConnection()
+            ->createQueryBuilder()
             ->select(['id', 'nombre_completo as name', 'externo as external'])
             ->from('v_act_user')
             ->where('id = :identificator')
@@ -50,7 +52,6 @@ try {
             ->setParameter('query', $_REQUEST['external'])
             ->execute()->fetch();
     }
-
 
     $Response->data = $data;
     $Response->notifications = NotifierController::prepare();

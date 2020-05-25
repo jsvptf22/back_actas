@@ -1,4 +1,11 @@
 <?php
+
+use Saia\Actas\controllers\FtActaController;
+use Saia\Actas\formatos\acta\FtActa;
+use Saia\controllers\notificaciones\NotifierController;
+use Saia\controllers\SessionController;
+use Saia\core\DatabaseConnection;
+
 $max_salida = 10;
 $rootPath = $ruta = '';
 
@@ -14,11 +21,6 @@ while ($max_salida > 0) {
 
 include_once $rootPath . 'app/vendor/autoload.php';
 
-use Saia\Actas\controllers\FtActaController;
-use Saia\Actas\formatos\acta\FtActa;
-use Saia\controllers\notificaciones\NotifierController;
-use Saia\controllers\SessionController;
-
 $Response = (object)[
     'data' => new stdClass(),
     'message' => '',
@@ -27,11 +29,16 @@ $Response = (object)[
 ];
 
 try {
+    $Connection = DatabaseConnection::getDefaultConnection();
+    $Connection->beginTransaction();
+
     SessionController::goUp($_REQUEST['token'], $_REQUEST['key']);
 
+    if (!$_REQUEST['documentInformation']) {
+        throw new \Exception('Debe indicar la información del documento', 1);
+    }
+
     $data = json_decode($_REQUEST['documentInformation']);
-
-
     $FtActa = $data->documentId ?
         FtActa::findByDocumentId($data->documentId) : new FtActa();
     $FtActaController = new FtActaController($FtActa);
@@ -40,7 +47,9 @@ try {
     $Response->data = $FtActaController->getDocumentBuilderData();
     $Response->notifications = NotifierController::prepare();
     $Response->success = 1;
+    $Connection->commit();
 } catch (Throwable $th) {
+    $Connection->rollBack();
     $Response->message = $th->getMessage();
 }
 
