@@ -8,9 +8,12 @@ use Saia\Actas\models\ActDocumentTopic;
 use Saia\Actas\models\ActDocumentUser;
 use Saia\Actas\models\ActQuestion;
 use Saia\controllers\documento\QRDocumentoController;
+use Saia\controllers\functions\CoreFunctions;
+use Saia\controllers\functions\Header;
 use Saia\controllers\SaveDocument;
 use Saia\controllers\SessionController;
 use Saia\models\documento\DocumentoTarea;
+use Saia\models\formatos\Formato;
 use Saia\models\tarea\TareaFuncionario;
 use Saia\models\vistas\VfuncionarioDc;
 
@@ -57,7 +60,7 @@ class FtActaController
                 $attributes
             );
             $GuardarFtController->edit(
-                $this->FtActa->documento_iddocumento
+                (int)$this->FtActa->documento_iddocumento
             );
             $this->FtActa->refresh();
         } else {
@@ -70,7 +73,7 @@ class FtActaController
             $this->FtActa = FtActa::findByDocumentId($documentId);
         }
 
-        $this->refreshTopics($data->topicList, $data->topicListDescription);
+        $this->refreshTopics($data->topics);
         $this->refreshAssistants($data->userList, $data->fk_agendamiento_act);
         $this->refreshRoles($data->roles);
         $this->refreshTasks($data->tasks);
@@ -83,14 +86,13 @@ class FtActaController
     /**
      * refresca los temas del acta
      *
-     * @param array $topicList
-     * @param array $topicListDescriptions
+     * @param array $topics
      * @return void
      * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-11-26
+     * @date   2019-11-26
      */
-    public function refreshTopics($topicList, $topicListDescriptions)
+    public function refreshTopics(array $topics)
     {
         ActDocumentTopic::executeUpdate([
             'state' => 0,
@@ -100,7 +102,7 @@ class FtActaController
             'fk_ft_acta' => $this->FtActa->getPK()
         ]);
 
-        foreach ($topicList as $topic) {
+        foreach ($topics as $topic) {
             $ActDocumentTopic = ActDocumentTopic::findByAttributes([
                 'idact_document_topic' => $topic->id,
                 'fk_ft_acta' => $this->FtActa->getPK()
@@ -114,16 +116,8 @@ class FtActaController
                 'fk_ft_acta' => $this->FtActa->getPK(),
                 'state' => 1,
                 'name' => $topic->label,
-                'description' => ''
+                'description' => $topic->description ?? ''
             ]);
-
-            foreach ($topicListDescriptions as $key => $item) {
-                if ($topic->id == $item->topic) {
-                    $ActDocumentTopic->description = $item->description;
-                    unset($topicListDescriptions[$key]);
-                    break;
-                }
-            }
 
             $ActDocumentTopic->save();
         }
@@ -162,8 +156,9 @@ class FtActaController
      *
      * @param object $roles
      * @return void
+     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-07
+     * @date   2019-12-07
      */
     public function refreshRoles($roles)
     {
@@ -241,27 +236,27 @@ class FtActaController
     /**
      * actualiza las preguntas del documento
      *
-     * @param array $data
+     * @param array $questions
      * @return true
      * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date 2020
      */
-    public function refreshQuestions($data)
+    public function refreshQuestions($questions)
     {
         $userId = SessionController::getValue('idfuncionario');
-        ActQuestion::executeDelete([
-            'fk_ft_acta' => $this->FtActa->getPK()
-        ]);
 
-        foreach ($data->items as $question) {
-            ActQuestion::newRecord([
+        foreach ($questions as $question) {
+            $ActQuestion = new ActQuestion($question->idact_question);
+            $ActQuestion->setAttributes([
                 'fk_ft_acta' => $this->FtActa->getPK(),
                 'label' => $question->label,
                 'fk_funcionario' => $userId,
                 'approve' => $question->approve,
                 'reject' => $question->reject
             ]);
+
+            $ActQuestion->save();
         }
 
         return true;
@@ -290,11 +285,9 @@ class FtActaController
             'roles' => $this->prepareRoles(),
             'tasks' => $this->prepareTasks(),
             'fk_agendamiento_act' => $this->FtActa->fk_agendamiento_act,
-            'questions' => [
-                'room' => $this->FtActa->documento_iddocumento,
-                'items' => $this->prepareQuestions()
-            ],
-            'qrUrl' => $this->FtActa->Documento->getQR()
+            'questions' => $this->prepareQuestions(),
+            'qrUrl' => $this->FtActa->Documento->getQR(),
+            'headers' => $this->getFormatHeaders()
         ];
     }
 
@@ -313,7 +306,7 @@ class FtActaController
         foreach ($this->FtActa->getTopics() as $ActDocumentTopic) {
             array_push($topics, [
                 'id' => $ActDocumentTopic->getPK(),
-                'name' => $ActDocumentTopic->name,
+                'label' => $ActDocumentTopic->name,
                 'description' => $ActDocumentTopic->description
             ]);
         }
@@ -456,5 +449,35 @@ class FtActaController
             );
             $QR->getRouteQR();
         }
+    }
+
+    public function getFormatHeaders(){
+        $Formato = $this->FtActa->getFormat();
+        $headerBase = $Formato->getHeader()->contenido;
+        $footerBase = $Formato->getFooter()->contenido;
+
+        return [
+            'header' => self::replaceHeaderFunctions($headerBase),
+            'footer' => self::replaceHeaderFunctions($footerBase)
+        ];
+    }
+
+    private static function replaceHeaderFunctions($baseContent)
+    {
+        $Formato = Formato::findByAttributes(['nombre' => 'acta']);
+        $functions = Header::getFunctionsFromString($baseContent);
+        $functions = str_replace(['{*', '*}'], '', $functions);
+        $values = CoreFunctions::getVariableValue($functions);
+        $values['nombre_formato'] = CoreFunctions::nombre_formato(null, $Formato->getPK());
+
+        foreach ($values as $key => $value) {
+            $baseContent = str_replace(
+                "{*{$key}*}",
+                $value,
+                $baseContent
+            );
+        }
+
+        return $baseContent;
     }
 }
