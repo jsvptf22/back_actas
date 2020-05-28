@@ -92,7 +92,7 @@ class FtActaController
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date   2019-11-26
      */
-    public function refreshTopics(array $topics)
+    public function refreshTopics(array $topics = null)
     {
         ActDocumentTopic::executeUpdate([
             'state' => 0,
