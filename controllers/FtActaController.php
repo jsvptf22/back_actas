@@ -372,19 +372,15 @@ class FtActaController
         $response = [];
 
         foreach ($this->FtActa->Documento->getTasks() as $Tarea) {
-            $managerIdentifications = TareaFuncionario::findColumn(
-                'fk_funcionario',
-                [
-                    'estado' => 1,
-                    'fk_tarea' => $Tarea->getPK(),
-                    'tipo' => TareaFuncionario::TIPO_RESPONSABLE
-                ]
-            );
+            $managers = [];
+            foreach ($Tarea->getManagers() as $Funcionario){
+                array_push($managers, $Funcionario->getName());
+            }
 
             array_push($response, [
                 'id' => $Tarea->getPK(),
                 'name' => $Tarea->getName(),
-                'managers' => $managerIdentifications,
+                'managers' => implode(", ", $managers),
                 'limitDate' => $Tarea->getDateAttribute('fecha_final')
             ]);
         }

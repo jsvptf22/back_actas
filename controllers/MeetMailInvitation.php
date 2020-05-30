@@ -38,16 +38,17 @@ class MeetMailInvitation
         global $rootPath;
 
         $FtAgendamientoActa = $this->FtActa->FtAgendamientoActa;
+        $duration = $FtAgendamientoActa ? $FtAgendamientoActa->duration : '60';
 
-        $DateInterval = new \DateInterval("PT{$FtAgendamientoActa->duration}M");
-        $DateTime = new \DateTime($FtAgendamientoActa->date);
+        $DateInterval = new \DateInterval("PT{$duration}M");
+        $DateTime = new \DateTime($this->FtActa->fecha_inicial);
         $DateTime->add($DateInterval);
 
         $properties = [
-            'description' => $this->getIcsDescription($FtAgendamientoActa),
-            'dtstart' => $FtAgendamientoActa->date,
+            'description' => $this->getIcsDescription(),
+            'dtstart' => $this->FtActa->getDateAttribute('fecha_inicial', 'Y-m-d H:i:s'),
             'dtend' => $DateTime->format('Y-m-d H:i:s'),
-            'summary' => $FtAgendamientoActa->subject,
+            'summary' => $this->FtActa->asunto,
             'organizer' => SessionController::getValue('email')
         ];
 
@@ -74,12 +75,8 @@ class MeetMailInvitation
     public function generateBody()
     {
         $roomRoute = $this->getRoomRoute();
-
-        $FtAgendamientoActa = $this->FtActa->FtAgendamientoActa;
-        $VfuncionarioDc = VfuncionarioDc::findByRole($FtAgendamientoActa->dependencia);
-        $username = $VfuncionarioDc->getName();
-
         $assistants = $this->FtActa->getAssistants();
+        $VfuncionarioDc = VfuncionarioDc::findByRole((int)$this->FtActa->dependencia);
 
         $names = [];
         foreach ($assistants as $ActDocumentUser) {
@@ -90,8 +87,8 @@ class MeetMailInvitation
 
         return <<<HTML
         Tienes una invitación para la siguiente reunión.<br><br>
-        {$FtAgendamientoActa->subject}<br><br>
-        Organizador: {$username}<br><br>
+        {$this->FtActa->asunto}<br><br>
+        Organizador: {$VfuncionarioDc->getName()}<br><br>
         {$assistantsName}<br><br>
         El día de la reunión podrás participar en la toma de decisiones y opinar haciendo clic en 
         <a class="btn btn-complete" href='{$roomRoute}' >aquí</a><br><br><br>
@@ -117,13 +114,12 @@ HTML;
         $icsRoute = $this->generateIcsFile();
         $body = $this->generateBody();
 
-        $FtAgendamientoActa = $this->FtActa->FtAgendamientoActa;
-        $DateTime = new \DateTime($FtAgendamientoActa->date);
+        $DateTime = new \DateTime($this->FtActa->fecha_inicial);
         $formated = strftime(
             "%A %d de %B de %Y - %H:%M",
             $DateTime->getTimestamp()
         );
-        $subject = "Invitación  {$FtAgendamientoActa->subject} el {$formated}";
+        $subject = "Invitación {$this->FtActa->asunto} el {$formated}";
 
         $SendMailController = new SendMailController($subject, $body);
         $SendMailController->setDestinations(
@@ -151,16 +147,15 @@ HTML;
     /**
      * gets the ics description
      *
-     * @param $FtAgendamientoActa
      * @return string
      * @date 2020-04-01
      * @author jhon sebastian valencia <sebasjsv97@gmail.com>
      */
-    protected function getIcsDescription($FtAgendamientoActa): string
+    protected function getIcsDescription(): string
     {
         $roomRoute = $this->getRoomRoute();
         $link = "<br><br>El día de la reunión podrás participar en la toma de decisiones y opinar haciendo clic en 
         <a class=\"btn btn-complete\" href='{$roomRoute}' >aquí</a><br><br><br>";
-        return sprintf("%s %s", $FtAgendamientoActa->subject, $link);
+        return sprintf("%s %s", $this->FtActa->asunto, $link);
     }
 }

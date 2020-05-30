@@ -36,6 +36,7 @@ try {
         'users' => $_REQUEST['users'],
     ];
     $FtAgendamientoActaController = new FtAgendamientoActaController($data);
+    $FtAgendamientoActaController->save();
 
     $Response->message = "Agendamiento creado con éxito";
     $Response->notifications = NotifierController::prepare();

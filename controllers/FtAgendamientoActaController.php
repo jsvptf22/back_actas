@@ -34,10 +34,9 @@ class FtAgendamientoActaController
     public function __construct(object $data)
     {
         $this->params = $data;
-        $this->init();
     }
 
-    public function init()
+    public function save()
     {
         $this->checkRequired();
         $this->saveSchedule();
