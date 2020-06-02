@@ -16,10 +16,15 @@ class MeetMailInvitation
      *
      * @var FtActa
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2020
+     * @date   2020
      */
     protected $FtActa;
 
+    /**
+     * MeetMailInvitation constructor.
+     *
+     * @param FtActa $FtActa
+     */
     public function __construct(FtActa $FtActa)
     {
         $this->FtActa = $FtActa;
@@ -31,7 +36,7 @@ class MeetMailInvitation
      * @return string
      * @throws \Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2020
+     * @date   2020
      */
     public function generateIcsFile()
     {
@@ -70,7 +75,7 @@ class MeetMailInvitation
      * @return string
      * @throws \Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2020
+     * @date   2020
      */
     public function generateBody()
     {
@@ -103,7 +108,7 @@ HTML;
      * @return void
      * @throws \Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2020
+     * @date   2020
      */
     public function send(array $destinations = [])
     {
@@ -131,7 +136,7 @@ HTML;
             [$icsRoute]
         );
 
-        $SendMailController->send();
+        return $SendMailController->send();
     }
 
     protected function getRoomRoute(): string
@@ -148,7 +153,7 @@ HTML;
      * gets the ics description
      *
      * @return string
-     * @date 2020-04-01
+     * @date   2020-04-01
      * @author jhon sebastian valencia <sebasjsv97@gmail.com>
      */
     protected function getIcsDescription(): string

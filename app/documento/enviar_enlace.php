@@ -31,24 +31,36 @@ $Response = (object)[
 try {
     JwtController::check($_REQUEST['token'], $_REQUEST['key']);
 
-    if (!$_REQUEST['documentId']) {
-        throw new \Exception('Documento invalido', 1);
+    if (!$_REQUEST['documentId'] && !$_REQUEST['shedule']) {
+        throw new Exception('Documento invalido', 1);
+    }
+
+    if ($_REQUEST['documentId']) {
+        $FtActa = FtActa::findByDocumentId($_REQUEST['documentId']);
+    } else if ($_REQUEST['shedule']) {
+        $FtActa = FtActa::findByAttributes([
+            'fk_agendamiento_act' => $_REQUEST['shedule']
+        ]);
     }
 
     $emails = [];
-
-    foreach ($_REQUEST['data'] as $item) {
-        $ActDocumentUser = new ActDocumentUser();
-        $ActDocumentUser->setAttributes([
-            'identification' => $item['id'],
-        ]);
-        array_push($emails, $ActDocumentUser->getUserEmail());
+    if ($_REQUEST['data']) {
+        foreach ($_REQUEST['data'] as $item) {
+            $ActDocumentUser = new ActDocumentUser();
+            $ActDocumentUser->setAttributes([
+                'identification' => $item['id'],
+            ]);
+            array_push($emails, $ActDocumentUser->getUserEmail());
+        }
     }
 
-    $FtActa = FtActa::findByDocumentId($_REQUEST['documentId']);
     $ActaMailInvitation = new MeetMailInvitation($FtActa);
-    $ActaMailInvitation->send($emails);
+    echo "<pre>";
+    var_dump($ActaMailInvitation->send($emails));
+    echo "</pre>";
+    exit;
 
+    $Response->message = "Notificación enviada";
     $Response->notifications = NotifierController::prepare();
     $Response->success = 1;
 } catch (Throwable $th) {

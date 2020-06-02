@@ -10,7 +10,6 @@ use Saia\Actas\models\ActQuestion;
 use Saia\controllers\documento\RutaDocumentoController;
 use Saia\controllers\pdf\DocumentPdfGenerator;
 use Saia\controllers\SendMailController;
-use Saia\core\DataBaseConnection;
 use Saia\models\ruta\Ruta;
 use Saia\models\ruta\RutaDocumento;
 
@@ -22,7 +21,7 @@ class FtActa extends FtActaProperties
      *
      * @var array
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019
+     * @date   2019
      */
     protected $topics;
 
@@ -32,7 +31,7 @@ class FtActa extends FtActaProperties
      *
      * @var array
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019
+     * @date   2019
      */
     protected array $assistants = [];
 
@@ -42,7 +41,7 @@ class FtActa extends FtActaProperties
      *
      * @var ActDocumentUser
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019
+     * @date   2019
      */
     protected ?ActDocumentUser $ActDocumentUserPresident = null;
 
@@ -52,7 +51,7 @@ class FtActa extends FtActaProperties
      *
      * @var ActDocumentUser
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019
+     * @date   2019
      */
     protected ?ActDocumentUser $ActDocumentUserSecretary = null;
 
@@ -66,7 +65,7 @@ class FtActa extends FtActaProperties
      *
      * @return array
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2020
+     * @date   2020
      */
     protected function defineMoreAttributes()
     {
@@ -94,7 +93,7 @@ class FtActa extends FtActaProperties
      * @return bool
      * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019
+     * @date   2019
      */
     public function afterEdit()
     {
@@ -143,32 +142,8 @@ class FtActa extends FtActaProperties
     public function getAssistantsEmail()
     {
         $emails = [];
-        $users = DataBaseConnection::getDefaultConnection()
-            ->createQueryBuilder()
-            ->select('a.email')
-            ->from('vfuncionario_dc', 'a')
-            ->join('a', 'act_document_user', 'b', 'a.iddependencia_cargo = b.identification')
-            ->where('b.external = 0')
-            ->andWhere('b.fk_ft_acta = :ft')
-            ->setParameter('ft', $this->getPK())
-            ->execute()->fetchAll();
-
-        $externals = DataBaseConnection::getDefaultConnection()
-            ->createQueryBuilder()
-            ->select('a.correo')
-            ->from('tercero', 'a')
-            ->join('a', 'act_document_user', 'b', 'a.idtercero = b.identification')
-            ->where('b.external = 1')
-            ->andWhere('b.fk_ft_acta = :ft')
-            ->setParameter('ft', $this->getPK())
-            ->execute()->fetchAll();
-
-        foreach ($users as $row) {
-            array_push($emails, $row['email']);
-        }
-
-        foreach ($externals as $row) {
-            array_push($emails, $row['correo']);
+        foreach ($this->getAssistants() as $ActDocumentUser) {
+            array_push($emails, $ActDocumentUser->getUserEmail());
         }
 
         return $emails;
@@ -204,7 +179,7 @@ class FtActa extends FtActaProperties
      * @return ActDocumentUser[]
      * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-06
+     * @date   2019-12-06
      */
     public function getAssistants()
     {
@@ -225,7 +200,7 @@ class FtActa extends FtActaProperties
      * @return string
      * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-07
+     * @date   2019-12-07
      */
     public function listExternalAssistants()
     {
@@ -249,7 +224,7 @@ class FtActa extends FtActaProperties
      * @return string
      * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-07
+     * @date   2019-12-07
      */
     public function listTopics()
     {
@@ -269,7 +244,7 @@ class FtActa extends FtActaProperties
      * @return ActDocumentTopic[]
      * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-06
+     * @date   2019-12-06
      */
     public function getTopics()
     {
@@ -292,7 +267,7 @@ class FtActa extends FtActaProperties
      *
      * @return string
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-11-27
+     * @date   2019-11-27
      */
     public function qrCodeHtml()
     {
@@ -306,7 +281,7 @@ class FtActa extends FtActaProperties
      * @return string
      * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-07
+     * @date   2019-12-07
      */
     public function listTopicDescriptions()
     {
@@ -326,7 +301,7 @@ class FtActa extends FtActaProperties
      *
      * @return string
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-07
+     * @date   2019-12-07
      */
     public function listTasks()
     {
@@ -352,7 +327,7 @@ class FtActa extends FtActaProperties
      *
      * @return string
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2020
+     * @date   2020
      */
     public function listQuestions()
     {
@@ -371,7 +346,7 @@ class FtActa extends FtActaProperties
      *
      * @return string
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019
+     * @date   2019
      */
     public function showSecretary()
     {
@@ -386,7 +361,7 @@ class FtActa extends FtActaProperties
      * @return ActDocumentUser|null
      * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019
+     * @date   2019
      */
     public function getSecretary()
     {
@@ -406,7 +381,7 @@ class FtActa extends FtActaProperties
      *
      * @return string
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019
+     * @date   2019
      */
     public function showPresident()
     {
@@ -421,7 +396,7 @@ class FtActa extends FtActaProperties
      * @return ActDocumentUser|null
      * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019
+     * @date   2019
      */
     public function getPresident()
     {
@@ -442,7 +417,7 @@ class FtActa extends FtActaProperties
      * @return bool
      * @throws \Doctrine\DBAL\DBALException
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019
+     * @date   2019
      */
     public function afterRad()
     {
