@@ -1,8 +1,10 @@
 <?php
 
-use Saia\Actas\controllers\FtAgendamientoActaController;
+use Saia\Actas\controllers\FtActaService;
+use Saia\Actas\formatos\acta\FtActa;
 use Saia\controllers\notificaciones\NotifierController;
 use Saia\controllers\SessionController;
+use Saia\models\vistas\VfuncionarioDc;
 
 $max_salida = 10;
 $rootPath = $ruta = '';
@@ -29,14 +31,26 @@ $Response = (object)[
 try {
     SessionController::goUp($_REQUEST['token'], $_REQUEST['key']);
 
-    $data = (object)[
-        'duration' => $_REQUEST['duration'],
-        'subject' => $_REQUEST['subject'],
-        'initialDate' => $_REQUEST['initialDate'],
-        'users' => $_REQUEST['users'],
+    $userId = SessionController::getValue('idfuncionario');
+    $firstRole = VfuncionarioDc::getFirstUserRole($userId);
+    $defaultAssistant = (object)[
+        'id' => $firstRole,
+        'external' => 0
     ];
-    $FtAgendamientoActaController = new FtAgendamientoActaController($data);
-    $FtAgendamientoActaController->save();
+    $userList = json_decode($_REQUEST['users']);
+    array_push($userList, $defaultAssistant);
+
+    $documentData = (object)[
+        'initialDate' => $_REQUEST['initialDate'],
+        'subject' => $_REQUEST['subject'],
+        'duracion' => $_REQUEST['duration'],
+        'userList' => $userList
+    ];
+
+    $FtActa = new FtActa();
+    $FtActaController = new FtActaService($FtActa);
+    $FtActaController->saveDocument($documentData, $userId);
+    $FtActaController->sendInvitations();
 
     $Response->message = "Agendamiento creado con éxito";
     $Response->notifications = NotifierController::prepare();

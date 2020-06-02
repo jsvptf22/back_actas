@@ -3,9 +3,7 @@
 namespace Saia\Actas\formatos\acta;
 
 use Exception;
-use Saia\Actas\formatos\agendamiento_acta\FtAgendamientoActa;
-use Saia\Actas\models\ActDocumentTopic;
-use Saia\Actas\models\ActDocumentUser;
+use Saia\Actas\controllers\FtActaService;
 use Saia\Actas\models\ActQuestion;
 use Saia\controllers\documento\RutaDocumentoController;
 use Saia\controllers\pdf\DocumentPdfGenerator;
@@ -15,46 +13,12 @@ use Saia\models\ruta\RutaDocumento;
 
 class FtActa extends FtActaProperties
 {
-
     /**
-     * almacena las instancias de ActdocumentTopic
+     * FtActa constructor.
      *
-     * @var array
-     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date   2019
+     * @param null $id
+     * @throws Exception
      */
-    protected $topics;
-
-    /**
-     * almacena las instancias de ActdocumentUser
-     * de tipo ActDocumentUser::RELATION_ASSISTANT
-     *
-     * @var array
-     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date   2019
-     */
-    protected array $assistants = [];
-
-    /**
-     * almacena las instancia de ActdocumentUser
-     * de tipo ActDocumentUser::RELATION_PRESIDENT
-     *
-     * @var ActDocumentUser
-     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date   2019
-     */
-    protected ?ActDocumentUser $ActDocumentUserPresident = null;
-
-    /**
-     * almacena las instancia de ActdocumentUser
-     * de tipo ActDocumentUser::RELATION_PRESIDENT
-     *
-     * @var ActDocumentUser
-     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date   2019
-     */
-    protected ?ActDocumentUser $ActDocumentUserSecretary = null;
-
     public function __construct($id = null)
     {
         parent::__construct($id);
@@ -71,12 +35,6 @@ class FtActa extends FtActaProperties
     {
         return [
             'relations' => [
-                'FtAgendamientoActa' => [
-                    'model' => FtAgendamientoActa::class,
-                    'attribute' => FtAgendamientoActa::getPrimaryLabel(),
-                    'primary' => 'fk_agendamiento_act',
-                    'relation' => self::BELONGS_TO_ONE
-                ],
                 'questions' => [
                     'model' => ActQuestion::class,
                     'attribute' => 'fk_ft_acta',
@@ -85,6 +43,51 @@ class FtActa extends FtActaProperties
                 ]
             ]
         ];
+    }
+
+    /**
+     * obtiene la instancia de FtActaService
+     *
+     * @return FtActaService
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date   2020-06-01
+     */
+    public function getFtActaService(): FtActaService
+    {
+        return new FtActaService($this);
+    }
+
+    /**
+     * accion a ejecutar despues de radicar
+     *
+     * @return bool
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws Exception
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date   2019
+     */
+    public function afterRad()
+    {
+        $DocumentPdfGenerator = new DocumentPdfGenerator($this->Documento);
+        $route = $DocumentPdfGenerator->refreshFile();
+
+        $SendMailController = new SendMailController(
+            'Acta sobre ' . $this->asunto,
+            'Se adjunta documento generado en la reunión'
+        );
+
+        $SendMailController->setDestinations(
+            SendMailController::DESTINATION_TYPE_EMAIL,
+            $this->getFtActaService()->getAssistantsEmail()
+        );
+
+        $SendMailController->setAttachments(
+            SendMailController::ATTACHMENT_TYPE_JSON,
+            [$route]
+        );
+
+        $SendMailController->send();
+        return true;
     }
 
     /**
@@ -97,8 +100,8 @@ class FtActa extends FtActaProperties
      */
     public function afterEdit()
     {
-        $secretary = $this->getSecretary();
-        $president = $this->getPresident();
+        $secretary = $this->getFtActaService()->getSecretary();
+        $president = $this->getFtActaService()->getPresident();
 
         if (!$secretary || !$president) {
             return true;
@@ -132,22 +135,8 @@ class FtActa extends FtActaProperties
     }
 
     /**
-     * obtiene la lista de correos de los asistentes
-     *
-     * @return array
-     * @throws Exception
-     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date   2019-12-17
+     * funciones para el mostrar
      */
-    public function getAssistantsEmail()
-    {
-        $emails = [];
-        foreach ($this->getAssistants() as $ActDocumentUser) {
-            array_push($emails, $ActDocumentUser->getUserEmail());
-        }
-
-        return $emails;
-    }
 
     /**
      * lista los nombres de los asistentes internos
@@ -159,7 +148,7 @@ class FtActa extends FtActaProperties
      */
     public function listInternalAssistants()
     {
-        $assistants = $this->getAssistants();
+        $assistants = $this->getFtActaService()->getAssistants();
 
         $internals = array_filter($assistants, function ($ActDocumentUser) {
             return !(int)$ActDocumentUser->external;
@@ -174,27 +163,6 @@ class FtActa extends FtActaProperties
     }
 
     /**
-     * obtiene los asistentes de la reunion
-     *
-     * @return ActDocumentUser[]
-     * @throws Exception
-     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date   2019-12-06
-     */
-    public function getAssistants()
-    {
-        if (!$this->assistants) {
-            $this->assistants = ActDocumentUser::findAllByAttributes([
-                'fk_ft_acta' => $this->getPK(),
-                'state' => 1,
-                'relation' => ActDocumentUser::RELATION_ASSISTANT
-            ]);
-        }
-
-        return $this->assistants;
-    }
-
-    /**
      * lista los nombres de los asistentes externos
      *
      * @return string
@@ -204,7 +172,7 @@ class FtActa extends FtActaProperties
      */
     public function listExternalAssistants()
     {
-        $assistants = $this->getAssistants();
+        $assistants = $this->getFtActaService()->getAssistants();
 
         $externals = array_filter($assistants, function ($ActDocumentUser) {
             return (int)$ActDocumentUser->external;
@@ -228,39 +196,33 @@ class FtActa extends FtActaProperties
      */
     public function listTopics()
     {
-        $topics = $this->getTopics();
-
         $names = [];
-        foreach ($topics as $ActDocumentTopic) {
+        foreach ($this->getFtActaService()->getTopics() as $ActDocumentTopic) {
             array_push($names, $ActDocumentTopic->name);
         }
 
         return implode('<br>', $names);
     }
 
+
     /**
-     * obtiene los temas activos del documento
+     * lista los detalles de los temas tratados
      *
-     * @return ActDocumentTopic[]
+     * @return string
      * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date   2019-12-06
+     * @date   2019-12-07
      */
-    public function getTopics()
+    public function listTopicDescriptions()
     {
-        if (!$this->topics) {
-            $this->topics = ActDocumentTopic::findAllByAttributes([
-                'fk_ft_acta' => $this->getPK(),
-                'state' => 1
-            ]);
+        $response = "";
+        foreach ($this->getFtActaService()->getTopics() as $ActDocumentTopic) {
+            $response .= $ActDocumentTopic->name . "<br>";
+            $response .= $ActDocumentTopic->description . "<br><br>";
         }
 
-        return $this->topics;
+        return $response;
     }
-
-    /**
-     * funciones para el mostrar
-     */
 
     /**
      * obtiene la imagen del codigo qr
@@ -273,27 +235,6 @@ class FtActa extends FtActaProperties
     {
         $route = $this->Documento->getQr();
         return "<img src='{$route}' width='80px' height='80px' alt=''>";
-    }
-
-    /**
-     * lista los detalles de los temas tratados
-     *
-     * @return string
-     * @throws Exception
-     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date   2019-12-07
-     */
-    public function listTopicDescriptions()
-    {
-        $topics = $this->getTopics();
-
-        $response = "";
-        foreach ($topics as $ActDocumentTopic) {
-            $response .= $ActDocumentTopic->name . "<br>";
-            $response .= $ActDocumentTopic->description . "<br><br>";
-        }
-
-        return $response;
     }
 
     /**
@@ -339,107 +280,5 @@ class FtActa extends FtActaProperties
         }
 
         return $response;
-    }
-
-    /**
-     * obtiene el nombre del usuario con rol secretario
-     *
-     * @return string
-     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date   2019
-     */
-    public function showSecretary()
-    {
-        $secretary = $this->getSecretary();
-
-        return $secretary ? $secretary->getUser()->getName() : "";
-    }
-
-    /**
-     * obtiene la instancia de ActDocumentUserSecretary
-     *
-     * @return ActDocumentUser|null
-     * @throws Exception
-     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date   2019
-     */
-    public function getSecretary()
-    {
-        if (!$this->ActDocumentUserSecretary) {
-            $this->ActDocumentUserSecretary = ActDocumentUser::findByAttributes([
-                'fk_ft_acta' => $this->getPK(),
-                'state' => 1,
-                'relation' => ActDocumentUser::RELATION_SECRETARY
-            ]);
-        }
-
-        return $this->ActDocumentUserSecretary;
-    }
-
-    /**
-     * obtiene el nombre del usuario con rol secretario
-     *
-     * @return string
-     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date   2019
-     */
-    public function showPresident()
-    {
-        $president = $this->getPresident();
-
-        return $president ? $president->getUser()->getName() : "";
-    }
-
-    /**
-     * obtiene la instancia de ActDocumentUserPresident
-     *
-     * @return ActDocumentUser|null
-     * @throws Exception
-     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date   2019
-     */
-    public function getPresident()
-    {
-        if (!$this->ActDocumentUserPresident) {
-            $this->ActDocumentUserPresident = ActDocumentUser::findByAttributes([
-                'fk_ft_acta' => $this->getPK(),
-                'state' => 1,
-                'relation' => ActDocumentUser::RELATION_PRESIDENT
-            ]);
-        }
-
-        return $this->ActDocumentUserPresident;
-    }
-
-    /**
-     * accion a ejecutar despues de radicar
-     *
-     * @return bool
-     * @throws \Doctrine\DBAL\DBALException
-     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date   2019
-     */
-    public function afterRad()
-    {
-        $DocumentPdfGenerator = new DocumentPdfGenerator($this->Documento);
-        $route = $DocumentPdfGenerator->refreshFile();
-
-        $SendMailController = new SendMailController(
-            'Acta sobre ' . $this->asunto,
-            'Se adjunta documento generado en la reunión'
-        );
-
-        $SendMailController->setDestinations(
-            SendMailController::DESTINATION_TYPE_EMAIL,
-            $this->getAssistantsEmail()
-        );
-
-        $SendMailController->setAttachments(
-            SendMailController::ATTACHMENT_TYPE_JSON,
-            [$route]
-        );
-
-        $SendMailController->send();
-        return true;
     }
 }

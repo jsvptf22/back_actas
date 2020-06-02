@@ -11,8 +11,6 @@ use Saia\controllers\generator\component\Date;
 use Saia\controllers\generator\component\ExternalUser;
 use Saia\controllers\generator\component\Hidden;
 use Saia\controllers\generator\component\Method;
-use Saia\controllers\generator\component\Number;
-use Saia\controllers\generator\component\Text;
 use Saia\controllers\generator\component\Textarea;
 use Saia\controllers\generator\component\UserAutocomplete;
 use Saia\models\formatos\CamposFormato;
@@ -94,20 +92,6 @@ final class Version20191116145954 extends AbstractMigration
 
 
         $format = $this->connection->fetchAll("select * from formato where nombre = 'acta'");
-
-        if ($format[0]['idformato']) {
-            $formatId = $format[0]['idformato'];
-
-            $this->connection->delete('formato', [
-                'idformato' => $formatId
-            ]);
-
-            $this->connection->delete('campos_formato', [
-                'formato_idformato' => $formatId
-            ]);
-        }
-
-        $format = $this->connection->fetchAll("select * from formato where nombre = 'agendamiento_acta'");
 
         if ($format[0]['idformato']) {
             $formatId = $format[0]['idformato'];
@@ -259,7 +243,6 @@ final class Version20191116145954 extends AbstractMigration
 </div>
 </div>
 HTML;
-
         $acta = [
             "nombre" => "acta",
             "etiqueta" => "Acta",
@@ -291,42 +274,9 @@ HTML;
             "publicar" => 0,
             "module" => "actas"
         ];
-        $agendamiento = [
-            "nombre" => "agendamiento_acta",
-            "etiqueta" => "Agendamiento de reunión",
-            "cod_padre" => 0,
-            "contador_idcontador" => 16,
-            "nombre_tabla" => "ft_agendamiento_acta",
-            "ruta_mostrar" => "app/modules/back_actas/formatos/agendamiento_acta/mostrar.php",
-            "ruta_editar" => "views/modules/actas/dist/schedule/index.html",
-            "ruta_adicionar" => "views/modules/actas/dist/schedule/index.html",
-            "encabezado" => null,
-            "cuerpo" => "<p>{*asunto*}</p>\n",
-            "pie_pagina" => null,
-            "margenes" => "25,25,25,25",
-            "orientacion" => null,
-            "papel" => "Letter",
-            "funcionario_idfuncionario" => 1,
-            "detalle" => "0",
-            "tipo_edicion" => 0,
-            "item" => "0",
-            "font_size" => "11",
-            "banderas" => "asunto_padre",
-            "mostrar_pdf" => 0,
-            "orden" => null,
-            "fk_categoria_formato" => $category,
-            "paginar" => "0",
-            "pertenece_nucleo" => 1,
-            "descripcion_formato" => "Agendamiento de reunión",
-            "version" => 1,
-            "publicar" => null,
-            "module" => "actas"
-        ];
+
         $this->connection->insert('formato', $acta);
         $actaId = $this->connection->lastInsertId();
-
-        $this->connection->insert('formato', $agendamiento);
-        $agendamientoId = $this->connection->lastInsertId();
 
         $this->connection->delete('modulo', [
             'nombre' => 'crear_acta'
@@ -342,21 +292,6 @@ HTML;
             'imagen' => null,
             'etiqueta' => 'Acta',
             'enlace' => "views/modules/actas/views/document/index.php",
-            'cod_padre' => $parentModuleId,
-            'orden' => 1
-        ]);
-
-        $this->connection->delete('modulo', [
-            'nombre' => 'crear_agendamiento_acta'
-        ]);
-
-        $this->connection->insert('modulo', [
-            'pertenece_nucleo' => 1,
-            'nombre' => 'crear_agendamiento_acta',
-            'tipo' => '2',
-            'imagen' => null,
-            'etiqueta' => 'Agendamiento de reunión',
-            'enlace' => "views/modules/actas/dist/schedule/index.html",
             'cod_padre' => $parentModuleId,
             'orden' => 1
         ]);
@@ -584,28 +519,6 @@ HTML;
             ],
             [
                 "formato_idformato" => $actaId,
-                "nombre" => "fk_agendamiento_act",
-                "etiqueta" => "fk act planning",
-                "tipo_dato" => Types::STRING,
-                "longitud" => "255",
-                "obligatoriedad" => 0,
-                "valor" => "",
-                "acciones" => sprintf("%s,%s", CamposFormato::ACTION_ADD, CamposFormato::ACTION_EDIT),
-                "ayuda" => "",
-                "predeterminado" => "",
-                "banderas" => "",
-                "etiqueta_html" => Hidden::getIdentification(),
-                "orden" => 8,
-                "adicionales" => "",
-                "fila_visible" => 1,
-                "placeholder" => "Campo hidden",
-                "longitud_vis" => null,
-                "opciones" => null,
-                "estilo" => null,
-                "listable" => 1
-            ],
-            [
-                "formato_idformato" => $actaId,
                 "nombre" => "idft_acta",
                 "etiqueta" => "acta",
                 "tipo_dato" => Types::INTEGER,
@@ -628,15 +541,15 @@ HTML;
             ],
             [
                 "formato_idformato" => $actaId,
-                "nombre" => "room",
-                "etiqueta" => "Sala",
-                "tipo_dato" => Types::STRING,
+                "nombre" => "duracion",
+                "etiqueta" => "Duración",
+                "tipo_dato" => Types::INTEGER,
                 "longitud" => "255",
                 "obligatoriedad" => 0,
                 "valor" => "",
                 "acciones" => sprintf("%s,%s", CamposFormato::ACTION_ADD, CamposFormato::ACTION_EDIT),
                 "ayuda" => "",
-                "predeterminado" => "",
+                "predeterminado" => null,
                 "banderas" => "",
                 "etiqueta_html" => Hidden::getIdentification(),
                 "orden" => 9,
@@ -650,214 +563,7 @@ HTML;
             ]
         ];
 
-
         foreach ($actafields as $field) {
-            $this->connection->insert('campos_formato', $field);
-        }
-
-        $agendamientoFields = [
-            [
-                "formato_idformato" => $agendamientoId,
-                "nombre" => "date",
-                "etiqueta" => "Fecha y Hora",
-                "tipo_dato" => Types::DATETIME_MUTABLE,
-                "longitud" => null,
-                "obligatoriedad" => 0,
-                "valor" => "",
-                'acciones' => sprintf("%s,%s", CamposFormato::ACTION_ADD, CamposFormato::ACTION_EDIT),
-                "ayuda" => null,
-                "predeterminado" => null,
-                "banderas" => null,
-                "etiqueta_html" => Date::getIdentification(),
-                "orden" => 3,
-                "adicionales" => null,
-                "fila_visible" => 1,
-                "placeholder" => "",
-                "longitud_vis" => null,
-                "opciones" => "{\"hoy\":true,\"tipo\":\"datetime\"}",
-                "estilo" => null,
-                "listable" => 1
-            ],
-            [
-                "formato_idformato" => $agendamientoId,
-                "nombre" => "dependencia",
-                "etiqueta" => "DEPENDENCIA DEL CREADOR DEL DOCUMENTO",
-                "tipo_dato" => Types::INTEGER,
-                "longitud" => "11",
-                "obligatoriedad" => 1,
-                "valor" => "",
-                'acciones' => sprintf("%s,%s", CamposFormato::ACTION_ADD, CamposFormato::ACTION_EDIT),
-                "ayuda" => null,
-                "predeterminado" => null,
-                "banderas" => CamposFormato::FLAG_INDEX,
-                "etiqueta_html" => Method::getIdentification(),
-                "orden" => 1,
-                "adicionales" => null,
-                "fila_visible" => 1,
-                "placeholder" => null,
-                "longitud_vis" => null,
-                "opciones" => null,
-                "estilo" => null,
-                "listable" => 1
-            ],
-            [
-                "formato_idformato" => $agendamientoId,
-                "nombre" => "documento_iddocumento",
-                "etiqueta" => "DOCUMENTO ASOCIADO",
-                "tipo_dato" => Types::INTEGER,
-                "longitud" => "11",
-                "obligatoriedad" => 1,
-                "valor" => null,
-                "acciones" => CamposFormato::ACTION_EDIT,
-                "ayuda" => null,
-                "predeterminado" => null,
-                "banderas" => CamposFormato::FLAG_INDEX,
-                "etiqueta_html" => Hidden::getIdentification(),
-                "orden" => null,
-                "adicionales" => null,
-                "fila_visible" => 1,
-                "placeholder" => null,
-                "longitud_vis" => null,
-                "opciones" => null,
-                "estilo" => null,
-                "listable" => 1
-            ],
-            [
-                "formato_idformato" => $agendamientoId,
-                "nombre" => "encabezado",
-                "etiqueta" => "ENCABEZADO",
-                "tipo_dato" => Types::INTEGER,
-                "longitud" => "11",
-                "obligatoriedad" => 1,
-                "valor" => null,
-                'acciones' => sprintf("%s,%s", CamposFormato::ACTION_ADD, CamposFormato::ACTION_EDIT),
-                "ayuda" => null,
-                "predeterminado" => "1",
-                "banderas" => null,
-                "etiqueta_html" => Hidden::getIdentification(),
-                "orden" => null,
-                "adicionales" => null,
-                "fila_visible" => 1,
-                "placeholder" => null,
-                "longitud_vis" => null,
-                "opciones" => null,
-                "estilo" => null,
-                "listable" => 1
-            ],
-            [
-                "formato_idformato" => $agendamientoId,
-                "nombre" => "firma",
-                "etiqueta" => "FIRMAS DIGITALES",
-                "tipo_dato" => Types::INTEGER,
-                "longitud" => "11",
-                "obligatoriedad" => 1,
-                "valor" => null,
-                'acciones' => sprintf("%s,%s", CamposFormato::ACTION_ADD, CamposFormato::ACTION_EDIT),
-                "ayuda" => null,
-                "predeterminado" => "1",
-                "banderas" => null,
-                "etiqueta_html" => Hidden::getIdentification(),
-                "orden" => null,
-                "adicionales" => null,
-                "fila_visible" => 1,
-                "placeholder" => null,
-                "longitud_vis" => null,
-                "opciones" => null,
-                "estilo" => null,
-                "listable" => 1
-            ],
-            [
-                "formato_idformato" => $agendamientoId,
-                "nombre" => "idft_agendamiento_acta",
-                "etiqueta" => "agendamiento_acta",
-                "tipo_dato" => Types::INTEGER,
-                "longitud" => "11",
-                "obligatoriedad" => 1,
-                "valor" => null,
-                'acciones' => sprintf("%s,%s", CamposFormato::ACTION_ADD, CamposFormato::ACTION_EDIT),
-                "ayuda" => null,
-                "predeterminado" => null,
-                "banderas" => sprintf("%s,%s", CamposFormato::FLAG_AUTOINCREMENT, CamposFormato::FLAG_PRIMARYKEY),
-                "etiqueta_html" => Hidden::getIdentification(),
-                "orden" => null,
-                "adicionales" => null,
-                "fila_visible" => 1,
-                "placeholder" => null,
-                "longitud_vis" => null,
-                "opciones" => null,
-                "estilo" => null,
-                "listable" => 1
-            ],
-            [
-                "formato_idformato" => $agendamientoId,
-                "nombre" => "state",
-                "etiqueta" => "Estado",
-                "tipo_dato" => Types::STRING,
-                "longitud" => "255",
-                "obligatoriedad" => null,
-                "valor" => "",
-                'acciones' => sprintf("%s,%s,%s", CamposFormato::ACTION_ADD, CamposFormato::ACTION_EDIT, CamposFormato::ACTION_DESCRIPTION),
-                "ayuda" => "",
-                "predeterminado" => "",
-                "banderas" => "",
-                "etiqueta_html" => Hidden::getIdentification(),
-                "orden" => 4,
-                "adicionales" => "",
-                "fila_visible" => 1,
-                "placeholder" => "Campo hidden",
-                "longitud_vis" => null,
-                "opciones" => null,
-                "estilo" => null,
-                "listable" => 1
-            ],
-            [
-                "formato_idformato" => $agendamientoId,
-                "nombre" => "subject",
-                "etiqueta" => "Asunto",
-                "tipo_dato" => Types::STRING,
-                "longitud" => "255",
-                "obligatoriedad" => 1,
-                "valor" => "",
-                "acciones" => sprintf("%s,%s", CamposFormato::ACTION_ADD, CamposFormato::ACTION_EDIT, CamposFormato::ACTION_DESCRIPTION),
-                "ayuda" => "",
-                "predeterminado" => "",
-                "banderas" => "",
-                "etiqueta_html" => Text::getIdentification(),
-                "orden" => 2,
-                "adicionales" => "",
-                "fila_visible" => 1,
-                "placeholder" => "campo texto",
-                "longitud_vis" => null,
-                "opciones" => "{\"clase\":\"col-md-12\"}",
-                "estilo" => null,
-                "listable" => 1
-            ],
-            [
-                "formato_idformato" => $agendamientoId,
-                "nombre" => "duration",
-                "etiqueta" => "Duración",
-                "tipo_dato" => Types::STRING,
-                "longitud" => "255",
-                "obligatoriedad" => 1,
-                "valor" => "",
-                "acciones" => sprintf("%s,%s", CamposFormato::ACTION_ADD, CamposFormato::ACTION_EDIT),
-                "ayuda" => "",
-                "predeterminado" => "",
-                "banderas" => "",
-                "etiqueta_html" => Number::getIdentification(),
-                "orden" => 5,
-                "adicionales" => "",
-                "fila_visible" => 1,
-                "placeholder" => null,
-                "longitud_vis" => null,
-                "opciones" => null,
-                "estilo" => null,
-                "listable" => 1
-            ]
-        ];
-
-
-        foreach ($agendamientoFields as $field) {
             $this->connection->insert('campos_formato', $field);
         }
 
@@ -955,10 +661,6 @@ HTML;
             'notnull' => true,
             'length' => 11
         ]);
-        $table->addColumn('fk_agendamiento_act', 'integer', [
-            'notnull' => false,
-            'length' => 11
-        ]);
         $table->addColumn('relation', 'integer', [
             'notnull' => true,
             'length' => 11,
@@ -982,36 +684,6 @@ HTML;
         $table->addColumn('updated_at', 'datetime', [
             'notnull' => false,
         ]);
-
-
-        if ($schema->hasTable('act_planning')) {
-            $schema->dropTable('act_planning');
-        }
-
-        $table = $schema->createTable('act_planning');
-        $table->addColumn('idact_planning', 'integer', [
-            'autoincrement' => true,
-            'length' => 11
-        ]);
-        $table->setPrimaryKey(['idact_planning']);
-        $table->addColumn('date', 'datetime', [
-            'notnull' => true,
-        ]);
-        $table->addColumn('subject', 'text', [
-            'notnull' => true,
-        ]);
-        $table->addColumn('state', 'integer', [
-            'notnull' => true,
-            'length' => 11,
-            'default' => 1
-        ]);
-        $table->addColumn('created_at', 'datetime', [
-            'notnull' => true,
-        ]);
-        $table->addColumn('updated_at', 'datetime', [
-            'notnull' => false,
-        ]);
-
 
         if ($schema->hasTable('act_question')) {
             $schema->dropTable('act_question');

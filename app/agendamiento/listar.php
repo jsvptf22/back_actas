@@ -1,6 +1,6 @@
 <?php
 
-use Saia\Actas\formatos\agendamiento_acta\FtAgendamientoActa;
+use Saia\Actas\formatos\acta\FtActa;
 use Saia\controllers\notificaciones\NotifierController;
 use Saia\controllers\SessionController;
 use Saia\core\DatabaseConnection;
@@ -33,21 +33,22 @@ try {
     $QueryBuilder = DataBaseConnection::getDefaultConnection()
         ->createQueryBuilder()
         ->select('a.*')
-        ->from('ft_agendamiento_acta', 'a')
-        ->join('a', 'act_document_user', 'b', 'a.idft_agendamiento_acta = b.fk_agendamiento_act')
+        ->from('ft_acta', 'a')
+        ->join('a', 'act_document_user', 'b', 'a.idft_acta = b.fk_ft_acta')
         ->join('b', 'vfuncionario_dc', 'c', 'b.identification = c.iddependencia_cargo')
         ->where('c.idfuncionario = :userId')
-        ->andWhere('b.state = 1 and a.state =1')
+        ->andWhere('b.state = 1')
         ->setParameter('userId', SessionController::getValue('idfuncionario'))
-        ->orderBy('a.date', 'asc');
+        ->orderBy('a.fecha_final', 'asc');
 
-    $records = FtAgendamientoActa::findByQueryBuilder($QueryBuilder);
+    $records = FtActa::findByQueryBuilder($QueryBuilder);
 
-    foreach ($records as $key => $FtAgendamientoActa) {
+    foreach ($records as $key => $FtActa) {
         $Response->data->list[] = [
-            'id' => $FtAgendamientoActa->getPK(),
-            'label' => $FtAgendamientoActa->subject,
-            'date' => $FtAgendamientoActa->getDateAttribute('date'),
+            'id' => $FtActa->getPK(),
+            'documentId' => $FtActa->documento_iddocumento,
+            'label' => $FtActa->asunto,
+            'date' => $FtActa->getDateAttribute('fecha_final'),
         ];
     }
 

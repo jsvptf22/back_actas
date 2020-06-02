@@ -31,17 +31,11 @@ $Response = (object)[
 try {
     JwtController::check($_REQUEST['token'], $_REQUEST['key']);
 
-    if (!$_REQUEST['documentId'] && !$_REQUEST['shedule']) {
+    if (!$_REQUEST['documentId']) {
         throw new Exception('Documento invalido', 1);
     }
 
-    if ($_REQUEST['documentId']) {
-        $FtActa = FtActa::findByDocumentId($_REQUEST['documentId']);
-    } else if ($_REQUEST['shedule']) {
-        $FtActa = FtActa::findByAttributes([
-            'fk_agendamiento_act' => $_REQUEST['shedule']
-        ]);
-    }
+    $FtActa = FtActa::findByDocumentId($_REQUEST['documentId']);
 
     $emails = [];
     if ($_REQUEST['data']) {
@@ -54,11 +48,8 @@ try {
         }
     }
 
-    $ActaMailInvitation = new MeetMailInvitation($FtActa);
-    echo "<pre>";
-    var_dump($ActaMailInvitation->send($emails));
-    echo "</pre>";
-    exit;
+    $ActaMailInvitation = new MeetMailInvitation($FtActa->getFtActaService());
+    $ActaMailInvitation->send($emails);
 
     $Response->message = "Notificación enviada";
     $Response->notifications = NotifierController::prepare();

@@ -10,24 +10,19 @@ use Saia\models\vistas\VfuncionarioDc;
 
 class MeetMailInvitation
 {
-
     /**
-     * almacena la instancia del formato
-     *
-     * @var FtActa
-     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date   2020
+     * @var FtActaService|FtActa
      */
-    protected $FtActa;
+    protected FtActaService $FtActaService;
 
     /**
      * MeetMailInvitation constructor.
      *
-     * @param FtActa $FtActa
+     * @param FtActaService $FtActaService
      */
-    public function __construct(FtActa $FtActa)
+    public function __construct(FtActaService $FtActaService)
     {
-        $this->FtActa = $FtActa;
+        $this->FtActaService = $FtActaService;
     }
 
     /**
@@ -42,18 +37,18 @@ class MeetMailInvitation
     {
         global $rootPath;
 
-        $FtAgendamientoActa = $this->FtActa->FtAgendamientoActa;
-        $duration = $FtAgendamientoActa ? $FtAgendamientoActa->duration : '60';
+        $FtActa = $this->FtActaService->getFtActa();
+        $duration = $FtActa->duracion ?? '60';
 
         $DateInterval = new \DateInterval("PT{$duration}M");
-        $DateTime = new \DateTime($this->FtActa->fecha_inicial);
+        $DateTime = new \DateTime($FtActa->fecha_inicial);
         $DateTime->add($DateInterval);
 
         $properties = [
             'description' => $this->getIcsDescription(),
-            'dtstart' => $this->FtActa->getDateAttribute('fecha_inicial', 'Y-m-d H:i:s'),
+            'dtstart' => $FtActa->getDateAttribute('fecha_inicial', 'Y-m-d H:i:s'),
             'dtend' => $DateTime->format('Y-m-d H:i:s'),
-            'summary' => $this->FtActa->asunto,
+            'summary' => $FtActa->asunto,
             'organizer' => SessionController::getValue('email')
         ];
 
@@ -79,9 +74,10 @@ class MeetMailInvitation
      */
     public function generateBody()
     {
+        $FtActa = $this->FtActaService->getFtActa();
         $roomRoute = $this->getRoomRoute();
-        $assistants = $this->FtActa->getAssistants();
-        $VfuncionarioDc = VfuncionarioDc::findByRole((int)$this->FtActa->dependencia);
+        $assistants = $this->FtActaService->getAssistants();
+        $VfuncionarioDc = VfuncionarioDc::findByRole((int)$FtActa->dependencia);
 
         $names = [];
         foreach ($assistants as $ActDocumentUser) {
@@ -92,7 +88,7 @@ class MeetMailInvitation
 
         return <<<HTML
         Tienes una invitación para la siguiente reunión.<br><br>
-        {$this->FtActa->asunto}<br><br>
+        {$FtActa->asunto}<br><br>
         Organizador: {$VfuncionarioDc->getName()}<br><br>
         {$assistantsName}<br><br>
         El día de la reunión podrás participar en la toma de decisiones y opinar haciendo clic en 
@@ -105,7 +101,7 @@ HTML;
      * ejecuta el envio del correo
      *
      * @param array $destinations
-     * @return void
+     * @return bool|string
      * @throws \Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date   2020
@@ -113,18 +109,18 @@ HTML;
     public function send(array $destinations = [])
     {
         if (!$destinations) {
-            $destinations = $this->FtActa->getAssistantsEmail();
+            $destinations = $this->FtActaService->getAssistantsEmail();
         }
 
         $icsRoute = $this->generateIcsFile();
         $body = $this->generateBody();
 
-        $DateTime = new \DateTime($this->FtActa->fecha_inicial);
+        $DateTime = new \DateTime($this->FtActaService->getFtActa()->fecha_inicial);
         $formated = strftime(
             "%A %d de %B de %Y - %H:%M",
             $DateTime->getTimestamp()
         );
-        $subject = "Invitación {$this->FtActa->asunto} el {$formated}";
+        $subject = "Invitación {$this->FtActaService->getFtActa()->asunto} el {$formated}";
 
         $SendMailController = new SendMailController($subject, $body);
         $SendMailController->setDestinations(
@@ -135,7 +131,7 @@ HTML;
             SendMailController::ATTACHMENT_TYPE_ROUTE,
             [$icsRoute]
         );
-
+      
         return $SendMailController->send();
     }
 
@@ -145,7 +141,7 @@ HTML;
             "%s%s%s",
             ABSOLUTE_SAIA_ROUTE,
             "views/modules/actas/dist/qr/index.html?documentId=",
-            $this->FtActa->documento_iddocumento
+            $this->FtActaService->getFtActa()->documento_iddocumento
         );
     }
 
@@ -161,6 +157,6 @@ HTML;
         $roomRoute = $this->getRoomRoute();
         $link = "<br><br>El día de la reunión podrás participar en la toma de decisiones y opinar haciendo clic en 
         <a class=\"btn btn-complete\" href='{$roomRoute}' >aquí</a><br><br><br>";
-        return sprintf("%s %s", $this->FtActa->asunto, $link);
+        return sprintf("%s %s", $this->FtActaService->getFtActa()->asunto, $link);
     }
 }

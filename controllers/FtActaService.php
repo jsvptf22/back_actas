@@ -11,43 +11,52 @@ use Saia\controllers\documento\QRDocumentoController;
 use Saia\controllers\functions\CoreFunctions;
 use Saia\controllers\functions\Header;
 use Saia\controllers\SaveDocument;
-use Saia\controllers\SessionController;
 use Saia\models\documento\DocumentoTarea;
 use Saia\models\formatos\Formato;
-use Saia\models\tarea\TareaFuncionario;
 use Saia\models\vistas\VfuncionarioDc;
 
-class FtActaController
+class FtActaService
 {
-
     /**
-     * almacena la instancia de la ft
-     *
      * @var FtActa
-     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-06
      */
     protected FtActa $FtActa;
 
+    /**
+     * FtActaService constructor.
+     *
+     * @param FtActa $FtActa
+     */
     public function __construct(FtActa $FtActa)
     {
         $this->FtActa = $FtActa;
     }
 
     /**
+     * obtiene la instancia FtActa
+     *
+     * @return FtActa
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date   2020-06-01
+     */
+    public function getFtActa(): FtActa
+    {
+        return $this->FtActa;
+    }
+
+    /**
      * crea o modifica el documento
      *
      * @param object $data
+     * @param int    $userId
      * @return FtActa
      * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date   2019-12-06
      */
-    public function saveDocument(object $data)
+    public function saveDocument(object $data, int $userId)
     {
-        $userId = SessionController::getValue('idfuncionario');
         $attributes = [
-            'fk_agendamiento_act' => $data->fk_agendamiento_act,
             'fecha_final' => $data->initialDate,
             'asunto' => $data->subject,
             'dependencia' => VfuncionarioDc::getFirstUserRole($userId),
@@ -74,10 +83,10 @@ class FtActaController
         }
 
         $this->refreshTopics($data->topics);
-        $this->refreshAssistants($data->userList, $data->fk_agendamiento_act);
+        $this->refreshAssistants($data->userList);
         $this->refreshRoles($data->roles);
         $this->refreshTasks($data->tasks);
-        $this->refreshQuestions($data->questions);
+        $this->refreshQuestions($data->questions, $userId);
         $this->generateQr();
 
         return $this->FtActa;
@@ -126,14 +135,13 @@ class FtActaController
     /**
      * almacena los asistentes de la reunion
      *
-     * @param array   $userList
-     * @param integer $fk_agendamiento_act
+     * @param array $userList
      * @return void
      * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date   2019-12-06
      */
-    public function refreshAssistants($userList, $fk_agendamiento_act = null)
+    public function refreshAssistants($userList)
     {
         ActDocumentUser::inactiveUsersByRelation(
             $this->FtActa->getPK(),
@@ -141,8 +149,6 @@ class FtActaController
         );
 
         foreach ($userList as $user) {
-            $user->fk_agendamiento_act = $fk_agendamiento_act;
-
             ActDocumentUser::updateUserRelation(
                 $this->FtActa->getPK(),
                 $user,
@@ -206,7 +212,7 @@ class FtActaController
      * @return void
      * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-07
+     * @date   2019-12-07
      */
     public function refreshTasks($tasks)
     {
@@ -240,12 +246,10 @@ class FtActaController
      * @return true
      * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2020
+     * @date   2020
      */
-    public function refreshQuestions($questions)
+    public function refreshQuestions($questions, $userId)
     {
-        $userId = SessionController::getValue('idfuncionario');
-
         foreach ($questions as $question) {
             $ActQuestion = new ActQuestion($question->idact_question);
             $ActQuestion->setAttributes([
@@ -269,7 +273,7 @@ class FtActaController
      * @return object
      * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-06
+     * @date   2019-12-06
      */
     public function getDocumentBuilderData()
     {
@@ -284,7 +288,6 @@ class FtActaController
             'userList' => $this->prepareAssistants(),
             'roles' => $this->prepareRoles(),
             'tasks' => $this->prepareTasks(),
-            'fk_agendamiento_act' => $this->FtActa->fk_agendamiento_act,
             'questions' => $this->prepareQuestions(),
             'qrUrl' => $this->FtActa->Documento->getQR(),
             'headers' => $this->getFormatHeaders()
@@ -297,13 +300,13 @@ class FtActaController
      * @return array
      * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-06
+     * @date   2019-12-06
      */
     public function prepareTopics()
     {
         $topics = [];
 
-        foreach ($this->FtActa->getTopics() as $ActDocumentTopic) {
+        foreach ($this->getTopics() as $ActDocumentTopic) {
             array_push($topics, [
                 'id' => $ActDocumentTopic->getPK(),
                 'label' => $ActDocumentTopic->name,
@@ -320,13 +323,13 @@ class FtActaController
      * @return array
      * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-07
+     * @date   2019-12-07
      */
     public function prepareAssistants()
     {
         $assistants = [];
 
-        foreach ($this->FtActa->getAssistants() as $ActDocumentUser) {
+        foreach ($this->getAssistants() as $ActDocumentUser) {
             array_push($assistants, $ActDocumentUser->prepareData());
         }
 
@@ -339,18 +342,18 @@ class FtActaController
      * @return object
      * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-07
+     * @date   2019-12-07
      */
     public function prepareRoles()
     {
         $response = new \stdClass();
-        $president = $this->FtActa->getPresident();
+        $president = $this->getPresident();
 
         if ($president) {
             $response->president = $president->prepareData();
         }
 
-        $secretary = $this->FtActa->getSecretary();
+        $secretary = $this->getSecretary();
 
         if ($secretary) {
             $response->secretary = $secretary->prepareData();
@@ -365,7 +368,7 @@ class FtActaController
      * @return array
      * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-07
+     * @date   2019-12-07
      */
     public function prepareTasks()
     {
@@ -373,7 +376,7 @@ class FtActaController
 
         foreach ($this->FtActa->Documento->getTasks() as $Tarea) {
             $managers = [];
-            foreach ($Tarea->getManagers() as $Funcionario){
+            foreach ($Tarea->getManagers() as $Funcionario) {
                 array_push($managers, $Funcionario->getName());
             }
 
@@ -393,7 +396,7 @@ class FtActaController
      *
      * @return array
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2020
+     * @date   2020
      */
     public function prepareQuestions()
     {
@@ -414,11 +417,11 @@ class FtActaController
      * @return void
      * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-10
+     * @date   2019-12-10
      */
     public function sendInvitations()
     {
-        $ActaMailInvitation = new MeetMailInvitation($this->FtActa);
+        $ActaMailInvitation = new MeetMailInvitation($this);
         $ActaMailInvitation->send();
     }
 
@@ -427,7 +430,7 @@ class FtActaController
      *
      * @return void
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2020
+     * @date   2020
      */
     public function generateQr()
     {
@@ -447,7 +450,94 @@ class FtActaController
         }
     }
 
-    public function getFormatHeaders(){
+    /**
+     * obtiene los temas activos del documento
+     *
+     * @return ActDocumentTopic[]
+     * @throws Exception
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date   2019-12-06
+     */
+    public function getTopics()
+    {
+        return ActDocumentTopic::findAllByAttributes([
+            'fk_ft_acta' => $this->FtActa->getPK(),
+            'state' => 1
+        ]);
+    }
+
+    /**
+     * obtiene los asistentes de la reunion
+     *
+     * @return ActDocumentUser[]
+     * @throws Exception
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date   2019-12-06
+     */
+    public function getAssistants()
+    {
+        return ActDocumentUser::findAllByAttributes([
+            'fk_ft_acta' => $this->FtActa->getPK(),
+            'state' => 1,
+            'relation' => ActDocumentUser::RELATION_ASSISTANT
+        ]);
+    }
+
+    /**
+     * obtiene la lista de correos de los asistentes
+     *
+     * @return array
+     * @throws Exception
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date   2019-12-17
+     */
+    public function getAssistantsEmail()
+    {
+        $emails = [];
+        foreach ($this->getAssistants() as $ActDocumentUser) {
+            array_push($emails, $ActDocumentUser->getUserEmail());
+        }
+
+        return $emails;
+    }
+
+
+    /**
+     * obtiene la instancia de ActDocumentUserSecretary
+     *
+     * @return ActDocumentUser|null
+     * @throws Exception
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date   2019
+     */
+    public function getSecretary()
+    {
+        return ActDocumentUser::findByAttributes([
+            'fk_ft_acta' => $this->FtActa->getPK(),
+            'state' => 1,
+            'relation' => ActDocumentUser::RELATION_SECRETARY
+        ]);
+    }
+
+    /**
+     * obtiene la instancia de ActDocumentUserPresident
+     *
+     * @return ActDocumentUser|null
+     * @throws Exception
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date   2019
+     */
+    public function getPresident()
+    {
+        return ActDocumentUser::findByAttributes([
+            'fk_ft_acta' => $this->FtActa->getPK(),
+            'state' => 1,
+            'relation' => ActDocumentUser::RELATION_PRESIDENT
+        ]);
+    }
+
+    public function getFormatHeaders()
+    {
         $Formato = $this->FtActa->getFormat();
         $headerBase = $Formato->getHeader()->contenido;
         $footerBase = $Formato->getFooter()->contenido;

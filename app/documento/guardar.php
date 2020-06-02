@@ -1,6 +1,6 @@
 <?php
 
-use Saia\Actas\controllers\FtActaController;
+use Saia\Actas\controllers\FtActaService;
 use Saia\Actas\formatos\acta\FtActa;
 use Saia\controllers\notificaciones\NotifierController;
 use Saia\controllers\SessionController;
@@ -38,11 +38,12 @@ try {
         throw new \Exception('Debe indicar la información del documento', 1);
     }
 
+    $userId = SessionController::getValue('idfuncionario');
     $data = json_decode($_REQUEST['documentInformation']);
     $FtActa = $data->documentId ?
         FtActa::findByDocumentId($data->documentId) : new FtActa();
-    $FtActaController = new FtActaController($FtActa);
-    $FtActaController->saveDocument($data);
+    $FtActaController = new FtActaService($FtActa);
+    $FtActaController->saveDocument($data, $userId);
 
     $Response->data = $FtActaController->getDocumentBuilderData();
     $Response->notifications = NotifierController::prepare();
