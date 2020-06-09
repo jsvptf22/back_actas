@@ -4,7 +4,7 @@ namespace Saia\Actas\controllers;
 
 use Saia\Actas\models\ActDocumentUser;
 
-class PreparedPublicUserData
+class PublicUserPreparer
 {
 
     /**
@@ -12,21 +12,24 @@ class PreparedPublicUserData
      *
      * @var ActDocumentUser
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-07
+     * @date   2019-12-07
      */
     protected ActDocumentUser $ActDocumentUser;
-
 
     /**
      * almacena la informacion preparada
      *
      * @var object
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019
+     * @date   2019
      */
     protected $prepare;
 
-
+    /**
+     * PreparedPublicUserData constructor.
+     *
+     * @param ActDocumentUser $ActDocumentUser
+     */
     public function __construct(ActDocumentUser $ActDocumentUser)
     {
         $this->ActDocumentUser = $ActDocumentUser;
@@ -38,7 +41,7 @@ class PreparedPublicUserData
      *
      * @return object
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019
+     * @date   2019
      */
     public function getPreparedData()
     {
@@ -52,5 +55,24 @@ class PreparedPublicUserData
         }
 
         return $this->prepare;
+    }
+
+    /**
+     * prepara los datos de una coleccion
+     *
+     * @param ActDocumentUser[] $users
+     * @return array
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date   2020-06-02
+     */
+    public static function getFromCollection(array $users)
+    {
+        $response = [];
+
+        foreach ($users as $ActDocumentUser) {
+            array_push($response, $ActDocumentUser->prepareData());
+        }
+
+        return $response;
     }
 }

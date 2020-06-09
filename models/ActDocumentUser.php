@@ -2,7 +2,7 @@
 
 namespace Saia\Actas\models;
 
-use Saia\Actas\controllers\PreparedPublicUserData;
+use Saia\Actas\controllers\PublicUserPreparer;
 use Saia\Core\model\Model;
 use Saia\models\Tercero;
 use Saia\models\vistas\VfuncionarioDc;
@@ -25,15 +25,37 @@ class ActDocumentUser extends Model
     const RELATION_SECRETARY = 3;
 
     /**
+     * identifica una relacion de tipo secretario
+     */
+    const RELATION_ORGANIZER = 4;
+
+    /**
+     * identificador para el campo external
+     * para personas internas
+     */
+    const INTERNAL = 0;
+
+    /**
+     * identificador para el campo external
+     * para personas externas
+     */
+    const EXTERNAL = 1;
+
+    /**
      * almacena la clase que prepara los datos para el cliente
      *
-     * @var PreparedPublicUserData
+     * @var PublicUserPreparer
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019
+     * @date   2019
      */
-    protected $PreparedPublicUserData;
+    protected ?PublicUserPreparer $PreparedPublicUserData = null;
 
-
+    /**
+     * ActDocumentUser constructor.
+     *
+     * @param null $id
+     * @throws \Exception
+     */
     function __construct($id = null)
     {
         parent::__construct($id);
@@ -44,7 +66,7 @@ class ActDocumentUser extends Model
      */
     protected function defineAttributes()
     {
-        $this->dbAttributes = (object) [
+        $this->dbAttributes = (object)[
             'safe' => [
                 'fk_ft_acta',
                 'relation',
@@ -53,7 +75,6 @@ class ActDocumentUser extends Model
                 'external',
                 'created_at',
                 'updated_at',
-                'fk_agendamiento_act'
             ],
             'date' => ['created_at', 'updated_at'],
             'table' => 'act_document_user',
@@ -134,7 +155,6 @@ class ActDocumentUser extends Model
             'state' => 1,
             'relation' => $relationType,
             'identification' => $user->id,
-            'fk_agendamiento_act' => $user->fk_agendamiento_act,
             'external' => $user->external ?? 1
         ]);
     }
@@ -144,7 +164,7 @@ class ActDocumentUser extends Model
      *
      * @return string
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-10
+     * @date   2019-12-10
      */
     public function getUserEmail()
     {
@@ -158,11 +178,11 @@ class ActDocumentUser extends Model
      *
      * @return VfuncionarioDc|Tercero
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-07
+     * @date   2019-12-07
      */
     public function getUser()
     {
-        return (int) $this->external ? $this->Tercero : $this->VfuncionarioDc;
+        return (int)$this->external ? $this->Tercero : $this->VfuncionarioDc;
     }
 
     /**
@@ -170,12 +190,12 @@ class ActDocumentUser extends Model
      *
      * @return object
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date 2019-12-07
+     * @date   2019-12-07
      */
     public function prepareData()
     {
         if (!$this->PreparedPublicUserData) {
-            $this->PreparedPublicUserData = new PreparedPublicUserData($this);
+            $this->PreparedPublicUserData = new PublicUserPreparer($this);
         }
 
         return $this->PreparedPublicUserData->getPreparedData();

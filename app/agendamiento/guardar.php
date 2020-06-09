@@ -2,6 +2,7 @@
 
 use Saia\Actas\controllers\FtActaService;
 use Saia\Actas\formatos\acta\FtActa;
+use Saia\Actas\models\ActDocumentUser;
 use Saia\controllers\notificaciones\NotifierController;
 use Saia\controllers\SessionController;
 use Saia\models\vistas\VfuncionarioDc;
@@ -44,7 +45,13 @@ try {
         'initialDate' => $_REQUEST['initialDate'],
         'subject' => $_REQUEST['subject'],
         'duracion' => $_REQUEST['duration'],
-        'userList' => $userList
+        'userList' => $userList,
+        'roles' => (object)[
+            'organizer' => (object)[
+                'id' => $firstRole,
+                'external' => ActDocumentUser::INTERNAL
+            ]
+        ]
     ];
 
     $FtActa = new FtActa();

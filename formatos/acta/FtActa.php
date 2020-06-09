@@ -2,8 +2,10 @@
 
 namespace Saia\Actas\formatos\acta;
 
+use Doctrine\DBAL\DBALException;
 use Exception;
 use Saia\Actas\controllers\FtActaService;
+use Saia\Actas\models\ActDocumentUser;
 use Saia\Actas\models\ActQuestion;
 use Saia\controllers\documento\RutaDocumentoController;
 use Saia\controllers\pdf\DocumentPdfGenerator;
@@ -61,7 +63,7 @@ class FtActa extends FtActaProperties
      * accion a ejecutar despues de radicar
      *
      * @return bool
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date   2019
@@ -100,8 +102,12 @@ class FtActa extends FtActaProperties
      */
     public function afterEdit()
     {
-        $secretary = $this->getFtActaService()->getSecretary();
-        $president = $this->getFtActaService()->getPresident();
+        $secretary = $this
+            ->getFtActaService()
+            ->getRole(ActDocumentUser::RELATION_SECRETARY);
+        $president = $this
+            ->getFtActaService()
+            ->getRole(ActDocumentUser::RELATION_PRESIDENT);
 
         if (!$secretary || !$president) {
             return true;
@@ -148,14 +154,12 @@ class FtActa extends FtActaProperties
      */
     public function listInternalAssistants()
     {
-        $assistants = $this->getFtActaService()->getAssistants();
-
-        $internals = array_filter($assistants, function ($ActDocumentUser) {
-            return !(int)$ActDocumentUser->external;
-        });
+        $assistants = $this
+            ->getFtActaService()
+            ->getAssistants(ActDocumentUser::INTERNAL);
 
         $names = [];
-        foreach ($internals as $key => $ActDocumentUser) {
+        foreach ($assistants as $key => $ActDocumentUser) {
             array_push($names, $ActDocumentUser->getUser()->getName());
         }
 
@@ -172,14 +176,12 @@ class FtActa extends FtActaProperties
      */
     public function listExternalAssistants()
     {
-        $assistants = $this->getFtActaService()->getAssistants();
-
-        $externals = array_filter($assistants, function ($ActDocumentUser) {
-            return (int)$ActDocumentUser->external;
-        });
+        $assistants = $this
+            ->getFtActaService()
+            ->getAssistants(ActDocumentUser::EXTERNAL);
 
         $names = [];
-        foreach ($externals as $ActDocumentUser) {
+        foreach ($assistants as $ActDocumentUser) {
             array_push($names, $ActDocumentUser->getUser()->getName());
         }
 

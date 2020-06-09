@@ -29,11 +29,7 @@ $Response = (object)[
 try {
     SessionController::goUp($_REQUEST['token'], $_REQUEST['key']);
 
-    $FtActa = !empty($_REQUEST['documentId'])
-        ? FtActa::findByDocumentId($_REQUEST['documentId'])
-        : FtActa::findByAttributes([
-            'fk_agendamiento_act' => $_REQUEST['schedule']
-        ]);
+    $FtActa = FtActa::findByDocumentId($_REQUEST['documentId']);
 
     if (!$FtActa) {
         throw new Exception("Documento invalido", 1);

@@ -177,6 +177,11 @@ class FtActaService
             $roles->president ?? null,
             ActDocumentUser::RELATION_PRESIDENT
         );
+
+        $this->updateRole(
+            $roles->organizer ?? null,
+            ActDocumentUser::RELATION_ORGANIZER
+        );
     }
 
     /**
@@ -217,8 +222,7 @@ class FtActaService
     public function refreshTasks($tasks)
     {
         $documentId = $this->FtActa->documento_iddocumento;
-
-        DocumentoTarea::inactiveByDocument($documentId);
+        DocumentoTarea::inactiveByDocument((int)$documentId);
 
         foreach ($tasks as $task) {
             $DocumentoTarea = DocumentoTarea::findByAttributes([
@@ -277,6 +281,8 @@ class FtActaService
      */
     public function getDocumentBuilderData()
     {
+        $userList = PublicUserPreparer::getFromCollection($this->getAssistants());
+
         return (object)[
             'id' => $this->FtActa->getPK(),
             'documentId' => $this->FtActa->documento_iddocumento,
@@ -285,7 +291,7 @@ class FtActaService
             'finalDate' => $this->FtActa->fecha_final,
             'subject' => $this->FtActa->asunto,
             'topics' => $this->prepareTopics(),
-            'userList' => $this->prepareAssistants(),
+            'userList' => $userList,
             'roles' => $this->prepareRoles(),
             'tasks' => $this->prepareTasks(),
             'questions' => $this->prepareQuestions(),
@@ -318,25 +324,6 @@ class FtActaService
     }
 
     /**
-     * obtiene la lista de asistentes del documento
-     *
-     * @return array
-     * @throws Exception
-     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date   2019-12-07
-     */
-    public function prepareAssistants()
-    {
-        $assistants = [];
-
-        foreach ($this->getAssistants() as $ActDocumentUser) {
-            array_push($assistants, $ActDocumentUser->prepareData());
-        }
-
-        return $assistants;
-    }
-
-    /**
      * obtiene las instancias de los usuarios asignados a roles
      *
      * @return object
@@ -347,16 +334,17 @@ class FtActaService
     public function prepareRoles()
     {
         $response = new \stdClass();
-        $president = $this->getPresident();
 
-        if ($president) {
+        if ($president = $this->getRole(ActDocumentUser::RELATION_PRESIDENT)) {
             $response->president = $president->prepareData();
         }
 
-        $secretary = $this->getSecretary();
-
-        if ($secretary) {
+        if ($secretary = $this->getRole(ActDocumentUser::RELATION_SECRETARY)) {
             $response->secretary = $secretary->prepareData();
+        }
+
+        if ($organizer = $this->getRole(ActDocumentUser::RELATION_ORGANIZER)) {
+            $response->organizer = $organizer->prepareData();
         }
 
         return $response;
@@ -469,18 +457,25 @@ class FtActaService
     /**
      * obtiene los asistentes de la reunion
      *
+     * @param int|null $external
      * @return ActDocumentUser[]
      * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date   2019-12-06
      */
-    public function getAssistants()
+    public function getAssistants(int $external = null)
     {
-        return ActDocumentUser::findAllByAttributes([
+        $filter = [
             'fk_ft_acta' => $this->FtActa->getPK(),
             'state' => 1,
-            'relation' => ActDocumentUser::RELATION_ASSISTANT
-        ]);
+            'relation' => ActDocumentUser::RELATION_ASSISTANT,
+        ];
+
+        if (!is_null($external)) {
+            $filter['external'] = $external;
+        }
+
+        return ActDocumentUser::findAllByAttributes($filter);
     }
 
     /**
@@ -503,19 +498,21 @@ class FtActaService
 
 
     /**
-     * obtiene la instancia de ActDocumentUserSecretary
+     * obtiene un la instancia ActDocumentUser
+     * de un rol indicado
      *
+     * @param int $role
      * @return ActDocumentUser|null
      * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date   2019
      */
-    public function getSecretary()
+    public function getRole(int $role)
     {
         return ActDocumentUser::findByAttributes([
             'fk_ft_acta' => $this->FtActa->getPK(),
             'state' => 1,
-            'relation' => ActDocumentUser::RELATION_SECRETARY
+            'relation' => $role
         ]);
     }
 

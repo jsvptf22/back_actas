@@ -1,6 +1,8 @@
 <?php
 
+use Saia\Actas\controllers\PublicUserPreparer;
 use Saia\Actas\formatos\acta\FtActa;
+use Saia\Actas\models\ActDocumentUser;
 use Saia\controllers\notificaciones\NotifierController;
 use Saia\controllers\SessionController;
 use Saia\core\DatabaseConnection;
@@ -38,17 +40,32 @@ try {
         ->join('b', 'vfuncionario_dc', 'c', 'b.identification = c.iddependencia_cargo')
         ->where('c.idfuncionario = :userId')
         ->andWhere('b.state = 1')
+        ->andWhere('b.relation = :assistant')
+        ->setParameter('assistant', ActDocumentUser::RELATION_ASSISTANT)
         ->setParameter('userId', SessionController::getValue('idfuncionario'))
         ->orderBy('a.fecha_final', 'asc');
 
     $records = FtActa::findByQueryBuilder($QueryBuilder);
 
     foreach ($records as $key => $FtActa) {
+        $FtActaService = $FtActa->getFtActaService();
+        $internals = $FtActaService->getAssistants(ActDocumentUser::INTERNAL);
+        $preparedInternals = PublicUserPreparer::getFromCollection($internals);
+
+        $externals = $FtActaService->getAssistants(ActDocumentUser::EXTERNAL);
+        $preparedExternals = PublicUserPreparer::getFromCollection($externals);
+
+        $ActDocumentUser = $FtActaService->getRole(ActDocumentUser::RELATION_ORGANIZER);
+        $preparedOrganizer = $ActDocumentUser->prepareData();
+
         $Response->data->list[] = [
             'id' => $FtActa->getPK(),
             'documentId' => $FtActa->documento_iddocumento,
             'label' => $FtActa->asunto,
             'date' => $FtActa->getDateAttribute('fecha_final'),
+            'maker' => $preparedOrganizer,
+            'internalAssistants' => $preparedInternals,
+            'externalAssistants' => $preparedExternals
         ];
     }
 
