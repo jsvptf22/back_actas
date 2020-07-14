@@ -33,9 +33,10 @@ try {
     SessionController::goUp($_REQUEST['token'], $_REQUEST['key']);
 
     $userId = SessionController::getValue('idfuncionario');
-    $firstRole = VfuncionarioDc::getFirstUserRole($userId);
+    $VfuncionarioDc = VfuncionarioDc::getActiveRoles($userId)[0];
+
     $defaultAssistant = (object)[
-        'id' => $firstRole,
+        'id' => $VfuncionarioDc->iddependencia_cargo,
         'external' => 0
     ];
     $userList = json_decode($_REQUEST['users']);
@@ -48,7 +49,7 @@ try {
         'userList' => $userList,
         'roles' => (object)[
             'organizer' => (object)[
-                'id' => $firstRole,
+                'id' => $VfuncionarioDc->iddependencia_cargo,
                 'external' => ActDocumentUser::INTERNAL
             ]
         ]
@@ -56,7 +57,7 @@ try {
 
     $FtActa = new FtActa();
     $FtActaController = new FtActaService($FtActa);
-    $FtActaController->saveDocument($documentData, $userId);
+    $FtActaController->saveDocument($documentData, $VfuncionarioDc);
     $FtActaController->sendInvitations();
 
     $Response->message = "Agendamiento creado con éxito";

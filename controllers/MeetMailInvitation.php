@@ -2,7 +2,9 @@
 
 namespace Saia\Actas\controllers;
 
+use Exception;
 use Saia\Actas\formatos\acta\FtActa;
+use Saia\controllers\anexos\FileBinary;
 use Saia\controllers\IcsController;
 use Saia\controllers\SendMailController;
 use Saia\controllers\SessionController;
@@ -28,15 +30,13 @@ class MeetMailInvitation
     /**
      * genera el archivo ics de la reunion
      *
-     * @return string
-     * @throws \Exception
+     * @return FileBinary
+     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date   2020
      */
     public function generateIcsFile()
     {
-        global $rootPath;
-
         $FtActa = $this->FtActaService->getFtActa();
         $duration = $FtActa->duracion ?? '60';
 
@@ -54,21 +54,14 @@ class MeetMailInvitation
 
         $ics = new IcsController($properties);
         $content = $ics->to_string();
-
-        $icsRoute = $rootPath . SessionController::getTemporalDir() . '/invitacion.ics';
-
-        if (!file_put_contents($icsRoute, $content)) {
-            throw new \Exception("Error al generar la invitacion", 1);
-        }
-
-        return $icsRoute;
+        return new FileBinary($content, 'reunion.ics');
     }
 
     /**
      * genera el cuerpo del correo
      *
      * @return string
-     * @throws \Exception
+     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date   2020
      */
@@ -102,7 +95,7 @@ HTML;
      *
      * @param array $destinations
      * @return bool|string
-     * @throws \Exception
+     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date   2020
      */
@@ -112,9 +105,7 @@ HTML;
             $destinations = $this->FtActaService->getAssistantsEmail();
         }
 
-        $icsRoute = $this->generateIcsFile();
         $body = $this->generateBody();
-
         $DateTime = new \DateTime($this->FtActaService->getFtActa()->fecha_inicial);
         $formated = strftime(
             "%A %d de %B de %Y - %H:%M",
@@ -128,8 +119,7 @@ HTML;
             $destinations
         );
         $SendMailController->setAttachments(
-            SendMailController::ATTACHMENT_TYPE_ROUTE,
-            [$icsRoute]
+            [$this->generateIcsFile()]
         );
       
         return $SendMailController->send();

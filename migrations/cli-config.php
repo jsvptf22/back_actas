@@ -14,19 +14,6 @@ while ($max_salida > 0) {
 
 include_once $rootPath . 'app/vendor/autoload.php';
 
-use Doctrine\ORM\Tools\Setup;
-use Doctrine\ORM\EntityManager;
-use Saia\core\DatabaseConnection;
-use Symfony\Component\Console\Helper\HelperSet;
-use Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper;
-use Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper;
+use Saia\doctrine\DoctrineConfiguration;
 
-$Connection = DatabaseConnection::getInstance();
-$Connection->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
-$Configuration = Setup::createAnnotationMetadataConfiguration(array("entities"), true, null, null, false);
-$EntityManager = EntityManager::create($Connection, $Configuration);
-
-return new HelperSet([
-    'db' => new ConnectionHelper($Connection),
-    'em' => new EntityManagerHelper($EntityManager)
-]);
+return DoctrineConfiguration::getMigrationsHelper();

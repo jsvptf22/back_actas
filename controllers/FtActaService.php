@@ -47,46 +47,42 @@ class FtActaService
     /**
      * crea o modifica el documento
      *
-     * @param object $data
-     * @param int    $userId
+     * @param object         $data
+     * @param VfuncionarioDc $VfuncionarioDc
      * @return FtActa
-     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date   2019-12-06
      */
-    public function saveDocument(object $data, int $userId)
+    public function saveDocument(object $data, VfuncionarioDc $VfuncionarioDc)
     {
         $attributes = [
             'fecha_final' => $data->initialDate,
             'asunto' => $data->subject,
-            'dependencia' => VfuncionarioDc::getFirstUserRole($userId),
+            'dependencia' => $VfuncionarioDc->iddependencia_cargo,
             'estado' => 1,
         ];
 
+        $SaveDocument = new SaveDocument(
+            $this->FtActa->getFormat(),
+            $VfuncionarioDc
+        );
+
         if ($this->FtActa->getPK()) {
-            $GuardarFtController = new SaveDocument(
-                $this->FtActa->getFormat(),
+            $SaveDocument->edit(
+                $this->FtActa->Documento,
                 $attributes
             );
-            $GuardarFtController->edit(
-                (int)$this->FtActa->documento_iddocumento
-            );
-            $this->FtActa->refresh();
         } else {
             $attributes['fecha_inicial'] = date('Y-m-d H:i:s');
-            $GuardarFtController = new SaveDocument(
-                $this->FtActa->getFormat(),
-                $attributes
-            );
-            $documentId = $GuardarFtController->create();
-            $this->FtActa = FtActa::findByDocumentId($documentId);
+            $SaveDocument->create($attributes);
         }
 
+        $this->FtActa = $SaveDocument->getDocument()->getFt();
         $this->refreshTopics($data->topics);
         $this->refreshAssistants($data->userList);
         $this->refreshRoles($data->roles);
         $this->refreshTasks($data->tasks);
-        $this->refreshQuestions($data->questions, $userId);
+        $this->refreshQuestions($data->questions, $VfuncionarioDc->getPK());
         $this->generateQr();
 
         return $this->FtActa;
@@ -247,12 +243,12 @@ class FtActaService
      * actualiza las preguntas del documento
      *
      * @param array $questions
+     * @param int   $userId
      * @return true
-     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date   2020
      */
-    public function refreshQuestions($questions, $userId)
+    public function refreshQuestions(array $questions = null, int $userId = null)
     {
         foreach ($questions as $question) {
             $ActQuestion = new ActQuestion($question->idact_question);
@@ -362,7 +358,8 @@ class FtActaService
     {
         $response = [];
 
-        foreach ($this->FtActa->Documento->getTasks() as $Tarea) {
+        $DocumentoService = $this->FtActa->Documento->getService();
+        foreach ($DocumentoService->getTasks() as $Tarea) {
             $managers = [];
             foreach ($Tarea->getManagers() as $Funcionario) {
                 array_push($managers, $Funcionario->getName());

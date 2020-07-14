@@ -14,7 +14,6 @@ use Saia\controllers\generator\component\Method;
 use Saia\controllers\generator\component\Textarea;
 use Saia\controllers\generator\component\UserAutocomplete;
 use Saia\models\formatos\CamposFormato;
-use Saia\models\formatosCamposFormato;
 
 /**
  * Auto-generated Migration: Please modify to your needs!
@@ -23,7 +22,7 @@ final class Version20191116145954 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return '';
+        return 'instalacion modulo actas';
     }
 
     public function up(Schema $schema): void
@@ -267,7 +266,6 @@ HTML;
             "mostrar_pdf" => 0,
             "orden" => null,
             "fk_categoria_formato" => $category,
-            "paginar" => "0",
             "pertenece_nucleo" => 1,
             "descripcion_formato" => "acta",
             "version" => 1,
@@ -724,6 +722,15 @@ HTML;
         ]);
         $table->addColumn('updated_at', 'datetime', [
             'notnull' => false,
+        ]);
+
+        $this->connection->delete('new_actions', [
+            'class_name' => 'Saia\Actas\controllers\NewScheduleAction',
+        ]);
+
+        $this->connection->insert('new_actions', [
+            'class_name' => 'Saia\Actas\controllers\NewScheduleAction',
+            'estado' => 1
         ]);
     }
 

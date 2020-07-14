@@ -1,16 +1,18 @@
 {
-    "name": "actas_socket",
+    "name": "saia_actas_socket",
     "version": "1.0.0",
-    "description": "",
-    "main": "app/index.js",
+    "description": "socket para actas de saia 2020",
+    "main": "index.js",
     "dependencies": {
         "socket.io": "^2.3.0"
     },
-    "devDependencies": {},
     "scripts": {
-        "start": "node app/index.js"
+        "start": "node index.js"
     },
     "keywords": [],
-    "author": "",
+    "author": {
+        "name": "jhon sebastian valencia",
+        "email": "jhon.valencia@cerok.com"
+    },
     "license": "ISC"
 }
