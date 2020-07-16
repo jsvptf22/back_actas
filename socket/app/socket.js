@@ -15,5 +15,9 @@ exports = module.exports = function (app) {
         socket.on('getData', (managerRoom) => {
             meetingNms.in(managerRoom).emit('getData');
         });
+
+        socket.on('vote', (request) => {
+            meetingNms.in(request.room).emit('addVote', request);
+        });
     });
 };

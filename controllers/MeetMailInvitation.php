@@ -121,7 +121,7 @@ HTML;
         $SendMailController->setAttachments(
             [$this->generateIcsFile()]
         );
-      
+
         return $SendMailController->send();
     }
 
