@@ -7,11 +7,11 @@ use Exception;
 use Saia\Actas\controllers\FtActaService;
 use Saia\Actas\models\ActDocumentUser;
 use Saia\Actas\models\ActQuestion;
-use Saia\controllers\documento\RutaDocumentoController;
+use Saia\controllers\documento\RouteMaker;
 use Saia\controllers\pdf\DocumentPdfGenerator;
 use Saia\controllers\SendMailController;
 use Saia\models\ruta\Ruta;
-use Saia\models\ruta\RutaDocumento;
+use Saia\models\vistas\VfuncionarioDc;
 
 class FtActa extends FtActaProperties
 {
@@ -113,29 +113,25 @@ class FtActa extends FtActaProperties
             return true;
         }
 
-        $data = [
-            'documentId' => $this->documento_iddocumento,
-            'type' => RutaDocumento::TIPO_RADICACION,
-            'flow' => RutaDocumento::FLUJO_SERIE,
-            'data' => [
-                [
-                    'funCod' => $secretary->getUser()->funcionario_codigo,
-                    'action' => Ruta::FIRMA_VISIBLE,
-                    'limitdate' => date('Y-m-d H:i:s')
-                ],
-                [
-                    'funCod' => $president->getUser()->funcionario_codigo,
-                    'action' => Ruta::FIRMA_VISIBLE,
-                    'limitdate' => date('Y-m-d H:i:s')
-                ]
+        $VfuncionarioDc = VfuncionarioDc::findByAttributes([
+            'iddependencia_cargo' => $this->dependencia
+        ]);
+        $RouteMaker = new RouteMaker(
+            $this->Documento,
+            $VfuncionarioDc
+        );
+        $RouteMaker->createRadicationRoute([
+            [
+                'funCod' => $secretary->getUser()->funcionario_codigo,
+                'action' => Ruta::FIRMA_VISIBLE,
+                'limitdate' => date('Y-m-d H:i:s')
+            ],
+            [
+                'funCod' => $president->getUser()->funcionario_codigo,
+                'action' => Ruta::FIRMA_VISIBLE,
+                'limitdate' => date('Y-m-d H:i:s')
             ]
-        ];
-
-        $infoRuta = RutaDocumentoController::generateRoute($data);
-
-        if (!$infoRuta->success) {
-            throw new Exception("No fue posible generar la ruta de aprobación", 1);
-        }
+        ]);
 
         return true;
     }
@@ -248,11 +244,11 @@ class FtActa extends FtActaProperties
      */
     public function listTasks()
     {
-        $tasks = $this->Documento->getTasks();
+        $DocumentoService = $this->Documento->getService();
 
         $response = "";
-        foreach ($tasks as $Tarea) {
-            $managers = $Tarea->getManagers();
+        foreach ($DocumentoService->getTasks() as $Tarea) {
+            $managers = $Tarea->getService()->getManagers();
 
             $names = [];
             foreach ($managers as $Funcionario) {

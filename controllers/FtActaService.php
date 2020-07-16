@@ -11,7 +11,6 @@ use Saia\controllers\documento\QRDocumentoController;
 use Saia\controllers\functions\CoreFunctions;
 use Saia\controllers\functions\Header;
 use Saia\controllers\SaveDocument;
-use Saia\models\documento\DocumentoTarea;
 use Saia\models\formatos\Formato;
 use Saia\models\vistas\VfuncionarioDc;
 
@@ -78,12 +77,11 @@ class FtActaService
         }
 
         $this->FtActa = $SaveDocument->getDocument()->getFt();
-        $this->refreshTopics($data->topics);
+        /*$this->refreshTopics($data->topics);
         $this->refreshAssistants($data->userList);
         $this->refreshRoles($data->roles);
-        $this->refreshTasks($data->tasks);
         $this->refreshQuestions($data->questions, $VfuncionarioDc->getPK());
-        $this->generateQr();
+        $this->generateQr();*/
 
         return $this->FtActa;
     }
@@ -203,39 +201,6 @@ class FtActaService
                 $user,
                 $relationType
             );
-        }
-    }
-
-    /**
-     * actualiza las tareas vinculadas al documento
-     *
-     * @param array $tasks
-     * @return void
-     * @throws Exception
-     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date   2019-12-07
-     */
-    public function refreshTasks($tasks)
-    {
-        $documentId = $this->FtActa->documento_iddocumento;
-        DocumentoTarea::inactiveByDocument((int)$documentId);
-
-        foreach ($tasks as $task) {
-            $DocumentoTarea = DocumentoTarea::findByAttributes([
-                'fk_tarea' => $task->id,
-                'fk_documento' => $documentId
-            ]);
-
-            if (!$DocumentoTarea) {
-                $DocumentoTarea = new DocumentoTarea();
-            }
-
-            $DocumentoTarea->setAttributes([
-                'fk_tarea' => $task->id,
-                'fk_documento' => $documentId,
-                'estado' => 1
-            ]);
-            $DocumentoTarea->save();
         }
     }
 
@@ -360,8 +325,10 @@ class FtActaService
 
         $DocumentoService = $this->FtActa->Documento->getService();
         foreach ($DocumentoService->getTasks() as $Tarea) {
+            $TareaService = $Tarea->getService();
+
             $managers = [];
-            foreach ($Tarea->getManagers() as $Funcionario) {
+            foreach ($TareaService->getManagers() as $Funcionario) {
                 array_push($managers, $Funcionario->getName());
             }
 
@@ -493,7 +460,6 @@ class FtActaService
         return $emails;
     }
 
-
     /**
      * obtiene un la instancia ActDocumentUser
      * de un rol indicado
@@ -510,23 +476,6 @@ class FtActaService
             'fk_ft_acta' => $this->FtActa->getPK(),
             'state' => 1,
             'relation' => $role
-        ]);
-    }
-
-    /**
-     * obtiene la instancia de ActDocumentUserPresident
-     *
-     * @return ActDocumentUser|null
-     * @throws Exception
-     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date   2019
-     */
-    public function getPresident()
-    {
-        return ActDocumentUser::findByAttributes([
-            'fk_ft_acta' => $this->FtActa->getPK(),
-            'state' => 1,
-            'relation' => ActDocumentUser::RELATION_PRESIDENT
         ]);
     }
 

@@ -46,6 +46,7 @@ try {
         ->orderBy('a.fecha_final', 'asc');
 
     $records = FtActa::findByQueryBuilder($QueryBuilder);
+    $items = [];
 
     foreach ($records as $key => $FtActa) {
         $FtActaService = $FtActa->getFtActaService();
@@ -58,7 +59,7 @@ try {
         $ActDocumentUser = $FtActaService->getRole(ActDocumentUser::RELATION_ORGANIZER);
         $preparedOrganizer = $ActDocumentUser->prepareData();
 
-        $Response->data->list[] = [
+        $items[] = [
             'id' => $FtActa->getPK(),
             'documentId' => $FtActa->documento_iddocumento,
             'label' => $FtActa->asunto,
@@ -69,9 +70,14 @@ try {
         ];
     }
 
+    $Response->data->list = $items;
     $Response->notifications = NotifierController::prepare();
     $Response->success = 1;
 } catch (Throwable $th) {
+    echo "<pre>";
+    var_dump($th);
+    echo "</pre>";
+    exit;
     $Response->message = $th->getMessage();
 }
 

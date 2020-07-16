@@ -1,4 +1,5 @@
-const https = require('https');
+//const https = require('https');
+const http = require('http');
 const fs = require('fs');
 
 const options = {
@@ -6,7 +7,7 @@ const options = {
     cert: fs.readFileSync('certs/netsaia.cert'),
 };
 
-const app = https.createServer(options, function (req, res) {
+const app = http.createServer(options, function (req, res) {
     res.writeHead(200);
     res.end('hello world');
 });
