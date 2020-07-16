@@ -77,11 +77,11 @@ class FtActaService
         }
 
         $this->FtActa = $SaveDocument->getDocument()->getFt();
-        /*$this->refreshTopics($data->topics);
+        $this->refreshTopics($data->topics);
         $this->refreshAssistants($data->userList);
         $this->refreshRoles($data->roles);
         $this->refreshQuestions($data->questions, $VfuncionarioDc->getPK());
-        $this->generateQr();*/
+        $this->generateQr();
 
         return $this->FtActa;
     }

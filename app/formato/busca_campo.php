@@ -62,4 +62,4 @@ try {
     $Response->message = $th->getMessage();
 }
 
-echo json_encode($Response);
+echo json_encode($Response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PARTIAL_OUTPUT_ON_ERROR);

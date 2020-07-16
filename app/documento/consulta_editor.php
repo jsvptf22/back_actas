@@ -40,11 +40,7 @@ try {
     $Response->notifications = NotifierController::prepare();
     $Response->success = 1;
 } catch (Throwable $th) {
-    echo "<pre>";
-    var_dump($th);
-    echo "</pre>";
-    exit;
     $Response->message = $th->getMessage();
 }
 
-echo json_encode($Response);
+echo json_encode($Response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PARTIAL_OUTPUT_ON_ERROR);
