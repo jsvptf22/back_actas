@@ -709,13 +709,38 @@ HTML;
             'notnull' => false,
             'length' => 11
         ]);
-        $table->addColumn('approve', 'integer', [
+        $table->addColumn('created_at', 'datetime', [
+            'notnull' => true,
+        ]);
+        $table->addColumn('updated_at', 'datetime', [
             'notnull' => false,
+        ]);
+
+        if ($schema->hasTable('act_question_option')) {
+            $schema->dropTable('act_question_option');
+        }
+
+        $table = $schema->createTable('act_question_option');
+        $table->addColumn('idact_question_option', 'integer', [
+            'autoincrement' => true,
             'length' => 11
         ]);
-        $table->addColumn('reject', 'integer', [
-            'notnull' => false,
-            'length' => 11
+        $table->setPrimaryKey(['idact_question_option']);
+        $table->addColumn('label', 'text', [
+            'notnull' => true,
+        ]);
+        $table->addColumn('fk_act_question', 'integer', [
+            'notnull' => true,
+            'length' => 11,
+        ]);
+        $table->addColumn('votes', 'integer', [
+            'notnull' => true,
+            'length' => 11,
+        ]);
+        $table->addColumn('state', 'integer', [
+            'notnull' => true,
+            'length' => 11,
+            'default' => 1
         ]);
         $table->addColumn('created_at', 'datetime', [
             'notnull' => true,

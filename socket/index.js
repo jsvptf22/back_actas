@@ -1,5 +1,5 @@
-//const https = require('https');
-const http = require('http');
+const protocol = +process.env.npm_config_httpsProtocol ?
+    require('https') : require('http');
 const fs = require('fs');
 
 const options = {
@@ -7,7 +7,7 @@ const options = {
     cert: fs.readFileSync('certs/netsaia.cert'),
 };
 
-const app = http.createServer(options, function (req, res) {
+const app = protocol.createServer(options, function (req, res) {
     res.writeHead(200);
     res.end('hello world');
 });

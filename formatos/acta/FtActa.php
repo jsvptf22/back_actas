@@ -6,7 +6,6 @@ use Doctrine\DBAL\DBALException;
 use Exception;
 use Saia\Actas\controllers\FtActaService;
 use Saia\Actas\models\ActDocumentUser;
-use Saia\Actas\models\ActQuestion;
 use Saia\controllers\documento\RouteMaker;
 use Saia\controllers\pdf\DocumentPdfGenerator;
 use Saia\controllers\SendMailController;
@@ -24,27 +23,6 @@ class FtActa extends FtActaProperties
     public function __construct($id = null)
     {
         parent::__construct($id);
-    }
-
-    /**
-     * define atributos adicionales sobre el modelo
-     *
-     * @return array
-     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
-     * @date   2020
-     */
-    protected function defineMoreAttributes()
-    {
-        return [
-            'relations' => [
-                'questions' => [
-                    'model' => ActQuestion::class,
-                    'attribute' => 'fk_ft_acta',
-                    'primary' => 'idft_acta',
-                    'relation' => self::BELONGS_TO_MANY
-                ]
-            ]
-        ];
     }
 
     /**
@@ -272,7 +250,7 @@ class FtActa extends FtActaProperties
     {
         $response = "";
 
-        foreach ($this->questions as $key => $ActQuestion) {
+        foreach ($this->getFtActaService()->getQuestions() as $key => $ActQuestion) {
             $approve = $ActQuestion->approve > $ActQuestion->reject ? 'Aprobado' : 'Rechazado';
             $response .= sprintf("%s - %s<br>", $ActQuestion->label, $approve);
         }

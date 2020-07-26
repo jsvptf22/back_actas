@@ -7,6 +7,7 @@ use Saia\Actas\formatos\acta\FtActa;
 use Saia\Actas\models\ActDocumentTopic;
 use Saia\Actas\models\ActDocumentUser;
 use Saia\Actas\models\ActQuestion;
+use Saia\Actas\models\ActQuestionOption;
 use Saia\controllers\documento\QRDocumentoController;
 use Saia\controllers\functions\CoreFunctions;
 use Saia\controllers\functions\Header;
@@ -215,17 +216,43 @@ class FtActaService
      */
     public function refreshQuestions(array $questions = null, int $userId = null)
     {
+        ActQuestion::executeUpdate([
+            'state' => 0
+        ], [
+            'fk_ft_acta' => $this->FtActa->getPK()
+        ]);
+
         foreach ($questions as $question) {
-            $ActQuestion = new ActQuestion($question->idact_question);
+            $question->id = $question->new ? null : $question->id;
+            $ActQuestion = new ActQuestion($question->id);
             $ActQuestion->setAttributes([
                 'fk_ft_acta' => $this->FtActa->getPK(),
                 'label' => $question->label,
                 'fk_funcionario' => $userId,
-                'approve' => $question->approve,
-                'reject' => $question->reject
+                'state' => 1
             ]);
 
             $ActQuestion->save();
+            ActQuestionOption::executeUpdate([
+                'state' => 0,
+                'updated_at' => date('Y-m-d H:i:s')
+            ], [
+                'fk_act_question' => $ActQuestion->getPK()
+            ]);
+
+            foreach ($question->options as $option) {
+                $option->id = $option->new ? null : $option->id;
+
+                $ActQuestionOption = new ActQuestionOption($option->id);
+                $ActQuestionOption->setAttributes([
+                    'estate' => 1,
+                    'label' => $option->label,
+                    'votes' => $option->votes,
+                    'fk_act_question' => $ActQuestion->getPK()
+                ]);
+                $ActQuestionOption->save();
+            }
+
         }
 
         return true;
@@ -353,10 +380,23 @@ class FtActaService
     public function prepareQuestions()
     {
         $data = [];
-        $questions = $this->FtActa->questions;
 
-        foreach ($questions as $ActQuestion) {
-            array_push($data, $ActQuestion->getAttributes());
+        foreach ($this->getQuestions() as $ActQuestion) {
+            $options = [];
+
+            foreach ($ActQuestion->getOptions() as $ActQuestionOption) {
+                array_push($options, [
+                    'id' => $ActQuestionOption->getPK(),
+                    'label' => $ActQuestionOption->label,
+                    'votes' => $ActQuestionOption->votes
+                ]);
+            }
+
+            array_push($data, [
+                'id' => $ActQuestion->getPK(),
+                'label' => $ActQuestion->label,
+                'options' => $options
+            ]);
         }
 
         return $data;
@@ -400,6 +440,22 @@ class FtActaService
             );
             $QR->getRouteQR();
         }
+    }
+
+    /**
+     * obtiene las preguntas activas
+     *
+     * @return array
+     * @throws Exception
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date   2020-07-26
+     */
+    public function getQuestions()
+    {
+        return ActQuestion::findAllByAttributes([
+            'fk_ft_acta' => $this->FtActa->getPK(),
+            'state' => 1
+        ]);
     }
 
     /**

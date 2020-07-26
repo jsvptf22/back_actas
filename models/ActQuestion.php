@@ -16,14 +16,12 @@ class ActQuestion extends Model
      */
     protected function defineAttributes()
     {
-        $this->dbAttributes = (object) [
+        $this->dbAttributes = (object)[
             'safe' => [
                 'label',
                 'state',
                 'fk_funcionario',
                 'fk_ft_acta',
-                'approve',
-                'reject',
                 'created_at',
                 'updated_at',
             ],
@@ -59,5 +57,21 @@ class ActQuestion extends Model
         }
 
         return true;
+    }
+
+    /**
+     * obtiene las opciones activas
+     *
+     * @return array
+     * @throws \Exception
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date   2020-07-26
+     */
+    public function getOptions()
+    {
+        return ActQuestionOption::findAllByAttributes([
+            'fk_act_question' => $this->getPK(),
+            'state' => 1
+        ]);
     }
 }
