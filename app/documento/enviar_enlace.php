@@ -47,7 +47,7 @@ try {
             array_push($emails, $ActDocumentUser->getUserEmail());
         }
     }
-
+    
     $ActaMailInvitation = new MeetMailInvitation($FtActa->getFtActaService());
     $ActaMailInvitation->send($emails);
 

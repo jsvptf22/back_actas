@@ -245,7 +245,7 @@ class FtActaService
 
                 $ActQuestionOption = new ActQuestionOption($option->id);
                 $ActQuestionOption->setAttributes([
-                    'estate' => 1,
+                    'state' => 1,
                     'label' => $option->label,
                     'votes' => $option->votes,
                     'fk_act_question' => $ActQuestion->getPK()
