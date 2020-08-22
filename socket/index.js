@@ -3,8 +3,8 @@ const protocol = +process.env.npm_config_httpsProtocol ?
 const fs = require('fs');
 
 const options = {
-    key: fs.readFileSync('certs/netsaia.key'),
-    cert: fs.readFileSync('certs/netsaia.cert'),
+    key: fs.readFileSync('cert/private.key'),
+    cert: fs.readFileSync('cert/certificate.crt'),
 };
 
 const app = protocol.createServer(options, function (req, res) {
