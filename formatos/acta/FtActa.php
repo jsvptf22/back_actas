@@ -6,6 +6,7 @@ use Doctrine\DBAL\DBALException;
 use Exception;
 use Saia\Actas\controllers\FtActaService;
 use Saia\Actas\models\ActDocumentUser;
+use Saia\controllers\anexos\FileJson;
 use Saia\controllers\documento\RouteMaker;
 use Saia\controllers\pdf\DocumentPdfGenerator;
 use Saia\controllers\SendMailController;
@@ -50,6 +51,7 @@ class FtActa extends FtActaProperties
     {
         $DocumentPdfGenerator = new DocumentPdfGenerator($this->Documento);
         $route = $DocumentPdfGenerator->refreshFile();
+        $FileJson = new FileJson($route);
 
         $SendMailController = new SendMailController(
             'Acta sobre ' . $this->asunto,
@@ -61,11 +63,7 @@ class FtActa extends FtActaProperties
             $this->getFtActaService()->getAssistantsEmail()
         );
 
-        $SendMailController->setAttachments(
-            SendMailController::ATTACHMENT_TYPE_JSON,
-            [$route]
-        );
-
+        $SendMailController->setAttachments([$FileJson]);
         $SendMailController->send();
         return true;
     }
@@ -233,7 +231,12 @@ class FtActa extends FtActaProperties
                 array_push($names, $Funcionario->getName());
             }
 
-            $response .= sprintf("%s - %s<br>", $Tarea->getName(), implode(', ', $names));
+            $response .= sprintf(
+                "%s - %s   %s<br>",
+                $Tarea->getName(),
+                implode(', ', $names),
+                $Tarea->getDateAttribute('fecha_final')
+            );
         }
 
         return $response;

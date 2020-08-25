@@ -270,7 +270,8 @@ HTML;
             "descripcion_formato" => "acta",
             "version" => 1,
             "publicar" => 0,
-            "module" => "actas"
+            "module" => "actas",
+            "generador_pdf" => "Tcpdf"
         ];
 
         $this->connection->insert('formato', $acta);
