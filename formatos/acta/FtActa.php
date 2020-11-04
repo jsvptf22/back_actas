@@ -39,6 +39,20 @@ class FtActa extends FtActaProperties
     }
 
     /**
+     * accion a ejecutar antes de radicar
+     *
+     * @return bool
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date   2019
+     */
+    public function beforeRad()
+    {
+        $this->fecha_final = date('Y-m-d H:i:s');
+
+        return $this->save();
+    }
+
+    /**
      * accion a ejecutar despues de radicar
      *
      * @return bool
@@ -207,8 +221,8 @@ class FtActa extends FtActaProperties
      */
     public function qrCodeHtml()
     {
-        $route = $this->Documento->getQr();
-        return "<img src='{$route}' width='80px' height='80px' alt=''>";
+        $route = ABSOLUTE_SAIA_ROUTE . $this->Documento->getQr();
+        return '<img src="' . $route . '" width="80px" height="80px" alt="">';
     }
 
     /**
@@ -220,9 +234,9 @@ class FtActa extends FtActaProperties
      */
     public function listTasks()
     {
+        $response = $text = "";
         $DocumentoService = $this->Documento->getService();
 
-        $response = "";
         foreach ($DocumentoService->getTasks() as $Tarea) {
             $managers = $Tarea->getService()->getManagers();
 
@@ -231,7 +245,7 @@ class FtActa extends FtActaProperties
                 array_push($names, $Funcionario->getName());
             }
 
-            $response .= sprintf(
+            $text .= sprintf(
                 "%s - %s   %s<br>",
                 $Tarea->getName(),
                 implode(', ', $names),
@@ -239,6 +253,20 @@ class FtActa extends FtActaProperties
             );
         }
 
+        if ($text) {
+            $response = <<<HTML
+<table class="table table-bordered">
+	<tbody>
+		<tr>
+			<td class="bold text-center">Compromisos</td>
+		</tr>
+		<tr>
+			<td>{$text}</td>
+		</tr>
+	</tbody>
+</table>
+HTML;
+        }
         return $response;
     }
 
@@ -251,11 +279,26 @@ class FtActa extends FtActaProperties
      */
     public function listQuestions()
     {
-        $response = "";
+        $response = $text = "";
 
         foreach ($this->getFtActaService()->getQuestions() as $key => $ActQuestion) {
             $approve = $ActQuestion->approve > $ActQuestion->reject ? 'Aprobado' : 'Rechazado';
-            $response .= sprintf("%s - %s<br>", $ActQuestion->label, $approve);
+            $text .= sprintf("%s - %s<br>", $ActQuestion->label, $approve);
+        }
+
+        if ($text) {
+            $response = <<<HTML
+<table class="table table-bordered">
+	<tbody>
+		<tr>
+			<td class="bold text-center">Decisiones</td>
+		</tr>
+		<tr>
+			<td>{$text}</td>
+		</tr>
+	</tbody>
+</table>
+HTML;
         }
 
         return $response;

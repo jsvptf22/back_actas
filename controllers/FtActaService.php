@@ -56,7 +56,6 @@ class FtActaService
     public function saveDocument(object $data, VfuncionarioDc $VfuncionarioDc)
     {
         $attributes = [
-            'fecha_final' => $data->initialDate,
             'asunto' => $data->subject,
             'dependencia' => $VfuncionarioDc->iddependencia_cargo,
             'estado' => 1,
@@ -415,6 +414,19 @@ class FtActaService
     {
         $ActaMailInvitation = new MeetMailInvitation($this);
         $ActaMailInvitation->send();
+    }
+
+    /**
+     * crea la tarea para todos los asistentes
+     * del agendamiento de la reunion
+     *
+     * @author jhon sebastian valencia <jhon.valencia@cerok.com>
+     * @date   2020-11-04
+     */
+    public function createTaskEvents()
+    {
+        $ScheduleTaskMaker = new ScheduleTaskMaker($this);
+        $ScheduleTaskMaker->createTask();
     }
 
     /**

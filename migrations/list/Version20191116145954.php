@@ -202,31 +202,13 @@ final class Version20191116145954 extends AbstractMigration
 
 <div class="row">
 <div class="col-12">
-<table class="table table-bordered">
-	<tbody>
-		<tr>
-			<td class="bold text-center">Decisiones</td>
-		</tr>
-		<tr>
-			<td>{*listQuestions*}</td>
-		</tr>
-	</tbody>
-</table>
+{*listQuestions*}
 </div>
 </div>
 
 <div class="row">
 <div class="col-12">
-<table class="table table-bordered">
-	<tbody>
-		<tr>
-			<td class="bold text-center">Compromisos</td>
-		</tr>
-		<tr>
-			<td>{*listTasks*}</td>
-		</tr>
-	</tbody>
-</table>
+{*listTasks*}
 </div>
 </div>
 
@@ -269,9 +251,9 @@ HTML;
             "pertenece_nucleo" => 1,
             "descripcion_formato" => "acta",
             "version" => 1,
-            "publicar" => 0,
+            "publicar" => 1,
             "module" => "actas",
-            "generador_pdf" => "Tcpdf"
+            "generador_pdf" => "Mpdf"
         ];
 
         $this->connection->insert('formato', $acta);
@@ -456,7 +438,7 @@ HTML;
                 "etiqueta" => "Fecha final",
                 "tipo_dato" => Types::DATETIME_MUTABLE,
                 "longitud" => null,
-                "obligatoriedad" => 1,
+                "obligatoriedad" => null,
                 "valor" => "",
                 'acciones' => sprintf("%s,%s", CamposFormato::ACTION_ADD, CamposFormato::ACTION_EDIT),
                 "ayuda" => null,

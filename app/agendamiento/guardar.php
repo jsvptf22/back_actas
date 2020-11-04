@@ -5,6 +5,7 @@ use Saia\Actas\formatos\acta\FtActa;
 use Saia\Actas\models\ActDocumentUser;
 use Saia\controllers\notificaciones\NotifierController;
 use Saia\controllers\SessionController;
+use Saia\core\DatabaseConnection;
 use Saia\models\vistas\VfuncionarioDc;
 
 $max_salida = 10;
@@ -30,8 +31,10 @@ $Response = (object)[
 ];
 
 try {
-    SessionController::goUp($_REQUEST['token'], $_REQUEST['key']);
+    $Connection = DatabaseConnection::getDefaultConnection();
+    $Connection->beginTransaction();
 
+    SessionController::goUp($_REQUEST['token'], $_REQUEST['key']);
     $userId = SessionController::getValue('idfuncionario');
     $VfuncionarioDc = VfuncionarioDc::getActiveRoles($userId)[0];
 
@@ -56,14 +59,17 @@ try {
     ];
 
     $FtActa = new FtActa();
-    $FtActaController = new FtActaService($FtActa);
-    $FtActaController->saveDocument($documentData, $VfuncionarioDc);
-    $FtActaController->sendInvitations();
+    $FtActaService = new FtActaService($FtActa);
+    $FtActaService->saveDocument($documentData, $VfuncionarioDc);
+    $FtActaService->sendInvitations();
+    $FtActaService->createTaskEvents();
 
     $Response->message = "Agendamiento creado con éxito";
     $Response->notifications = NotifierController::prepare();
     $Response->success = 1;
+    $Connection->commit();
 } catch (Throwable $th) {
+    $Connection->rollBack();
     $Response->message = $th->getMessage();
 }
 
