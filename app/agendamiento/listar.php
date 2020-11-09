@@ -63,7 +63,7 @@ try {
             'id' => $FtActa->getPK(),
             'documentId' => $FtActa->documento_iddocumento,
             'label' => $FtActa->asunto,
-            'date' => $FtActa->getDateAttribute('fecha_final'),
+            'date' => $FtActa->getDateAttribute('fecha_inicial'),
             'maker' => $preparedOrganizer,
             'internalAssistants' => $preparedInternals,
             'externalAssistants' => $preparedExternals

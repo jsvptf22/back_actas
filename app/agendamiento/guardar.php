@@ -48,7 +48,7 @@ try {
     $documentData = (object)[
         'initialDate' => $_REQUEST['initialDate'],
         'subject' => $_REQUEST['subject'],
-        'duracion' => $_REQUEST['duration'],
+        'duration' => $_REQUEST['duration'],
         'userList' => $userList,
         'roles' => (object)[
             'organizer' => (object)[

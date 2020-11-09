@@ -1,11 +1,11 @@
-const protocol = +process.env.npm_config_httpsProtocol ?
-    require('https') : require('http');
+const isHttps = +process.env.npm_config_httpsProtocol;
+const protocol =  isHttps ? require('https') : require('http');
 const fs = require('fs');
 
-const options = {
+const options = isHttps ? {
     key: fs.readFileSync('cert/private.key'),
     cert: fs.readFileSync('cert/certificate.crt'),
-};
+}: {};
 
 const app = protocol.createServer(options, function (req, res) {
     res.writeHead(200);

@@ -57,8 +57,9 @@ class FtActaService
     {
         $attributes = [
             'asunto' => $data->subject,
+            'duracion' => $data->duration,
             'dependencia' => $VfuncionarioDc->iddependencia_cargo,
-            'estado' => 1,
+            'estado' => 1
         ];
 
         $SaveDocument = new SaveDocument(
@@ -72,7 +73,7 @@ class FtActaService
                 $attributes
             );
         } else {
-            $attributes['fecha_inicial'] = date('Y-m-d H:i:s');
+            $attributes['fecha_inicial'] = $data->initialDate ?? date('Y-m-d H:i:s');
             $SaveDocument->create($attributes);
         }
 
@@ -274,6 +275,7 @@ class FtActaService
             'id' => $this->FtActa->getPK(),
             'documentId' => $this->FtActa->documento_iddocumento,
             'identificator' => $this->FtActa->Documento->numero,
+            'duration' => $this->FtActa->duracion,
             'initialDate' => $this->FtActa->fecha_inicial,
             'finalDate' => $this->FtActa->fecha_final,
             'subject' => $this->FtActa->asunto,

@@ -6,6 +6,7 @@ use Doctrine\DBAL\DBALException;
 use Exception;
 use Saia\Actas\controllers\FtActaService;
 use Saia\Actas\models\ActDocumentUser;
+use Saia\Actas\models\ActQuestionOption;
 use Saia\controllers\anexos\FileJson;
 use Saia\controllers\documento\RouteMaker;
 use Saia\controllers\pdf\DocumentPdfGenerator;
@@ -15,6 +16,11 @@ use Saia\models\vistas\VfuncionarioDc;
 
 class FtActa extends FtActaProperties
 {
+    /**
+     * duracion reunion en minutos
+     */
+    const DEFAULT_DURATION = 60;
+
     /**
      * FtActa constructor.
      *
@@ -282,8 +288,11 @@ HTML;
         $response = $text = "";
 
         foreach ($this->getFtActaService()->getQuestions() as $key => $ActQuestion) {
-            $approve = $ActQuestion->approve > $ActQuestion->reject ? 'Aprobado' : 'Rechazado';
-            $text .= sprintf("%s - %s<br>", $ActQuestion->label, $approve);
+            $ActQuestionOption = ActQuestionOption::findByAttributes([
+                'fk_act_question' => $ActQuestion->getPK(),
+                'state' => 1
+            ], [], 'votes desc');
+            $text .= sprintf("%s - %s<br>", $ActQuestion->label, $ActQuestionOption->label);
         }
 
         if ($text) {

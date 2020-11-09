@@ -53,8 +53,15 @@ class ScheduleTaskMaker
         ]);
 
         $ActDocumentUser = $this->FtActaService->getRole(ActDocumentUser::RELATION_ORGANIZER);
-        $TareaService->setMaker($ActDocumentUser->getUser()->getPK());
+        $maker = $ActDocumentUser->getUser()->getPK();
+
+        $TareaService->setMaker($maker);
         $TareaService->setManagers($users);
+        /*$TareaService->setDocument(
+            $this->FtActaService->getFtActa()->documento_iddocumento,
+            Tarea::TIPO_RECORDATORIO,
+            $maker
+        );*/
     }
 
     /**
@@ -91,7 +98,7 @@ class ScheduleTaskMaker
      */
     private function getFinalDate()
     {
-        $duration = $FtActa->duracion ?? '60';
+        $duration = $this->FtActaService->getFtActa()->duracion ?? FtActa::DEFAULT_DURATION;
         $DateInterval = new DateInterval("PT{$duration}M");
 
         $DateTime = DateTime::createFromFormat('Y-m-d H:i:s', $this->getInitialDate());

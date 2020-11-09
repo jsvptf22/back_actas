@@ -38,7 +38,7 @@ class MeetMailInvitation
     public function generateIcsFile()
     {
         $FtActa = $this->FtActaService->getFtActa();
-        $duration = $FtActa->duracion ?? '60';
+        $duration = $FtActa->duracion ?? FtActa::DEFAULT_DURATION;
 
         $DateInterval = new \DateInterval("PT{$duration}M");
         $DateTime = new \DateTime($FtActa->fecha_inicial);
