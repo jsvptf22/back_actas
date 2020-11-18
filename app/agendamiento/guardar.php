@@ -42,6 +42,7 @@ try {
         'subject' => $_REQUEST['subject'],
         'duration' => $_REQUEST['duration'],
         'userList' => json_decode($_REQUEST['users']),
+        'roles' => new stdClass()
     ];
 
     $FtActa = new FtActa();
