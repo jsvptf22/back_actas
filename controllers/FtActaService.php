@@ -80,7 +80,7 @@ class FtActaService
         $this->FtActa = $SaveDocument->getDocument()->getFt();
         $this->refreshTopics($data->topics);
         $this->refreshAssistants($data->userList);
-        $this->refreshRoles($data->roles);
+        $this->refreshRoles($data->roles, $VfuncionarioDc);
         $this->refreshQuestions($data->questions, $VfuncionarioDc->getPK());
         $this->generateQr();
 
@@ -155,13 +155,13 @@ class FtActaService
     /**
      * actualiza los roles de secretario y presidente
      *
-     * @param object $roles
+     * @param object         $roles
+     * @param VfuncionarioDc $VfuncionarioDc usuario que ejecuta la accion
      * @return void
-     * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date   2019-12-07
      */
-    public function refreshRoles($roles)
+    public function refreshRoles(object $roles, VfuncionarioDc $VfuncionarioDc)
     {
         $this->updateRole(
             $roles->secretary ?? null,
@@ -173,8 +173,15 @@ class FtActaService
             ActDocumentUser::RELATION_PRESIDENT
         );
 
+        if (!$roles->organizer) {
+            $roles->organizer = (object)[
+                'id' => $VfuncionarioDc->iddependencia_cargo,
+                'external' => ActDocumentUser::INTERNAL
+            ];
+        }
+
         $this->updateRole(
-            $roles->organizer ?? null,
+            $roles->organizer,
             ActDocumentUser::RELATION_ORGANIZER
         );
     }

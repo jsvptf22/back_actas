@@ -2,7 +2,6 @@
 
 use Saia\Actas\controllers\FtActaService;
 use Saia\Actas\formatos\acta\FtActa;
-use Saia\Actas\models\ActDocumentUser;
 use Saia\controllers\notificaciones\NotifierController;
 use Saia\controllers\SessionController;
 use Saia\core\DatabaseConnection;
@@ -38,24 +37,11 @@ try {
     $userId = SessionController::getValue('idfuncionario');
     $VfuncionarioDc = VfuncionarioDc::getActiveRoles($userId)[0];
 
-    $defaultAssistant = (object)[
-        'id' => $VfuncionarioDc->iddependencia_cargo,
-        'external' => 0
-    ];
-    $userList = json_decode($_REQUEST['users']);
-    array_push($userList, $defaultAssistant);
-
     $documentData = (object)[
         'initialDate' => $_REQUEST['initialDate'],
         'subject' => $_REQUEST['subject'],
         'duration' => $_REQUEST['duration'],
-        'userList' => $userList,
-        'roles' => (object)[
-            'organizer' => (object)[
-                'id' => $VfuncionarioDc->iddependencia_cargo,
-                'external' => ActDocumentUser::INTERNAL
-            ]
-        ]
+        'userList' => json_decode($_REQUEST['users']),
     ];
 
     $FtActa = new FtActa();

@@ -2,14 +2,12 @@
 
 namespace Saia\Actas\formatos\acta;
 
-use Doctrine\DBAL\DBALException;
 use Exception;
 use Saia\Actas\controllers\FtActaService;
 use Saia\Actas\models\ActDocumentUser;
 use Saia\Actas\models\ActQuestionOption;
 use Saia\controllers\anexos\FileJson;
 use Saia\controllers\documento\RouteMaker;
-use Saia\controllers\pdf\DocumentPdfGenerator;
 use Saia\controllers\SendMailController;
 use Saia\models\ruta\Ruta;
 use Saia\models\vistas\VfuncionarioDc;
@@ -62,16 +60,13 @@ class FtActa extends FtActaProperties
      * accion a ejecutar despues de radicar
      *
      * @return bool
-     * @throws DBALException
      * @throws Exception
      * @author jhon sebastian valencia <jhon.valencia@cerok.com>
      * @date   2019
      */
     public function afterRad()
     {
-        $DocumentPdfGenerator = new DocumentPdfGenerator($this->Documento);
-        $route = $DocumentPdfGenerator->refreshFile();
-        $FileJson = new FileJson($route);
+        $FileJson = new FileJson($this->Documento->getPdfJson());
 
         $SendMailController = new SendMailController(
             'Acta sobre ' . $this->asunto,
