@@ -4,7 +4,7 @@
     "description": "socket para actas de saia 2020",
     "main": "index.js",
     "dependencies": {
-        "socket.io": "^2.3.0"
+        "socket.io": "^2.5.0"
     },
     "scripts": {
         "start": "node index.js"
